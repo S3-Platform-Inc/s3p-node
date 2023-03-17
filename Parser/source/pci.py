@@ -1,16 +1,10 @@
-from typing import List
-from datetime import datetime
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import pandas as pd
 import time
-from bs4 import BeautifulSoup
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.ui import WebDriverWait, Select
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
+from typing import List
+
 from dateutil.parser import parse
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait, Select
 
 from Parser.content_document import Content_Document
 from Parser.source.abc_source_documents import ABC_Source_Document
@@ -61,17 +55,17 @@ class PCI(ABC_Source_Document):
     def _parse(self):
         self.driver.set_page_load_timeout(40)
         self.driver.get(url=self.HOST)
-
         time.sleep(2)
+
         # прохождение панели с куками
         ccc_accept = self.driver.find_element(By.ID, 'ccc-notify-accept')
-        if WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable(ccc_accept)):
+        if WebDriverWait(self.driver, 5).until(ec.element_to_be_clickable(ccc_accept)):
             ccc_accept.click()
 
         # Прокрутка до области с выбором типа документов
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.ID, 'results')))
+        WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.ID, 'results')))
         if WebDriverWait(self.driver, 2).until(
-                EC.element_to_be_clickable(self.driver.find_element(By.ID, 'search_by_doc_Type'))):
+                ec.element_to_be_clickable(self.driver.find_element(By.ID, 'search_by_doc_Type'))):
             document_category = self.driver.find_element(By.ID, 'document_category')
 
             # Выбор всех документов
@@ -111,7 +105,7 @@ class PCI(ABC_Source_Document):
 
                     # Ссылка на документа
                     link_to_document = row.find_element(By.TAG_NAME, 'a').get_attribute('href')
-                    document_version, document_pub_date = self.get_version_and_date(document_version_and_pub_date)
+                    document_version, document_pub_date = self._get_version_and_date(document_version_and_pub_date)
 
                     self._content_document.append(Content_Document(
                         document_name,
@@ -126,16 +120,17 @@ class PCI(ABC_Source_Document):
                         document_version,
                         self.SOURCE_NAME,
                     ))
-                    # print(
-                    #     f'[DATA]\t|\tcategory[{current_category}], sub_category[{current_sub_category}], '
-                    #     f'document[{document_name}], version[{document_version_and_pub_date}], '
-                    #     f'href[{link_to_document}]')
+                    print(
+                        f'[DATA]\t|\tcategory[{current_category}], sub_category[{current_sub_category}], '
+                        f'document[{document_name}], version[{document_version_and_pub_date}], '
+                        f'href[{link_to_document}]')
 
         time.sleep(5)
         self.driver.close()
         self.driver.quit()
 
-    def get_version_and_date(self, ctx: str):
+    @staticmethod
+    def _get_version_and_date(ctx: str):
         version_and_date = ctx.split(' - ')
         if len(version_and_date) == 2:
             return version_and_date[0], parse(version_and_date[1], fuzzy=True).isoformat()
