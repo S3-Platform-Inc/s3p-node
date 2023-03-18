@@ -1,4 +1,4 @@
-# NSPK_DI_parser
+# NSPK DI Sources Parser Platform
 
 
 ## Virtual environment setup
