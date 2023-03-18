@@ -19,6 +19,6 @@
 
 
 ## Links
-Трекер задач: https://github.com/users/CuberHuber/projects/5
-Документация: https://docs.google.com/document/d/1onPsC6dvRas5m2kFdzOmeXL2HEhkeMU3Izzs-rsJsXM/edit?usp=sharing
-Miro доска:   https://miro.com/app/board/uXjVMcNMDsQ=/?share_link_id=864982821677
+- Трекер задач: https://github.com/users/CuberHuber/projects/5
+- Документация: https://docs.google.com/document/d/1onPsC6dvRas5m2kFdzOmeXL2HEhkeMU3Izzs-rsJsXM/edit?usp=sharing
+- Miro доска:   https://miro.com/app/board/uXjVMcNMDsQ=/?share_link_id=864982821677
