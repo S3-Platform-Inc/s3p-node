@@ -6,8 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait, Select
 
-from Parser.content_document import Content_Document
-from Parser.source.abc_source_documents import ABC_Source_Document
+from sources_parser_platform.parser.content_document import Content_Document
+from sources_parser_platform.parser.source.abc_source_documents import ABC_Source_Document
 
 
 class PCI(ABC_Source_Document):

@@ -1,4 +1,4 @@
-from Parser import parse
+from src.sources_parser_platform.plugin.plugin import Spp_plugin
 
-
-parse.Parse()
+source = 'src/sources_parser_platform/templates'
+pl = Spp_plugin(source)

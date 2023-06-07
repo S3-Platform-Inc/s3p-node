@@ -4,8 +4,8 @@ from typing import List
 import pandas
 from selenium import webdriver
 
-from Parser.content_document import Content_Document
-from Parser.source.pci import PCI
+from sources_parser_platform.parser.content_document import Content_Document
+from sources_parser_platform.parser.source.pci import PCI
 
 
 class Parse:
@@ -44,10 +44,10 @@ class Parse:
         pd_dataset = pandas.DataFrame(vars(row) for row in content)
         return pd_dataset
 
-    def _save_dataframe(self, dataframe: pandas.DataFrame, name: str = 'dataset_content_documents_', index: bool = False):
-
+    def _save_dataframe(self, dataframe: pandas.DataFrame, name: str = 'dataset_content_documents_',
+                        index: bool = False):
         # починить формат времени для сохранения файла
-        dataframe.to_csv(name+str(datetime.datetime.now()), index=index)
+        dataframe.to_csv(name + str(datetime.datetime.now()), index=index)
 
     def _load_dataframe(self, name: str) -> pandas.DataFrame:
         """

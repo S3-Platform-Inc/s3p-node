@@ -1,0 +1,14 @@
+# This plugin processes File source
+# Link: https://www.pcisecuritystandards.org
+# Author:
+#	Roman Lupashko
+#	NSPK DI
+
+PARSER pci
+
+INIT driver WebDriver
+START PCI content
+
+
+
+

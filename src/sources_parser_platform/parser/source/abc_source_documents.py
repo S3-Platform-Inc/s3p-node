@@ -1,7 +1,7 @@
-from abc import ABCMeta, ABC
+from abc import ABCMeta
 from typing import List
 
-from Parser.content_document import Content_Document
+from sources_parser_platform.parser.content_document import Content_Document
 
 
 class ABC_Source_Document(metaclass=ABCMeta):
