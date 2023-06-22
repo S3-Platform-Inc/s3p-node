@@ -3,7 +3,7 @@
 
 ## Virtual environment setup
 
-Перед началом работы нужно настроить виртуальное пространство. За него отвечает Pyetry.
+Перед началом работы нужно настроить виртуальное пространство. За него отвечает Poetry.
 
 1. Стянуть проект с [репозитория](https://github.com/CuberHuber/NSPK_DI_parser). Например через https: `git clone https://github.com/CuberHuber/NSPK_DI_parser.git`
 2. Установить [poetry](https://python-poetry.org/docs/#installation)
