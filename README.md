@@ -1,4 +1,5 @@
 # NSPK DI Sources Parser Platform
+![SPP icon2](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/d323b394-322d-484d-b5a5-178631242301)
 
 
 ## Virtual environment setup
