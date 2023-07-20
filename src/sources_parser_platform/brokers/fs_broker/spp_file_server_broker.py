@@ -2,6 +2,7 @@ import datetime
 import io
 from ftplib import FTP
 from hashlib import sha224
+from typing import BinaryIO
 
 from .setting import setting
 from ...types import SPP_source, SPP_document
@@ -14,13 +15,13 @@ class SPP_file_server_broker:
         self.__source = src
         ...
 
-    def upload_document(self, document: SPP_document, bin_doc: bytes) -> bool | str:
+    def upload_document(self, document: SPP_document, bin_doc: bytes | io.BytesIO | BinaryIO) -> bool | str:
         """
         Метод загружает на FTP сервер документ
         :param document:
-        :type document:
+        :_type document:
         :param bin_doc:
-        :type bin_doc:
+        :_type bin_doc:
         :return:
         :rtype:
         """
@@ -29,13 +30,14 @@ class SPP_file_server_broker:
         local_link = ""
         binaryfile = io.BytesIO(bin_doc) if isinstance(bin_doc, bytes) else bin_doc
         try:
-            self.__safe_upload(
+            local_link, session = self.__safe_upload(
                 self.__safe_source_dir(
                     self.__work_dir(
                         self.__session()
                     )
-                ), document, binaryfile, local_link
-            ).close()
+                ), document, binaryfile
+            )
+            session.close()
         except Exception as e:
             return False
 
@@ -44,23 +46,51 @@ class SPP_file_server_broker:
         else:
             return local_link
 
-    def __safe_upload(self, session: FTP, doc: SPP_document, binaryfile: io.BytesIO, path: str) -> FTP:
+    def document(self, document: SPP_document) -> io.BytesIO:
+        """
+        Метод для получения файлв документа по объекту SPP_document
+        :param document:
+        :type document:
+        :return:
+        :rtype:
+        """
+
+        return self._safe_download(
+            self.__safe_source_dir(
+                self.__work_dir(
+                    self.__session()
+                )
+            ), document
+        )
+
+    def _safe_download(self, sourced_session: FTP, doc: SPP_document) -> io.BytesIO:
         try:
-            doc_name = self.__document_filename(doc)
+            _bytes_stream = io.BytesIO()
+            if doc.local_link:
+                sourced_session.retrbinary(f"RETR {doc.local_link}", _bytes_stream.write)
+                _bytes_stream.seek(0, 0)
+            else:
+                sourced_session.retrbinary(f"RETR {self.__document_filename(doc)}", _bytes_stream.write)
+            return _bytes_stream
+        except Exception as e:
+            # Нужна ошибка файла в файловом сервере
+            raise NotImplemented
+
+    def __safe_upload(self, session: FTP, doc: SPP_document, binaryfile: io.BytesIO | BinaryIO) -> tuple[str, FTP]:
+        try:
             int_pad = 0
             pad = ''
-
             while self.__exist_file(session, self.__document_filename(doc, pad)):
                 # Вообще - это ненормально поведение. если мы решили сохранять файл, то его название не может повториться
                 int_pad += 1
                 pad = str(int_pad)
 
             session.storbinary("STOR " + self.__document_filename(doc, pad), binaryfile, setting.BLOCKSIZE)
-            path = session.pwd() + '/' + self.__document_filename(doc, pad)
+            local_link = session.pwd() + '/' + self.__document_filename(doc, pad)
+            return local_link, session
         except Exception as e:
+            # Реализовать обработку исключения
             raise NotImplemented
-        else:
-            return session
 
     def __upload(self, session: FTP, doc: SPP_document, binaryfile: io.BytesIO) -> FTP:
         try:
@@ -76,7 +106,7 @@ class SPP_file_server_broker:
         Безопасно возвращает сессию с директорией источника.
         Если таковой нет, то создает ее.
         :param session: Сессия в рабочей директории
-        :type session:
+        :_type session:
         :return:
         :rtype:
         """

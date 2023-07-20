@@ -4,11 +4,18 @@
 #	Roman Lupashko
 #	NSPK DI
 
+SOURCE pci
+
 PARSER pci
+
+SETENV LogMode debug
+
+BUS_ADD s_download PARSER/PCI/temp_download
 
 INIT driver WebDriver
 START PCI content
 
-
-
-
+ADD FilterOnlyNewDocumentWithDB
+ADD DownloadDocumentsThroughSeleniumTemp
+ADD ExtractTextFromFile
+ADD UploadDocumentToDB

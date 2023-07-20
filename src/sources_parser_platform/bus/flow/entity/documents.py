@@ -14,8 +14,8 @@ class SPP_FE_documents(Flow):
         """
         Обновляет данные документа
         :param document:
-        :type document:
+        :_type document:
         :param new_document:
-        :type new_document:
+        :_type new_document:
         """
         self.data[self.data.index(document)] = new_document

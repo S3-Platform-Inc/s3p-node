@@ -3,8 +3,11 @@ from datetime import datetime
 
 
 @dataclass
-class Source:
-    id: int
+class SPP_source:
+    """
+    Объект источника в SPP
+    """
+    src_id: int
     name: str
     config: dict
     sphere: str

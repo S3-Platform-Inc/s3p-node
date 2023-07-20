@@ -16,7 +16,7 @@ class Source:
         """
         Безопасное получение данные об источнике. В случае, если в базе данных нет записи об источнике, он добавится.
         :param source_name:
-        :type source_name:
+        :_type source_name:
         :return:
         :rtype:
         """
@@ -28,9 +28,9 @@ class Source:
         """
         Безопасное обновление или добавление данных об источнике.
         :param source_name:
-        :type source_name:
+        :_type source_name:
         :param args:
-        :type args:
+        :_type args:
         :return:
         :rtype:
         """
@@ -41,7 +41,7 @@ class Source:
         """
         Анисхронное безопасное получение информации об источнике по его имени
         :param source_name:
-        :type source_name:
+        :_type source_name:
         :return:
         :rtype:
         """
