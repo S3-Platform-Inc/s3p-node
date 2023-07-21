@@ -24,5 +24,24 @@
 - Документация: https://docs.google.com/document/d/1onPsC6dvRas5m2kFdzOmeXL2HEhkeMU3Izzs-rsJsXM/edit?usp=sharing
 - Miro доска:   https://miro.com/app/board/uXjVMcNMDsQ=/?share_link_id=864982821677
 
-## Dev
+## Test
 
+Перед тестированием платформы нужно:
+
+1. Скачать виртуальное окружение [Poetry](https://python-poetry.org/)
+2. Скачать docker и docker-compose. Если рабочая машина Windows, то Docker Hub
+2. Если ты работаешь в PyCharm, то он (после скачивания poetry) должен сам предложить настроить виртуальное окружение.
+   Ну, либо poetry install.
+3. Теперь нужно вставить путь до плагина SPP. Плагин можно хранить в любом месте на пк. В корне проекта в
+   файле `main.py` нужно указать полный путь
+
+```python
+plugin_path = < absolute
+path
+до
+плагина >
+```
+
+4. Теперь можно запускать платформу. это можно сделать несколькими способами
+    1. ~~_Это запустить main.py через IDEA. Пока не актуально_~~
+    2. в терминале в корне прописать `make dev`
