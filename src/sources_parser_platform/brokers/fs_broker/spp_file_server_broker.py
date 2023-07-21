@@ -121,7 +121,7 @@ class SPP_file_server_broker:
     def __session(self) -> FTP:
         try:
             ftp = FTP(setting.PASSV_ADDR)
-            ftp.login(setting.FTP_USER, setting.FTP_PASS)
+            print(ftp.login(setting.FTP_USER, setting.FTP_PASS))
         except ConnectionRefusedError as e:
             # Ошибка соединения
             raise NotImplemented
@@ -131,7 +131,7 @@ class SPP_file_server_broker:
         return ftp
 
     def __work_dir(self, session: FTP) -> FTP:
-        session.cwd(setting.USER_DIR + setting.WORK_DIR)
+        print(session.cwd(setting.WORK_DIR))
         return session
 
     def __sourced_dirname(self) -> str:

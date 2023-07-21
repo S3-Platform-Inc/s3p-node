@@ -22,7 +22,7 @@ TEMP_FOLDER = ".temp_plugin"
 
 # .ENV
 PARSER_MAIN_CLASS_METHOD = "content"
-PATH_TO_LOCAL_STORAGE = r"E:\NSPK_DI\projects\NSPK_DI_parser\localtemp"  # DRAFT. Убрать в ENV.
+PATH_TO_LOCAL_STORAGE = r"E:\NSPK_DI\projects\NSPK_DI_parser\localstorage"  # DRAFT. Убрать в ENV.
 
 
 class Spp_plugin:
