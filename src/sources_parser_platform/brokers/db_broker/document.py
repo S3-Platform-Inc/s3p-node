@@ -10,6 +10,9 @@ from src.sources_parser_platform.utils import pack, unpack
 
 
 class AlchemyEncoder(json.JSONEncoder):
+    """
+    Спец енкодер для перевода dict в json формат для взаимодействия с базой данных
+    """
 
     def default(self, obj):
         if isinstance(obj.__class__, DeclarativeMeta):
@@ -117,10 +120,13 @@ class Document:
 
     @staticmethod
     def _text_param(param: str):
-        if param.lower() == "null":
-            return param
+        if param:
+            if str(param).lower() == "null":
+                return param
+            else:
+                return f"'{param}'"
         else:
-            return f"'{param}'"
+            return "null"
 
     @classmethod
     async def __update_document(cls, source: SPP_source, __document: SPP_document):
@@ -136,9 +142,9 @@ class Document:
                           f"{Document._text_param(Document._def_null_param(packed_text))}, " \
                           f"{Document._text_param(Document._def_null_param(__document.web_link))}, " \
                           f"{Document._text_param(Document._def_null_param(__document.local_link))}, " \
-                          f"'{other_data}', " \
-                          f"TIMESTAMP '{__document.pub_date}', " \
-                          f"TIMESTAMP '{__document.load_date}');"
+                          f"{Document._text_param(Document._def_null_param(other_data))}, " \
+                          f"TIMESTAMP {Document._text_param(Document._def_null_param(__document.pub_date))}, " \
+                          f"TIMESTAMP {Document._text_param(Document._def_null_param(__document.load_date))});"
 
             result = await conn.execute(text(query_param))
             await conn.commit()

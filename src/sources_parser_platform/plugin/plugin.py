@@ -60,7 +60,7 @@ class Spp_plugin:
         # Проверяем, что в указанной директории есть файл SPPfile2
         files: list = os.listdir(self.__plugin_path)
         if SPPFILERX in files:
-            with open(self.__plugin_path + "\\" + SPPFILERX) as sppfile:
+            with open(self.__plugin_path + "\\" + SPPFILERX, encoding='utf-8') as sppfile:
                 self.logger.debug("SPPfile of plugin loadding")
 
                 self._metadata = SPPL_parse(sppfile.readlines())
@@ -168,7 +168,15 @@ class Spp_plugin:
     def __prepare_fe_documents_after_parser(self) -> SPP_FE_documents:
         # Подготовка потока документа для шины
         self.logger.debug("Bus flow 'documents' initialized")
-        return SPP_FE_documents(self._parser_output)
+
+        # Эта вставка нужна для удаления Timezone из полей Datetime
+        documents: list[SPP_document] = []
+        for doc in self._parser_output:
+            doc.pub_date = doc.pub_date.replace(tzinfo=None)
+            doc.load_date = doc.load_date.replace(tzinfo=None)
+            documents.append(doc)
+
+        return SPP_FE_documents(documents)
 
         # return SPP_FE_documents(self.DRAFT__load_temp('texted_document'))
 
