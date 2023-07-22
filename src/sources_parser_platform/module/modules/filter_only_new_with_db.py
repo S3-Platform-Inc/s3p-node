@@ -13,7 +13,9 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
     def __init__(self, bus: Bus):
         super().__init__(bus)
 
-        new_doc = FilterOnlyNewDocumentWithDB.__filter(self.__previous_documents(), bus.documents.data)
+        self.logger.info(f"module start")
+
+        new_doc = self.__filter(self.__previous_documents(), bus.documents.data)
         self.bus.documents = new_doc
         # Если есть новые документы, то их нужно сохранить
         if len(new_doc) > 0:
@@ -25,11 +27,12 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
         :return:
         :rtype:
         """
+        self.logger.info(f"Receive previous documents by source '{self.bus.source.data.name}'")
         documents: list[SPP_document] = self.bus.database.doc.all_by_source_name(self.bus.source.data.name)
+        self.logger.info(f"Received previous documents - {len(documents)}")
         return documents
 
-    @staticmethod
-    def __filter(_previous_documents: list[SPP_document], _new_documents: list[SPP_document]) \
+    def __filter(self, _previous_documents: list[SPP_document], _new_documents: list[SPP_document]) \
             -> list[SPP_document]:
         """
         Метод фильтрует документы по их новизне
@@ -40,17 +43,20 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
         :return:
         :rtype:
         """
+        self.logger.debug("filter process start")
         filtered: list[SPP_document] = []
         for cd in _new_documents:
-            if FilterOnlyNewDocumentWithDB._is_new(cd, _previous_documents):
+            if self._is_new(cd, _previous_documents):
                 filtered.append(cd)
+        self.logger.debug("filter process finished")
         return filtered
 
-    @staticmethod
-    def _is_new(doc, _previous_documents):
+    def _is_new(self, doc: SPP_document, _previous_documents: list[SPP_document]):
         for pr_d in _previous_documents:
             if doc.hash == pr_d.hash:
+                self.logger.debug(f"document named '{doc.title}' published '{doc.pub_date}' already processed")
                 return False
+        self.logger.info(f"Found new document named '{doc.title}' published '{doc.pub_date}'")
         return True
 
     def __save_new_docs(self):

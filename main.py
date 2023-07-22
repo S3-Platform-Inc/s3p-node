@@ -5,9 +5,13 @@ DRAFT
 
 Запускает задачу для одного плагина.
 
-:plugin_path: Путь до каталога с файлами плагина ( <файл парсера источника>.py ; SPPfile )
+:plugin_path: Путь до каталога с файлами плагина ( <файл парсера источника>.py ; SPPfile2 )
 """
-from sources_parser_platform.plugin.plugin import Spp_plugin
+from logging import config
 
-plugin_path = r'E:\NSPK_DI\projects\plugins\NSPK-DI-SPP-pci'
+from src.sources_parser_platform.plugin.plugin import Spp_plugin
+
+config.fileConfig("scripts/logger/dev_logger.conf")
+
+plugin_path = r'< Path to plugin>'
 pl = Spp_plugin(plugin_path)
