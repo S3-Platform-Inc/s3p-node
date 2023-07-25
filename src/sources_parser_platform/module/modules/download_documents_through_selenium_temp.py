@@ -68,10 +68,9 @@ class DownloadDocumentsThroughSeleniumTemp(SPP_module):
         ls_path = self.bus.local_storage.full_source_storage_path
         downloaded_filename = ""
         try:
-            print(ls_path, os.path.join(os.getcwd(), "temp"))
             downloaded_filename = download_selenium_method(WebInstallerDriver(ls_path), ls_path, url)
+            return downloaded_filename
         except Exception as e:
             print(e)
             # Ошибка запуска внешнего метода парсера
-            # raise NotImplemented
-        return downloaded_filename
+            raise NotImplemented

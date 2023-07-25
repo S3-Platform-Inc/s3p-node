@@ -14,5 +14,5 @@ class PluginNotFoundError(FileNotFoundError):
         super().__init__(message)
 
         if logger:
-            logger.exception(message)
+            logger.error(message)
         ...

@@ -1,18 +1,13 @@
+import os
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
-# url = URL.create(
-#     drivername="postgresql",
-#     username='postgres',
-#     host='localhost',
-#     port=32768,
-#     database='sourceParserPlatform'
-# )
-DRIVERNAME = "postgresql"
-USERNAME = 'sppuser'
-HOST = 'localhost'
-PORT = 8888
-DATABASE = 'sourceParserPlatform'
-PASSWORD = 'spppassword'
+DRIVERNAME = os.getenv('DB_DRIVERNAME')
+USERNAME = os.getenv('DB_USER')
+HOST = os.getenv('DB_DOCKER_HOST')
+PORT = os.getenv('DB_DOCKER_PORT')
+DATABASE = os.getenv('DB_DATABASE')
+PASSWORD = os.getenv('DB_PASSWORD')
 
 url = f"{DRIVERNAME}+asyncpg://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
@@ -25,4 +20,4 @@ async def get_async_engine() -> AsyncEngine:
 
 
 def sync_get_engine() -> AsyncEngine:
-    return create_async_engine(url, echo=True)
+    return create_async_engine(url, echo=False)

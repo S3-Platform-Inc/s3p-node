@@ -5,9 +5,8 @@ from src.sources_parser_platform.types import SPP_document
 
 class UploadDocumentToDB(SPP_module):
     """
-    Модуль для фильтрации документов по их новизне, вызывая все документы из базы данных.
+    Модуль для обновления данных о документе в базе данных или создание записи в базе данных.
 
-    DRAFT: Это тестовый модуль. Предполагается, что модули не могут напрямую обращаться к драйверам.
     """
 
     def __init__(self, bus: Bus):
@@ -17,9 +16,7 @@ class UploadDocumentToDB(SPP_module):
             self._upload(doc)
 
     def _upload(self, doc: SPP_document):
-        res = self.bus.database.doc.safe_update(self.bus.source.data, doc)
-        print(res)
-        ...
+        self.bus.database.doc.safe_update(self.bus.source.data, doc)
 
     def _draft_upload(self, doc: SPP_document):
         """

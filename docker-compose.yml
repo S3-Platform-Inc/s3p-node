@@ -3,42 +3,42 @@ version: '3.5'
 
 services:
   db-postgres:
-    container_name: ${dEV_DB_CONTAINER_NAME}
-    image: 'postgres:${DEV_DB_POSTGRES_VERSION}'
+    container_name: ${DB_CONTAINER_NAME}
+    image: 'postgres:${DB_POSTGRES_VERSION}'
     restart: always
     ports:
-      - "${dEV_DB_DOCKER_PORT}:5432"
+      - "${DB_DOCKER_PORT}:5432"
     volumes:
       - type: bind
-        source: ./scripts/${dEV_DB_BASE_TEMP_DIR}/init_and_create.sql
-        target: ${dEV_DB_INIT_FILE}
+        source: ./scripts/${DB_BASE_TEMP_DIR}/init_and_create.sql
+        target: ${DB_INIT_FILE}
         read_only: true
       - type: bind
-        source: ./${dEV_DB_BASE_TEMP_DIR}/data
-        target: /var/lib/postgresql/data
+        source: ./${DB_BASE_TEMP_DIR}/_data
+        target: /var/lib/postgresql/_data
     environment:
-      POSTGRES_DB: ${dEV_DB_DATABASE}
-      POSTGRES_USER: ${dEV_DB_USER}
-      POSTGRES_PASSWORD: ${dEV_DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
   ftp-server:
-    container_name: ${dEV_FS_DOCKER_SERVICE_NAME}
+    container_name: ${FS_DOCKER_SERVICE_NAME}
     image: fauria/vsftpd
     restart: always
     environment:
-      PASV_MAX_PORT: ${dEV_FS_PASV_MAX_PORT}
-      PASV_MIN_PORT: ${dEV_FS_PASV_MIN_PORT}
-      PASV_ADDRESS: ${dEV_FS_PASV_ADDRESS}
-      FTP_PASS: ${dEV_FS_FTP_PASS}
-      FTP_USER: ${dEV_FS_FTP_USER}
+      PASV_MAX_PORT: ${FS_PASV_MAX_PORT}
+      PASV_MIN_PORT: ${FS_PASV_MIN_PORT}
+      PASV_ADDRESS: ${FS_PASV_ADDRESS}
+      FTP_PASS: ${FS_FTP_PASS}
+      FTP_USER: ${FS_FTP_USER}
     volumes:
       - type: bind
-        source: ./${dEV_FS_BASE_TEMP_DIR}
-        target: /home/vsftpd/${dEV_FS_FTP_USER}
+        source: ./${FS_BASE_TEMP_DIR}
+        target: /home/vsftpd/${FS_FTP_USER}
       - type: bind
-        source: ./scripts/${dEV_FS_BASE_TEMP_DIR}/vsftpd.conf
+        source: ./scripts/${FS_BASE_TEMP_DIR}/vsftpd.conf
         target: /home/vsftpd/vsftpd.conf
         read_only: true
     ports:
-      - ${dEV_FS_PORT_20}:20
-      - ${dEV_FS_PORT_21}:21
-      - "${dEV_FS_PORTS_PASV}:21100-21110"
+      - ${FS_PORT_20}:20
+      - ${FS_PORT_21}:21
+      - "${FS_PORTS_PASV}:21100-21110"

@@ -1,3 +1,8 @@
+"""
+Поток № (2) шины
+
+Объект сущности потока шины SPP, хранящий список документов (SPP_document)
+"""
 from src.sources_parser_platform.types import SPP_document
 from ..flow import Flow
 

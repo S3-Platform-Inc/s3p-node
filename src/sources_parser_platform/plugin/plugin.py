@@ -19,12 +19,14 @@ from src.sources_parser_platform.module import get_module_by_name
 from src.sources_parser_platform.spp_language.parser import SPPL_parse
 from src.sources_parser_platform.exceptions.plugin import PluginNotFoundError
 
-SPPFILERX = "SPPfile"
-TEMP_FOLDER = ".temp_plugin"
+# SPPFILERX = "SPPfile"
+SPPFILERX = os.environ.get('SPP_PLUGIN_CONFIG_FILENAME')
 
 # .ENV
-PARSER_MAIN_CLASS_METHOD = "content"
 PATH_TO_LOCAL_STORAGE = r"E:\NSPK_DI\projects\NSPK_DI_parser\localstorage"  # DRAFT. Убрать в ENV.
+
+
+# PATH_TO_LOCAL_STORAGE = os.path.join(os.path.dirname(__file__), '..\\..\\..', os.environ.get('LS_BASE_TEMP_DIR'))
 
 
 class Spp_plugin:
@@ -172,8 +174,10 @@ class Spp_plugin:
         # Эта вставка нужна для удаления Timezone из полей Datetime
         documents: list[SPP_document] = []
         for doc in self._parser_output:
-            doc.pub_date = doc.pub_date.replace(tzinfo=None)
-            doc.load_date = doc.load_date.replace(tzinfo=None)
+            if doc.pub_date:
+                doc.pub_date = doc.pub_date.replace(tzinfo=None)
+            if doc.load_date:
+                doc.load_date = doc.load_date.replace(tzinfo=None)
             documents.append(doc)
 
         return SPP_FE_documents(documents)

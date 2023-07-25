@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 
 
@@ -18,8 +19,11 @@ class Control:
 
 @dataclass
 class Setting:
-    WORK_DIR: str = 'spp\\sources'
-    CONTROL_FILE: str = '.control.temp.pkl'
+    # WORK_DIR: str = 'spp\\sources'
+    # CONTROL_FILE: str = '.control.temp.pkl'
+
+    WORK_DIR: str = os.environ.get('LS_WORK_DIR')
+    CONTROL_FILE: str = os.environ.get('LS_CONTROL_FILENAME')
     DEFAULT_CONTROL = Control({})
 
 

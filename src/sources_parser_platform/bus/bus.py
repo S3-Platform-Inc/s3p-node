@@ -1,6 +1,8 @@
 """
-
+Главная шина SPP
 """
+import logging
+
 from src.sources_parser_platform.types import SPP_document
 from .flow.entity import \
     SPP_FE_options, \
@@ -9,10 +11,22 @@ from .flow.entity import \
     SPP_FE_database, \
     SPP_FE_fileserver, \
     SPP_FE_local_storage
+from ..exceptions.bus.bus_entity_not_found_error import BusEntityNotFoundError
 
 
 class Bus:
     """
+    Класс главной шины SPP
+    Шина содержит 6 главных потока и возможное множество дополнительных потоков
+
+    Основные потоки:
+
+    :options        : 
+    :documents      :
+    :source         :
+    :database       :
+    :fileserver     :
+    :local storage  :
 
     """
 
@@ -45,20 +59,22 @@ class Bus:
         for key in kwargs:
             self._other[key] = kwargs.get(key)
 
+        self.log = logging.getLogger(self.__class__.__name__)
+
     @property
     def options(self) -> SPP_FE_options:
         """
-
+        Свойство предоставляет сущность настроек
         :return:
-        :rtype:
+        :rtype: SPP_FE_options
         """
         return self._options
 
     @property
     def documents(self) -> SPP_FE_documents:
         """
-
-        :return:
+        Свойство предоставляет сущность из потока documents
+        :return: список объектов документов (SPP_documents)
         :rtype:
         """
         return self._documents
@@ -70,32 +86,49 @@ class Bus:
     @property
     def source(self) -> SPP_FE_source:
         """
-
-        :return:
-        :rtype:
+        Свойство предоставляет сущность из потока source
+        :return: объект источника (SPP_source)
+        :rtype: SPP_FE_source
         """
         return self._source
 
     @property
     def database(self) -> SPP_FE_database:
         """
-
-        :return:
-        :rtype:
+        Свойство предоставляет сущность из потока database
+        :return: брокер базы данных
+        :rtype: SPP_FE_database
         """
         return self._database
 
     @property
     def fileserver(self) -> SPP_FE_fileserver:
+        """
+        Свойство предоставляет сущность из потока fileserver
+        :return: брокер файлового сервера
+        :rtype: SPP_FE_fileserver
+        """
         return self._fileserver
 
     @property
     def local_storage(self) -> SPP_FE_local_storage:
+        """
+        Свойство предоставляет сущность из потока localstorage
+        :return: брокер локального хранилища
+        :rtype: SPP_FE_local_storage
+        """
         return self._local_storage
 
     def entity(self, key: str):
+        """
+        Метод возвращает дополнительную сущность по ключу
+        :param key: Уникальное имя дополнительной сущности
+        :type key: str
+        :return: объект сущности
+        :rtype: any
+        """
         if key in self._other:
             return self._other.get(key)
         else:
             # Искомого модуля нет
-            raise NotImplemented
+            raise BusEntityNotFoundError(key, self.log)
