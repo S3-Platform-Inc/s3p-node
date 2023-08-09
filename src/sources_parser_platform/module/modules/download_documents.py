@@ -1,6 +1,6 @@
 import urllib.request
 
-from sources_parser_platform.types import SPP_document
+from src.sources_parser_platform.types import SPP_document
 from src.sources_parser_platform.bus import Bus
 from src.sources_parser_platform.module.spp_module import SPP_module
 

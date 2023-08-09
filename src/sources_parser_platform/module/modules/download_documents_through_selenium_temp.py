@@ -2,7 +2,7 @@ import io
 import os
 from functools import lru_cache
 
-from sources_parser_platform.types import SPP_document
+from src.sources_parser_platform.types import SPP_document
 from src.sources_parser_platform.bus import Bus
 from src.sources_parser_platform.module.spp_module import SPP_module
 from .web_install_driver import WebInstallerDriver

@@ -4,7 +4,7 @@ from functools import lru_cache
 import requests
 from requests import RequestException
 
-from sources_parser_platform.types import SPP_document
+from src.sources_parser_platform.types import SPP_document
 from src.sources_parser_platform.bus import Bus
 from src.sources_parser_platform.module.spp_module import SPP_module
 from .web_driver import WebDriver

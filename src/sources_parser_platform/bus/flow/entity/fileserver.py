@@ -7,8 +7,8 @@ import io
 from datetime import datetime
 from typing import BinaryIO
 
-from sources_parser_platform.brokers.fs_broker import SPP_file_server_broker
-from sources_parser_platform.types import SPP_source, SPP_document
+from src.sources_parser_platform.brokers.fs_broker import SPP_file_server_broker
+from src.sources_parser_platform.types import SPP_source, SPP_document
 from .. import Flow
 
 
