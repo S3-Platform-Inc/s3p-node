@@ -29,6 +29,11 @@ ftpstorage:
 	@mkdir $@
 	@mkdir "$(FS_BASE_TEMP_DIR)/$(FS_WORK_DIR)"
 
+# Временный каталог для хранения архивов плагинов
+# .env $(PL_BASE_TEMP_DIR)
+plugin_archive:
+	@mkdir $@
+
 # Инициализация базы данных. Зависит от запущенного докера и скрипта инициализации
 database-init: docker scripts/db/init_and_create.sql
 #	Переходим в папку для
@@ -41,13 +46,14 @@ poetry: pyproject.toml poetry.lock
 	poetry --version
 	poetry install
 
-dev: main.py database-init | localstorage
+dev: main.py database-init | localstorage plugin_archive
 	poetry run python main.py
 
 # Выключает и удаляет все контейнеры, удаляет временные каталоги и файлы
-clean: | db localstorage ftpstorage
+clean: | db localstorage ftpstorage plugin_archive
 	docker-compose down
 
 	@rmdir /Q /S $(DB_BASE_TEMP_DIR)
 	@rmdir /Q /S $(LS_BASE_TEMP_DIR)
 	@rmdir /Q /S $(FS_BASE_TEMP_DIR)
+	@rmdir /Q /S $(PL_BASE_TEMP_DIR)

@@ -19,6 +19,9 @@ requests = "^2.31.0"
 webdriver-manager = "^4.0.0"
 python-magic-bin = "^0.4.14"
 python-docx = "^0.8.11"
+pygithub = "^1.59.1"
+beautifulsoup4 = "^4.12.2"
+dill = "^0.3.7"
 
 
 

@@ -1,7 +1,7 @@
 ```python
 class <parser name >:
 
-    def __init__(self, < driver selenium >, logDriver=None, *args, **kwargs): ...
+    def __init__(self, < driver selenium >, *args, **kwargs): ...
 
     def content(self) -> list[SPP_document]: ...
 
@@ -12,7 +12,7 @@ class <parser name >:
 ```
 
 ```mysql
-# This plugin processes File source
+# This spp_plugin processes File source
 # Link: https://www.pcisecuritystandards.org
 # Author:
 #	Roman Lupashko

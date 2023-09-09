@@ -1,6 +1,7 @@
 # Source Parser Platform Language
 
-Source Parser Platform Language / SPP Language / SPPL - это **_декларативный_** язык для конфигурации SPP по отношению
+Source Parser Platform Language / SPPApp Language / SPPL - это **_декларативный_** язык для конфигурации SPPApp по
+отношению
 к парсеру, результату его работу, а также к _**задаче (Task)**_.
 ___
 
@@ -39,7 +40,7 @@ PARSER <Название файла парсера без .py>
 ### Комментирование
 
 ```mysql
-# This plugin processes File source
+# This spp_plugin processes File source
 # Link: <link to source>
 # Author:
 #	Roman Lupashko
@@ -97,7 +98,7 @@ ADD <Название модуля> [<вариативные параметры>
 ## Пример SPPfile для источника PCI
 
 ```mysql
-# This plugin processes File source
+# This spp_plugin processes File source
 # Link: https://www.pcisecuritystandards.org
 # Author:
 #	Roman Lupashko
