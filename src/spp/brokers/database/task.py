@@ -68,7 +68,6 @@ class Task:
                 await conn.commit()
             return result.fetchall()
         except sqlalchemy.exc.DBAPIError as e:
-            print(e.code, e.args, e.params, e.detail)
             print(e)
             return 1
         except Exception as e:

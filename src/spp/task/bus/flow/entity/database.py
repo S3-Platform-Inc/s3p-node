@@ -1,7 +1,7 @@
 """
 Поток № (4) шины
 
-Объект сущности потока шины SPPApp, хранящий брокер для работы с базой данных
+Объект сущности потока шины SPP, хранящий брокер для работы с базой данных
 """
 from spp.brokers.database import Document as DB_Document, Source as DB_Source
 from .. import Flow

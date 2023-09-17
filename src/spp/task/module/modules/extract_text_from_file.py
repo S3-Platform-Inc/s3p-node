@@ -40,7 +40,7 @@ class ExtractTextFromFile(SPP_module):
             self._safe_extract(doc)
 
     def _safe_extract(self, doc: SPP_document):
-        # Это тестовая версия. Требуется унифицировать mimetypes методы для всего SPPApp
+        # Это тестовая версия. Требуется унифицировать mimetypes методы для всего SPP
 
         try:
             with self._file(doc) as _file_stream:

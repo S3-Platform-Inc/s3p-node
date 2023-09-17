@@ -1,6 +1,6 @@
 # Source Parser Platform Language
 
-Source Parser Platform Language / SPPApp Language / SPPL - это **_декларативный_** язык для конфигурации SPPApp по
+Source Parser Platform Language / SPP Language / SPPL - это **_декларативный_** язык для конфигурации SPP по
 отношению
 к парсеру, результату его работу, а также к _**задаче (Task)**_.
 ___

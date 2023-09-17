@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .plugin.abc_plugin import ABC_Plugin
 
 
-class DynamicTaskTrackingSystem(Process):
+class DynamicTaskTrackingSystem:
     """
     Система отслеживания состояний задач и контроля за ними.
     """
@@ -23,7 +23,7 @@ class DynamicTaskTrackingSystem(Process):
     _pool: DynamicMultiprocessorTaskPool
     _plugins: list[SPP_plugin]
 
-    def __init__(self, dmt_pool: DynamicMultiprocessorTaskPool, loop_restart_time: int = 10):
+    def __init__(self, dmt_pool: DynamicMultiprocessorTaskPool, loop_restart_time: int = 20):
         super().__init__()
         self._log = getLogger()
         self._loop_restart_time = loop_restart_time
@@ -50,17 +50,20 @@ class DynamicTaskTrackingSystem(Process):
             self._pool.clear()
 
             for plugin in self._plugins:
-                self._create_task(self._prepared_plugin(plugin))
+                self._log.info(f'Received new plugin for Processing. name: {plugin.repository}')
+                db_task.create(plugin)
+                # self._create_task(self._prepared_plugin(plugin))
 
     def _relevant_plugins(self) -> list[SPP_plugin]:
         return db_plugin.relevant_plugins()
 
     def _prepared_plugin(self, plugin: SPP_plugin) -> ABC_Plugin:
+
         _plugin = GIT_Plugin(plugin)
         _plugin.load()
         return _plugin
 
     def _create_task(self, plugin: ABC_Plugin):
-        self._pool.add(plugin)
-        # db_task.create(plugin.metadata)
-        self._pool.start(plugin)
+        self._pool.tadd(plugin)
+        db_task.create(plugin.metadata)
+        # self._pool.start(plugin)

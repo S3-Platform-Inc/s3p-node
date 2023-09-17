@@ -22,8 +22,10 @@ class GIT_Plugin(ABC_Plugin):
 
     def __del__(self):
         # Delete documents
-        plugin_dir = os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME)
-        shutil.rmtree(plugin_dir, ignore_errors=True)
+        # Нужно подумать, стоит ли хранить прошлые версии !!
+        # plugin_dir = os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME)
+        # shutil.rmtree(plugin_dir, ignore_errors=True)
+        ...
 
     def __init__(self, meta: SPP_plugin):
         self.metadata = meta
@@ -88,9 +90,9 @@ class GIT_Plugin(ABC_Plugin):
         ...
 
     def _parser_class_from_file(self, path: str) -> ABC_Plugin_Parser | Callable:
-        spec = importlib.util.spec_from_file_location("SPPApp.spp_plugin." + self.config.parser.file_name, path)
+        spec = importlib.util.spec_from_file_location("SPP.spp_plugin." + self.config.parser.file_name, path)
         module = importlib.util.module_from_spec(spec)
-        # sys.modules["SPPApp.spp_plugin." + parsername] = module
+        # sys.modules["SPP.spp_plugin." + parsername] = module
         spec.loader.exec_module(module)
 
         plugin_parser = module.__dict__.__getitem__(self.config.parser.class_name)

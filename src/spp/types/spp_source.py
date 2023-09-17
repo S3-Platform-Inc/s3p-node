@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 @dataclass
 class SPP_source:
     """
-    Объект источника в SPPApp
+    Объект источника в SPP
     """
     src_id: int
     name: str

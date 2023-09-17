@@ -26,6 +26,8 @@ class DynamicMultiprocessorTaskPool:
     def __init__(self):
         self._log = getLogger()
         self._task_collection = {}
+
+        self.mp_plugins = []
         self._mp_pool = multiprocessing.Pool()
 
     @property
@@ -62,6 +64,16 @@ class DynamicMultiprocessorTaskPool:
         new_task = SPP_Parser_Task(plugin)
         self._task_collection[plugin.metadata] = new_task
         self._log.debug(f'Task for spp_plugin {plugin.metadata.repository} has been added to pool')
+
+    def tadd(self, plugin: ABC_Plugin):
+        self._plugin_is_instance(plugin)
+        if plugin.metadata in self.mp_plugins:
+            self._log.exception(KeyError('This spp_plugin is already being processed'))
+            raise KeyError('This spp_plugin is already being processed')
+
+        new_task = SPP_Parser_Task(plugin)
+        self._mp_pool.apply_async(new_task)
+        self.mp_plugins.append(plugin)
 
     def pop(self, plugin: ABC_Plugin):
         self._plugin_is_instance(plugin)

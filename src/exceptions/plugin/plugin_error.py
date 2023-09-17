@@ -10,9 +10,9 @@ class PluginNotFoundError(FileNotFoundError):
         src_text = f"git" if git else "path"
 
         if file:
-            message = f"The SPPApp cannot find the {file} of the plugin at the {src_text} specified {plugin_src}"
+            message = f"The SPP cannot find the {file} of the plugin at the {src_text} specified {plugin_src}"
         else:
-            message = f"The SPPApp cannot find the plugin at the {src_text} specified {plugin_src}"
+            message = f"The SPP cannot find the plugin at the {src_text} specified {plugin_src}"
         super().__init__(message)
 
         if logger:

@@ -21,7 +21,7 @@ from src.spp import SPPApp
 # SOURCE = 'pci'
 
 log = logging.getLogger(__name__)
-# plugin_path = rf'{os.getenv("SPP_PATH_TO_PLUGIN")}\NSPK-DI-SPPApp-spp_plugin-{SOURCE}'
+# plugin_path = rf'{os.getenv("SPP_PATH_TO_PLUGIN")}\NSPK-DI-SPP-spp_plugin-{SOURCE}'
 
 if __name__ == "__main__":
     spp = SPPApp()

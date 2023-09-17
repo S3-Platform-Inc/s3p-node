@@ -10,7 +10,7 @@ services:
       - "${DB_DOCKER_PORT}:5432"
     volumes:
       - type: bind
-        source: ./scripts/${DB_BASE_TEMP_DIR}/init_and_create.sql
+        source: ./scripts/${DB_BASE_TEMP_DIR}/${DB_INIT_EXTERNAL_FILENAME}
         target: ${DB_INIT_FILE}
         read_only: true
       - type: bind

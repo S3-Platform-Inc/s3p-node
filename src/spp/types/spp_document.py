@@ -6,7 +6,7 @@ from hashlib import sha256
 @dataclass
 class SPP_document:
     """
-    Объект документа в SPPApp
+    Объект документа в SPP
     """
     doc_id: int | None
     title: str

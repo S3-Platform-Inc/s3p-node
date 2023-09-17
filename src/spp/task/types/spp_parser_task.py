@@ -25,6 +25,11 @@ class SPP_Parser_Task(SPP_Pipeline_Task):
         self.upload_status(WORKING)
         self._main()
 
+    def __call__(self):
+        print('__call__', current_process())
+        self.upload_status(WORKING)
+        self._main()
+
     def _main(self):
         # Запуск парсера и ожидаение его работы
 

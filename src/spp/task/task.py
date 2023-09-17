@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from src.spp.types import SPP_source
 
 
-class Task(ABC_SPP_Task, Process):
+class Task(ABC_SPP_Task):
     _plugin: ABC_Plugin
     _log: logging.Logger
     _source: SPP_source

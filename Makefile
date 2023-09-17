@@ -35,7 +35,7 @@ plugin_archive:
 	@mkdir $@
 
 # Инициализация базы данных. Зависит от запущенного докера и скрипта инициализации
-database-init: docker scripts/db/init_and_create.sql
+database-init: docker scripts/db/startup.sql
 #	Переходим в папку для
 #	Прошу прощение за говнокод. Позде придумаю как ожидать необходимое время
 	timeout 20

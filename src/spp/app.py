@@ -25,7 +25,7 @@ class SPPApp:
         ...
 
     def run(self):
-        self._DTT_subsystem.start()
-        self._DTT_subsystem.join()
+        self._DTT_subsystem.t_run()
+        # self._DTT_subsystem.join()
 
     ...
