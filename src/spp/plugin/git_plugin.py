@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import logging
 import os
 import shutil
 import zipfile
 from typing import Callable, TYPE_CHECKING
 
 import requests
-from github import Github
+from github import Github, GithubException, RateLimitExceededException, UnknownObjectException
 
 from .abc_plugin import ABC_Plugin
 from spp.plugin.wrong_spp_language_parse import WRONG_SPP_Language_Parse
@@ -30,7 +31,7 @@ class GIT_Plugin(ABC_Plugin):
     def __init__(self, meta: SPP_plugin):
         self.metadata = meta
 
-        # self.logger = logging.Logger(self.__class__.__name__)
+        self._log = logging.Logger(self.__class__.__name__)
 
         self._SPPFILERX = os.environ.get('SPP_PLUGIN_CONFIG_FILENAME')
         self.BASE_PLUGIN_ARCHIVE_DIR_PATH = os.environ.get('SPP_ABSOLUTE_PATH_TO_PLUGIN_ARCHIVE')
@@ -47,21 +48,43 @@ class GIT_Plugin(ABC_Plugin):
                     self.PLUGIN_CATALOG_NAME = name
 
             # Загрузить конфигурацию
-            config: Config = self._config(self.zip_repository, self.SPPFILE_REPO_FILENAME)
-            self.config = config
+            config: Config = self.parse_config(self.zip_repository, self.SPPFILE_REPO_FILENAME)
+            self._config = config
 
             for name in self.zip_repository.namelist():
-                if f'/{self.config.parser.file_name}.py' in name:
+                if f'/{self._config.parser.file_name}.py' in name:
                     self.PARSER_REPO_FILENAME = name
 
             ...
+        except RateLimitExceededException as e:
+            # Rate Limit исчерпан
+            self._log.exception(e)
+            raise e
+        except UnknownObjectException as e:
+            # не получилось найти последний релиз в репозитории
+            self._log.exception('Plugin repository does not contain a release')
+            raise e
         except Exception as e:
             # [ERROR] Невозможно получения плагина
             raise NotImplemented(e)
         else:
             ...
 
-    def load(self):
+    @property
+    def parser(self):
+        if not self._parser:
+            path_to_local_parser = os.path.join(
+                os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME),
+                self.config.parser.file_name + '.py'
+            )
+            if os.path.isfile(path_to_local_parser):
+                self._parser: ABC_Plugin_Parser = self._parser_class_from_file(path_to_local_parser)
+            else:
+                self._load()
+
+        return self._parser
+
+    def _load(self):
         # Загрузить конфиг и парсер
         self._load_file(self.zip_repository, self.SPPFILE_REPO_FILENAME)
         self._load_file(self.zip_repository, self.PARSER_REPO_FILENAME)
@@ -71,7 +94,7 @@ class GIT_Plugin(ABC_Plugin):
             self.config.parser.file_name + '.py'
         )
 
-        self.parser: ABC_Plugin_Parser = self._parser_class_from_file(path_to_local_parser)
+        self._parser: ABC_Plugin_Parser = self._parser_class_from_file(path_to_local_parser)
         ...
 
     def _zip_latest_release(self) -> zipfile.ZipFile | Exception:
@@ -99,7 +122,7 @@ class GIT_Plugin(ABC_Plugin):
         parser_class = plugin_parser
         return parser_class
 
-    def _config(self, repo: zipfile.ZipFile, config_name: str) -> Config | Exception:
+    def parse_config(self, repo: zipfile.ZipFile, config_name: str) -> Config | Exception:
         # Чтение
         text_config = repo.read(config_name).decode()
         config: Config = WRONG_SPP_Language_Parse(text_config).config()

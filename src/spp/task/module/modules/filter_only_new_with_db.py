@@ -16,7 +16,7 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
         self.logger.info(f"module start")
 
         new_doc = self.__filter(self.__previous_documents(), bus.documents.data)
-        self.bus.documents = new_doc
+        self.bus.documents.data = new_doc
         # Если есть новые документы, то их нужно сохранить
         if len(new_doc) > 0:
             self.__save_new_docs()

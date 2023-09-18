@@ -36,7 +36,7 @@ def _text_param(param: str) -> str:
         else:
             return f"'{param}'"
     else:
-        return "null"
+        return "Null"
 
 
 def _datetime_param(param: datetime.datetime | None) -> str | None:

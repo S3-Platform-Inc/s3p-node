@@ -21,11 +21,11 @@ class SPPApp:
         # !!!WARNING Должна быть проверка платформы и всех внешних подключений.
 
         # Подготовка задач
-        self._DTT_subsystem = DynamicTaskTrackingSystem(DynamicMultiprocessorTaskPool())
+        self._DTT_subsystem = DynamicTaskTrackingSystem()
         ...
 
     def run(self):
-        self._DTT_subsystem.t_run()
-        # self._DTT_subsystem.join()
+        self._DTT_subsystem.start()
+        self._DTT_subsystem.join()
 
     ...

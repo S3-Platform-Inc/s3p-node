@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "nspk-di-parser"
-version = "0.1.0"
+version = "0.9.1-synchronous"
 description = ""
-authors = ["CuberHuber <romal5754@gmail.com>"]
+license = "Proprietary"
+authors = ["Roman Lupashko <romal5754@gmail.com>"]
 readme = "README.md"
 packages = [{ include = "nspk_di_parser" }]
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from multiprocessing import current_process
 
-from spp.task.status import WORKING
+from spp.task.status import WORKING, FINISHED
 from spp.task.module import get_module_by_name
 from .spp_pipeline_task import SPP_Pipeline_Task
 
@@ -21,21 +21,16 @@ class SPP_Parser_Task(SPP_Pipeline_Task):
         ...
 
     def run(self):
-        print('run', current_process())
         self.upload_status(WORKING)
         self._main()
-
-    def __call__(self):
-        print('__call__', current_process())
-        self.upload_status(WORKING)
-        self._main()
+        self._finish_hook()
 
     def _main(self):
         # Запуск парсера и ожидаение его работы
 
         # DRAFT
-        # self._bus.documents.data = self._parser()
-        self._bus.documents.data = []
+        self._bus.documents.data = self._parser()
+        # self._bus.documents.data = []
         self._cycle()
 
     def _parser(self) -> list[SPP_document]:

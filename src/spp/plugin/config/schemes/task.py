@@ -9,4 +9,4 @@ class Task:
         - Условие активации
     """
     log_mode: int  # DEBUG, INFO, CRITICAL
-    restart_time: str  # Время перезапуска в секундах
+    restart_interval: int  # Время перезапуска в секундах

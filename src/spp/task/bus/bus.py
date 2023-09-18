@@ -85,8 +85,8 @@ class Bus:
         return self._documents
 
     @documents.setter
-    def documents(self, doc: list[SPP_document]):
-        self._documents = SPP_FE_documents(doc)
+    def documents(self, docs: list[SPP_document]):
+        self._documents = SPP_FE_documents(docs)
 
     @property
     def source(self) -> SPP_FE_source:

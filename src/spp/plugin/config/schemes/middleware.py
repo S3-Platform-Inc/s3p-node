@@ -28,4 +28,4 @@ class Middleware:
                 return module
 
         # Ошибка модуль не найден
-        raise NotImplemented
+        raise NotImplemented(f'Module {name} has not found')

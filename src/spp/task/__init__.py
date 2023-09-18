@@ -5,6 +5,5 @@ __all__ = [
     "bus",
     "exceptions",
     "module",
-    "plugin",
     "types",
 ]

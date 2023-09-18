@@ -11,7 +11,7 @@ class WRONG_SPP_Language_Parse:
     INSTRUCTIONS = (
         "PARSER",
         "FROM",
-        "SETENV",
+        "SET",
         "START",
         "ADD",
         "INIT",
@@ -27,6 +27,8 @@ class WRONG_SPP_Language_Parse:
     parser_classname: str
     parser_method: str
     parser_init_keywords: list = []
+
+    restart_interval: int = 0
 
     bus_entities: list = []
 
@@ -49,7 +51,7 @@ class WRONG_SPP_Language_Parse:
             self.source_name,
             Task(  # DRAFT нет обработчика
                 -1,
-                "1 hour",
+                self.restart_interval
             ),
             Middleware(
                 tuple(self.pipelines),
@@ -110,8 +112,11 @@ class WRONG_SPP_Language_Parse:
 
                 self.logger.debug(f"Set init parser parameter named {keyword} which represents {module}")
 
-            elif cmd.startswith('SETENV'):
-                ...
+            elif cmd.startswith('SET'):
+                keyword, param = cmd.split()[1:]
+                if keyword == "restart-interval":
+                    self.restart_interval = int(param)
+                    self.logger.debug(f"Set restart interval is {param} sec")
 
             elif cmd.startswith('ADD'):
                 module, *params = cmd.split()[1:]

@@ -118,7 +118,7 @@ class Document:
     async def __update_document(cls, source: SPP_source, __document: SPP_document):
         source_id = source.src_id if source.src_id else None
         other_data = json.dumps(__document.other_data) if __document.other_data else None
-        packed_text = pack(__document.text)
+        packed_text = pack(__document.text) if __document.text else None
 
         async with sync_get_engine().execution_options(isolation_level='AUTOCOMMIT').begin() as conn:
             query_param = f"SELECT * FROM public.safe_update_document({source_id},'{source.name}'," \
@@ -129,8 +129,8 @@ class Document:
                           f"{_text_param(_def_null_param(__document.web_link))}, " \
                           f"{_text_param(_def_null_param(__document.local_link))}, " \
                           f"{_text_param(_def_null_param(other_data))}, " \
-                          f"{_datetime_param(__document.pub_date)}, " \
-                          f"{_datetime_param(__document.load_date)});"
+                          f"{_def_null_param(_datetime_param(__document.pub_date))}, " \
+                          f"{_def_null_param(_datetime_param(__document.load_date))});"
 
             result = await conn.execute(text(query_param))
             await conn.commit()

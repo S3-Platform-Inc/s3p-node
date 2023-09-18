@@ -50,12 +50,13 @@ class Task(ABC_SPP_Task):
         Метод для обновления статуса в базе данных и в инстансе класса
 
         NONSET      0
-        PREPARING   10
-        WORKING     20
+        AWAITING    10
+        PREPARING   20
         READY       30
-        SUSPENDED   40
-        FINISHED    50
-        BROKEN      60
+        WORKING     40
+        SUSPENDED   50
+        FINISHED    60
+        BROKEN      70
         :param status:
         :type status:
         """
@@ -64,5 +65,5 @@ class Task(ABC_SPP_Task):
         self._log.debug(f'Task {self._plugin.metadata.plugin_id} change status to {_statusToName[status]}')
 
     def _finish_hook(self):
-        restart_interval = self._plugin.config.task.restart_time
+        restart_interval = self._plugin.config.task.restart_interval
         db_task.finish(self._plugin.metadata, restart_interval)
