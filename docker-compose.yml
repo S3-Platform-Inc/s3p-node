@@ -2,8 +2,19 @@
 version: '3.5'
 
 services:
+#  spp-app-master:
+#    container_name: ${SPP_CONTAINER_NAME}
+#    platform: linux/amd64
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    volumes:
+#      - type: bind
+#        source: ./${SPP_BASE_TEMP_DIR}
+#        target: /sppapp
   db-postgres:
     container_name: ${DB_CONTAINER_NAME}
+    platform: linux/amd64
     image: 'postgres:${DB_POSTGRES_VERSION}'
     restart: always
     ports:
@@ -14,14 +25,19 @@ services:
         target: ${DB_INIT_FILE}
         read_only: true
       - type: bind
-        source: ./${DB_BASE_TEMP_DIR}/_data
-        target: /var/lib/postgresql/_data
+        source: ./scripts/${DB_BASE_TEMP_DIR}/data.sql
+        target: ${DB_DATA_FILE}
+        read_only: true
+      - type: bind
+        source: ./${DB_BASE_TEMP_DIR}
+        target: /var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
   ftp-server:
     container_name: ${FS_DOCKER_SERVICE_NAME}
+    platform: linux/amd64
     image: fauria/vsftpd
     restart: always
     environment:

@@ -28,7 +28,7 @@ class WRONG_SPP_Language_Parse:
     parser_method: str
     parser_init_keywords: list = []
 
-    restart_interval: int = 0
+    restart_interval: str = None
 
     bus_entities: list = []
 
@@ -113,9 +113,9 @@ class WRONG_SPP_Language_Parse:
                 self.logger.debug(f"Set init parser parameter named {keyword} which represents {module}")
 
             elif cmd.startswith('SET'):
-                keyword, param = cmd.split()[1:]
+                keyword, *param = cmd.split()[1:]
                 if keyword == "restart-interval":
-                    self.restart_interval = int(param)
+                    self.restart_interval = ' '.join(param)
                     self.logger.debug(f"Set restart interval is {param} sec")
 
             elif cmd.startswith('ADD'):

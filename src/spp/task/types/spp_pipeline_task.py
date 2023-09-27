@@ -18,7 +18,7 @@ from spp.task.task import Task
 from spp.task.status import PREPARING, READY, WORKING, SUSPENDED, FINISHED, BROKEN
 
 if TYPE_CHECKING:
-    from spp.plugin.abc_plugin import ABC_Plugin
+    from spp.plugin import GIT_Plugin
 
 
 class SPP_Pipeline_Task(Task):
@@ -33,7 +33,7 @@ class SPP_Pipeline_Task(Task):
     _current_module_name: str
     _bus: Bus
 
-    def __init__(self, plugin: ABC_Plugin):
+    def __init__(self, plugin: GIT_Plugin):
         super().__init__(plugin)
 
         self.upload_status(PREPARING)

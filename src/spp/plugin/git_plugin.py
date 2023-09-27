@@ -12,10 +12,10 @@ import requests
 from github import Github, GithubException, RateLimitExceededException, UnknownObjectException
 
 from .abc_plugin import ABC_Plugin
-from spp.plugin.wrong_spp_language_parse import WRONG_SPP_Language_Parse
+from .config import Config
+from .wrong_spp_language_parse import WRONG_SPP_Language_Parse
 
 if TYPE_CHECKING:
-    from .config import Config
     from spp.types import SPP_plugin, ABC_Plugin_Parser
 
 
@@ -83,6 +83,13 @@ class GIT_Plugin(ABC_Plugin):
                 self._load()
 
         return self._parser
+
+    @property
+    def config(self):
+        if self._config:
+            return self._config
+        else:
+            raise AttributeError("Plugin object has not exists 'config'")
 
     def _load(self):
         # Загрузить конфиг и парсер

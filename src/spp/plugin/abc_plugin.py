@@ -3,9 +3,9 @@ from __future__ import annotations
 import zipfile
 from abc import ABCMeta, abstractmethod
 from typing import Callable, TYPE_CHECKING
-from spp.plugin.config import Config
 
 if TYPE_CHECKING:
+    from src.spp.plugin.config import Config
     from src.spp.types import ABC_Plugin_Parser, SPP_plugin
 
 
@@ -25,29 +25,13 @@ class ABC_Plugin(metaclass=ABCMeta):
     SPPFILE_REPO_FILENAME: str  # Имя файла конфигурации в репозитории
     zip_repository: zipfile.ZipFile
 
+    @property
     @abstractmethod
-    def _load(self):
-        """
-        Загружает файлы плагина и извлекает парсер.
-        После этого можно
-        :return:
-        :rtype:
-        """
-        ...
+    def parser(self): ...
 
     @property
-    def parser(self):
-        if self._parser and isinstance(self._parser, ABC_Plugin_Parser | Callable):
-            return self._parser
-        else:
-            raise AttributeError("Plugin object has not exists 'parser'")
-
-    @property
-    def config(self):
-        if self._config and isinstance(self._config, Config):
-            return self._config
-        else:
-            raise AttributeError("Plugin object has not exists 'config'")
+    @abstractmethod
+    def config(self): ...
 
     @abstractmethod
     def __del__(self):

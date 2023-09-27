@@ -9,18 +9,18 @@ from .status import NONSET, _statusToName
 from .types.abc_spp_task import ABC_SPP_Task
 
 if TYPE_CHECKING:
-    from src.spp.plugin.abc_plugin import ABC_Plugin
+    from src.spp.plugin import GIT_Plugin
     from src.spp.types import SPP_source
 
 
 class Task(ABC_SPP_Task):
-    _plugin: ABC_Plugin
+    _plugin: GIT_Plugin
     _log: logging.Logger
     _source: SPP_source
 
     _status: int
 
-    def __init__(self, plugin: ABC_Plugin, classname: str = None):
+    def __init__(self, plugin: GIT_Plugin, classname: str = None):
         super().__init__()
         if classname is None:
             self._log = logging.getLogger(self.__class__.__name__)

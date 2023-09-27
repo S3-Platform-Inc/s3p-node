@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from multiprocessing import current_process
 
 from spp.task.status import WORKING, FINISHED
 from spp.task.module import get_module_by_name

@@ -415,7 +415,7 @@ begin
 end;
 $$;
 
-create or replace function task_finish(__task_id integer, __restart_time interval) returns boolean
+create or replace function task_finish(__plugin_id integer, __restart_time interval) returns boolean
     language plpgsql
 as
 $$
@@ -434,7 +434,7 @@ begin
         UPDATE public.spp_task
         SET status_id        = __status_id,
             last_finish_time = __last_finish_time
-        WHERE id = __task_id;
+        WHERE plugin_id = __plugin_id;
     ELSE
         __new_time_next_launch := __last_finish_time + __restart_time;
 
@@ -442,7 +442,7 @@ begin
         SET status_id        = __status_id,
             last_finish_time = __last_finish_time,
             time_next_launch = __new_time_next_launch
-        WHERE id = __task_id;
+        WHERE plugin_id = __plugin_id;
     end IF;
     return TRUE;
 end;
@@ -478,7 +478,7 @@ begin
                          OR
                          (st.plugin_id IS NOT NULL
                              AND
-                          (st.status_id = 5 OR st.status_id = 6) AND st.time_next_launch < now()
+                          (st.status_id = 7 OR st.status_id = 8) AND st.time_next_launch < now()
                              )
                      );
 
