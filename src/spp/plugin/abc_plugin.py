@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import zipfile
 from abc import ABCMeta, abstractmethod
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.spp.plugin.config import Config
     from src.spp.types import ABC_Plugin_Parser, SPP_plugin
+    from github.GitRelease import GitRelease
+    import zipfile
+
 
 
 class ABC_Plugin(metaclass=ABCMeta):
@@ -24,6 +26,7 @@ class ABC_Plugin(metaclass=ABCMeta):
     PARSER_REPO_FILENAME: str | None  # Имя файла парсера в репозитории
     SPPFILE_REPO_FILENAME: str  # Имя файла конфигурации в репозитории
     zip_repository: zipfile.ZipFile
+    latest_release: GitRelease
 
     @property
     @abstractmethod
