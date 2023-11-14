@@ -28,7 +28,7 @@ class ExtractTextFromFile(SPP_module):
     STORAGE = 'localstorage'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'ExtractTextFromFile')
 
         self._MIMETYPES_methods: dict[str, Callable] = {
             '.pdf': self._extract_pdf,

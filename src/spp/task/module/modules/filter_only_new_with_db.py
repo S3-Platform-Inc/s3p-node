@@ -11,7 +11,7 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'FilterOnlyNewDocumentWithDB')
 
         self.logger.info(f"module start")
 

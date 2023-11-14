@@ -16,7 +16,7 @@ class DownloadDocumentsThroughSeleniumTemp(SPP_module):
     ENTITY_METHOD_NAME = 's_download'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'DownloadDocumentsThroughSeleniumTemp')
         self.download()
 
     def download(self):

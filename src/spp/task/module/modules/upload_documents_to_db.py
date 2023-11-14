@@ -10,7 +10,7 @@ class UploadDocumentToDB(SPP_module):
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'UploadDocumentToDB')
 
         for doc in self.bus.documents.data:
             self._upload(doc)

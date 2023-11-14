@@ -29,7 +29,7 @@ class DownloadDocumentsWithParserMethods(SPP_module):
     cookies: list[dict] = []
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'DownloadDocumentsWithParserMethods')
         self.download()
         ...
 

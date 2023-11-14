@@ -17,7 +17,7 @@ class DeterminingFileMimetype(SPP_module):
     DETERMINE_METHOD: str = 'document'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, self.__class__.__name__)
+        super().__init__(bus, 'DeterminingFileMimetype')
 
         for doc in self.bus.documents.data:
             self._determine(doc)

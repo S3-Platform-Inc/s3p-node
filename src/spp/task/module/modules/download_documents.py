@@ -22,7 +22,7 @@ class DownloadDocumentsWithDB(SPP_module):
     }
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, 'DownloadDocumentsWithDB')
 
         ...
 
