@@ -9,7 +9,8 @@ from .modules import \
     DownloadDocumentsThroughSeleniumTemp, \
     WebInstallerDriver, \
     ExtractTextFromFile, \
-    UploadDocumentToDB
+    UploadDocumentToDB, \
+    TimezoneSafeControl
 
 __all__ = [
     "get_module_by_name",
@@ -21,6 +22,7 @@ __all__ = [
     "WebInstallerDriver",
     "ExtractTextFromFile",
     "UploadDocumentToDB",
+    "TimezoneSafeControl",
 ]
 
 
