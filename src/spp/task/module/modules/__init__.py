@@ -6,6 +6,7 @@ from .web_driver import WebDriver
 from .web_install_driver import WebInstallerDriver
 from .extract_text_from_file import ExtractTextFromFile
 from .upload_documents_to_db import UploadDocumentToDB
+from .timezone_safe_control import TimezoneSafeControl
 
 __all__ = [
     "FilterOnlyNewDocumentWithDB",
@@ -16,4 +17,5 @@ __all__ = [
     "WebInstallerDriver",
     "ExtractTextFromFile",
     "UploadDocumentToDB",
+    "TimezoneSafeControl",
 ]
