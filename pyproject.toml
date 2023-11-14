@@ -4,13 +4,22 @@ version = "0.1.0"
 description = ""
 authors = ["CuberHuber <romal5754@gmail.com>"]
 readme = "README.md"
-packages = [{include = "nspk_di_parser"}]
+packages = [{ include = "nspk_di_parser" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pandas = "^1.5.3"
+pandas = "^2.0.2"
 selenium = "^4.8.2"
-beautifulsoup4 = "^4.11.2"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.16" }
+asyncpg = "^0.28.0"
+alembic = "^1.11.1"
+openpyxl = "^3.1.2"
+python-dotenv = "^1.0.0"
+requests = "^2.31.0"
+webdriver-manager = "^4.0.0"
+python-magic-bin = "^0.4.14"
+python-docx = "^0.8.11"
+
 
 
 [build-system]
