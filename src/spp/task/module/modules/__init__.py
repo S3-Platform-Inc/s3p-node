@@ -7,6 +7,7 @@ from .web_install_driver import WebInstallerDriver
 from .extract_text_from_file import ExtractTextFromFile
 from .upload_documents_to_db import UploadDocumentToDB
 from .timezone_safe_control import TimezoneSafeControl
+from .cut_junk_characters_from_document_text import CutJunkCharactersFromDocumentText
 
 __all__ = [
     "FilterOnlyNewDocumentWithDB",
@@ -18,4 +19,5 @@ __all__ = [
     "ExtractTextFromFile",
     "UploadDocumentToDB",
     "TimezoneSafeControl",
+    "CutJunkCharactersFromDocumentText",
 ]

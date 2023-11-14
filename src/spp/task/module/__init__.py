@@ -10,7 +10,8 @@ from .modules import \
     WebInstallerDriver, \
     ExtractTextFromFile, \
     UploadDocumentToDB, \
-    TimezoneSafeControl
+    TimezoneSafeControl, \
+    CutJunkCharactersFromDocumentText
 
 __all__ = [
     "get_module_by_name",
@@ -23,6 +24,7 @@ __all__ = [
     "ExtractTextFromFile",
     "UploadDocumentToDB",
     "TimezoneSafeControl",
+    "CutJunkCharactersFromDocumentText",
 ]
 
 
