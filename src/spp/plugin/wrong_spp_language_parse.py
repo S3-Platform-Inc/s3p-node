@@ -19,25 +19,33 @@ class WRONG_SPP_Language_Parse:
         "SOURCE",
         "BUS_ADD",
     )
-    __vars: dict = {}
+    __vars: dict
 
     source_name: str
 
     parser_filename: str
     parser_classname: str
     parser_method: str
-    parser_init_keywords: list = []
+    parser_init_keywords: list
 
-    restart_interval: str = None
+    restart_interval: str
 
-    bus_entities: list = []
+    bus_entities: list
 
-    pipelines: list = []
+    pipelines: list
 
     def __init__(self, src: str | list[str]):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.logger.debug("SPPfile parser start")
+
+        # Переопределяем свойства во избежание проблем с возможными ошибками или багами. ООП в Python ....
+        self.__vars = {}
+        self.parser_init_keywords = []
+        self.restart_interval = None
+        self.bus_entities = []
+        self.pipelines = []
+
         self.__parse(self.__prepare_useful_commands(src))
         self.logger.debug("SPPfile parser finished")
 
