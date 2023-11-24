@@ -6,7 +6,7 @@ from spp.plugin.config.schemes import Task, Parser, Module, Middleware
 
 class WRONG_SPP_Language_Parse:
     """
-    ГОВНОКОД!
+    Временный парсер конфигурации
     """
     INSTRUCTIONS = (
         "PARSER",
@@ -124,7 +124,7 @@ class WRONG_SPP_Language_Parse:
                 keyword, *param = cmd.split()[1:]
                 if keyword == "restart-interval":
                     self.restart_interval = ' '.join(param)
-                    self.logger.debug(f"Set restart interval is {param} sec")
+                    self.logger.debug(f"Set restart interval is {param}")
 
             elif cmd.startswith('ADD'):
                 module, *params = cmd.split()[1:]
