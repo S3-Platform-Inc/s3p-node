@@ -6,6 +6,7 @@ WORKING = 40
 SUSPENDED = 50
 FINISHED = 60
 BROKEN = 70
+TERMINATED = 80
 
 _statusToName = {
     NONSET: "NONSET",
@@ -15,7 +16,8 @@ _statusToName = {
     READY: "READY",
     SUSPENDED: "SUSPENDED",
     FINISHED: "FINISHED",
-    BROKEN: "BROKEN"
+    BROKEN: "BROKEN",
+    TERMINATED: "TERMINATED",
 }
 
 _nameToStatus = {
@@ -27,4 +29,5 @@ _nameToStatus = {
     "SUSPENDED": SUSPENDED,
     "FINISHED": FINISHED,
     "BROKEN": BROKEN,
+    "TERMINATED": TERMINATED,
 }

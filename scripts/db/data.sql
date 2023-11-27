@@ -14,3 +14,5 @@ insert into public.spp_task_status (name, code)
 values ('FINISHED', 60);
 insert into public.spp_task_status (name, code)
 values ('BROKEN', 70);
+insert into public.spp_task_status (name, code)
+values ('TERMINATED', 80);
