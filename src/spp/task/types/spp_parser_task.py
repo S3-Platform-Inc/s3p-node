@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from spp.task.status import WORKING, FINISHED
+from spp.task.status import WORKING
 from spp.task.module import get_module_by_name
 from .spp_pipeline_task import SPP_Pipeline_Task
 

@@ -44,7 +44,7 @@ class DownloadDocumentsWithParserMethods(SPP_module):
                 with self.safe(doc) as data:
                     self._upload_document(doc, data)
             except FileNotFoundError as e:
-                # Файла нет, нужно продолжать попытки скачать другие файлы.\
+                # Файла нет, нужно продолжать попытки скачать другие файлы.
                 continue
 
     def safe(self, doc: SPP_document) -> io.BytesIO:
@@ -56,9 +56,8 @@ class DownloadDocumentsWithParserMethods(SPP_module):
             except ForbiddenError:
                 self._cookies(doc.web_link)
             except Exception as e:
-                print(e)
+                self.logger.exception(e)
                 raise FileNotFoundError('File of document was not found')
-                # raise NotImplemented
             finally:
                 i_try += 1
         raise FileNotFoundError('File of document was not found')

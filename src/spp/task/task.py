@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from multiprocessing import Process
 from typing import TYPE_CHECKING
 
 from src.spp.brokers.database import Source, Task as db_task

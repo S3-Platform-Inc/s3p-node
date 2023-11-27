@@ -31,4 +31,3 @@ class UploadDocumentToDB(SPP_module):
         max_length = 2 << 16 if len(doc.text) > (2 << 16) else len(doc.text)
         doc.text = doc.text[:max_length]
         res = self.bus.database.doc.safe_update(self.bus.source.data, doc)
-        print(res)
