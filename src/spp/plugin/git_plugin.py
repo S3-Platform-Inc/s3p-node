@@ -68,11 +68,6 @@ class GIT_Plugin(ABC_Plugin):
             # не получилось найти последний релиз в репозитории
             self._log.exception('Plugin repository does not contain a release')
             raise e
-        except Exception as e:
-            # [ERROR] Невозможно получения плагина
-            raise NotImplemented(e)
-        else:
-            ...
 
     @property
     def parser(self):

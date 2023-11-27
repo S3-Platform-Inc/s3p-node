@@ -51,6 +51,13 @@ class Task:
         asyncio.run(Task.__finish_task(plugin.plugin_id, restart_interval))
 
     @staticmethod
+    def broke(plugin: SPP_plugin):
+        """
+        Выпадение ошибки в задаче на различных этапах
+        """
+        asyncio.run(Task.__broke_task(plugin.plugin_id))
+
+    @staticmethod
     async def __create_task(plugin_id: int, time_start: datetime.datetime | None, status_code: int | None) -> int:
         """
         Асинхронное получение всех активных плагинов
@@ -98,6 +105,14 @@ class Task:
                           f"{_id}, " \
                           f"{_def_null_param(_interval_param(restart_time))}" \
                           f");"
+            result = await conn.execute(text(query_param))
+            await conn.commit()
+        return result.fetchall()
+
+    @staticmethod
+    async def __broke_task(_id: int):
+        async with sync_get_engine().begin() as conn:
+            query_param = f"SELECT * FROM public.task_broke({_id});"
             result = await conn.execute(text(query_param))
             await conn.commit()
         return result.fetchall()

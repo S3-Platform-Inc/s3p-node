@@ -56,6 +56,30 @@ class Plugin:
         return res
 
     @staticmethod
+    def relevant_plugin() -> SPP_plugin:
+        """
+        Получения релевантного плагина.
+        Плагин считается релевантным если:
+        1. Он активный
+        И
+        2.
+            2.1. Задача, связанная с плагином не существует
+                ИЛИ
+            2.2. Задача, связанная с плагином в состоянии (FINISHED или BROKEN) и время запуска < текущего
+        :return:
+        :rtype:
+        """
+        _plugin = asyncio.run(Plugin.__relevant_plugin_for_processing())
+        if len(_plugin) == 1:
+            return SPP_plugin(
+                plugin_id=_plugin[0][0],
+                repository=_plugin[0][1],
+                active=True,
+                pub_date=_plugin[0][2],
+            )
+        raise ValueError('No relevant plugins')
+
+    @staticmethod
     def set_pub_date(plugin: SPP_plugin, new_pub_date: datetime.datetime):
         """
         Обновления даты публикации плагина
@@ -127,6 +151,14 @@ class Plugin:
     async def __relevant_plugins_for_processing() -> list[tuple]:
         async with sync_get_engine().begin() as conn:
             query_param = f"SELECT * FROM public.relevant_plugins_for_processing();"
+            result = await conn.execute(text(query_param))
+            await conn.commit()
+        return result.fetchall()
+
+    @staticmethod
+    async def __relevant_plugin_for_processing() -> list[tuple]:
+        async with sync_get_engine().begin() as conn:
+            query_param = f"SELECT * FROM public.relevant_plugin_for_processing();"
             result = await conn.execute(text(query_param))
             await conn.commit()
         return result.fetchall()

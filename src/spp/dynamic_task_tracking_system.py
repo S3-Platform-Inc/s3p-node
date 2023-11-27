@@ -5,10 +5,12 @@ import time
 from logging import getLogger
 from typing import TYPE_CHECKING
 
+from github import UnknownObjectException, RateLimitExceededException
+
 from .plugin.git_plugin import GIT_Plugin
 from .brokers.database import Plugin as db_plugin, Task as db_task
 from .task.types.spp_parser_task import SPP_Parser_Task
-from .task.status import BROKEN, AWAITING, FINISHED
+from .task.status import FINISHED
 
 if TYPE_CHECKING:
     from src.spp.types import SPP_plugin
@@ -20,12 +22,13 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
     """
 
     _plugins: multiprocessing.Queue
-
+    _current_plugin: SPP_plugin | None
 
     def __init__(self):
         super().__init__()
         self._log = getLogger()
         self._plugins = multiprocessing.Queue()
+        self._current_plugin = None
 
     def run(self):
         self._log.debug("Main tracking system is start")
@@ -40,29 +43,43 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
 
     def _main_tracking_loop(self):
         while True:
-            time.sleep(5)
             # Релевантные плагины, это те, которые должны быть запущены сейчас
-            relevant_plugins = self._relevant_plugins()
-            for _plugin in relevant_plugins:
-                db_task.create(_plugin, status_code=AWAITING)
-                self._plugins.put(_plugin)
+            try:
+                self._current_plugin = self._relevant_plugin()
+                db_task.create(self._current_plugin)
+            except ValueError as e:
+                self._log.info(e)
+                time.sleep(5)
+                continue
 
-            while not self._plugins.empty():
-                _plugin = self._plugins.get()
-                self._log.info(f'Received new plugin for Processing. name: {_plugin.repository}')
-                try:
-                    self._start_task(self._prepared_plugin(_plugin))
-                except Exception as e:
-                    db_task.set_status(_plugin, BROKEN)
-                    raise e
-                self._log.info(f'Plugin {_plugin.repository} is done')
+            self._log.info(f'Received new plugin for Processing. name: {self._current_plugin.repository}')
 
-    def _relevant_plugins(self) -> list[SPP_plugin]:
-        return db_plugin.relevant_plugins()
+            try:
+                self._start_task(self._prepared_plugin(self._current_plugin))
+            except UnknownObjectException | RateLimitExceededException as e:
+                # Ошибка возникающая при ошибке загрузке плагина
+                self._broke_current_task(e)
+            except Exception as e:
+                # Иная ошибка задачи
+                self._broke_current_task(e)
+                self._log.exception(e)
+            else:
+                self._log.info(f'Plugin {self._current_plugin.repository} is done successfully')
+            finally:
+                # Пауза перед следующей итерацией
+                time.sleep(1)
+                continue
+
+    def _relevant_plugin(self) -> SPP_plugin:
+        return db_plugin.relevant_plugin()
 
     def _prepared_plugin(self, plugin: SPP_plugin) -> GIT_Plugin:
         _plugin = GIT_Plugin(plugin)
         return _plugin
+
+    def _broke_current_task(self, error: Exception):
+        db_task.broke(self._current_plugin)
+        self._log.error(f'Plugin {self._current_plugin.repository} is done with Error: {error}')
 
     def _start_task(self, plugin: GIT_Plugin):
         task = SPP_Parser_Task(plugin)
