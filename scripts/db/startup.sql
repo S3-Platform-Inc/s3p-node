@@ -575,4 +575,30 @@ begin
 end;
 $$;
 
+create or replace function get_all_documents_for_hash_by_source(__source_id integer, __sourcename text)
+    returns TABLE(doc_id integer, title text, web_link text, pub_date timestamp with time zone)
+    language plpgsql
+as
+$$
+declare
+    temp_spource_id INTEGER;
+
+begin
+    IF (__source_id IS NULL) THEN
+-- 		Если source_id пустой, то нужно найти источник по его имени
+        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
+    ELSE
+--      Если source_id есть, то просто вставляем его
+        temp_spource_id := __source_id;
+    END IF;
+
+    return query select sd.doc_id,
+                        sd.title,
+                        sd.web_link,
+                        sd.pub_date
+                 from public.spp_document as sd
+                 WHERE sd.source_id = temp_spource_id;
+end;
+$$;
+
 

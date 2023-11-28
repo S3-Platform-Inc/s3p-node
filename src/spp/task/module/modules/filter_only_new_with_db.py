@@ -28,7 +28,7 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
         :rtype:
         """
         self.logger.info(f"Receive previous documents by source '{self.bus.source.data.name}'")
-        documents: list[SPP_document] = self.bus.database.doc.all_by_source_name(self.bus.source.data.name)
+        documents: list[SPP_document] = self.bus.database.doc.all_hashed_by_source_name(self.bus.source.data.name)
         self.logger.info(f"Received previous documents - {len(documents)}")
         return documents
 

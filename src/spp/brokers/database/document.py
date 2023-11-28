@@ -36,7 +36,7 @@ class Document:
     @classmethod
     def all_by_source_name(cls, source_name: str) -> list[SPP_document]:
         """
-        Безопасное получение данные об источнике. В случае, если в базе данных нет записи об источнике, он добавится.
+        Безопасное получение всех документов, относящихся к одному источнику
         :param source_name:
         :_type source_name:
         :return:
@@ -55,6 +55,26 @@ class Document:
                 other_data=row[6],
                 pub_date=row[7],
                 load_date=row[8],
+            ))
+        return res
+
+    @classmethod
+    def all_hashed_by_source_name(cls, source_name: str) -> list[SPP_document]:
+        """
+        Безопасное получение всех документов (title, web_link, pub_date), относящихся к одному источнику
+        :param source_name:
+        :_type source_name:
+        :return:
+        :rtype:
+        """
+        documents: list[tuple] = asyncio.run(Document.__get_all_for_hash_by_source(source_name))
+        res: list[SPP_document] = []
+        for row in documents:
+            res.append(SPP_document(
+                doc_id=row[0],
+                title=row[1],
+                web_link=row[2],
+                pub_date=row[3],
             ))
         return res
 
@@ -109,6 +129,22 @@ class Document:
         """
         async with sync_get_engine().execution_options(isolation_level='AUTOCOMMIT').begin() as conn:
             query_param = f"SELECT * FROM public.get_all_documents_by_source(null, '{source_name}');"
+            result = await conn.execute(text(query_param))
+            await conn.commit()
+
+        return result.fetchall()
+
+    @classmethod
+    async def __get_all_for_hash_by_source(cls, source_name: str):
+        """
+        Анисхронное безопасное получение всех документов (title, web_link, pub_date) одного источника по его имени.
+        :param source_name:
+        :_type source_name:
+        :return:
+        :rtype:
+        """
+        async with sync_get_engine().execution_options(isolation_level='AUTOCOMMIT').begin() as conn:
+            query_param = f"SELECT * FROM public.get_all_documents_for_hash_by_source(null, '{source_name}');"
             result = await conn.execute(text(query_param))
             await conn.commit()
 
