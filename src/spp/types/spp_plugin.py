@@ -16,3 +16,4 @@ class SPP_plugin:
     repository: str
     active: bool
     pub_date: datetime | None
+    type: str

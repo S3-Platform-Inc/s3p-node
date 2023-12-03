@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import multiprocessing
+import os
 import time
 from logging import getLogger
 from typing import TYPE_CHECKING
 
 from github import UnknownObjectException, RateLimitExceededException
 
-from .plugin.git_plugin import GIT_Plugin
+from .plugin.gitplugin import GitPlugin
 from .brokers.database import Plugin as db_plugin, Task as db_task
-from .task.types.spp_parser_task import SPP_Parser_Task
-from .task.status import FINISHED
+from .task.types.spp_payload_task import SPP_Payload_Task
 
 if TYPE_CHECKING:
     from src.spp.types import SPP_plugin
@@ -21,22 +21,21 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
     Система отслеживания состояний задач и контроля за ними.
     """
 
-    _plugins: multiprocessing.Queue
     _current_plugin: SPP_plugin | None
 
     def __init__(self):
         super().__init__()
         self._log = getLogger()
-        self._plugins = multiprocessing.Queue()
         self._current_plugin = None
+        self.PLUGIN_TYPE: str = os.getenv('PL_TYPE_PROCESSING')
 
     def run(self):
         self._log.debug("Main tracking system is start")
         try:
             self._main_tracking_loop()
         except Exception as e:
-            while not self._plugins.empty():
-                db_task.set_status(self._plugins.get(), FINISHED)
+            if self._current_plugin:
+                self._broke_current_task(e)
             self._log.critical(f"Main tracking system is Broken with error {e}")
             raise e
         self._log.debug("Main tracking system is done")
@@ -46,11 +45,12 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
             # Релевантные плагины, это те, которые должны быть запущены сейчас
             try:
                 self._current_plugin = self._relevant_plugin()
-                db_task.create(self._current_plugin)
             except ValueError as e:
                 self._log.info(e)
                 time.sleep(5)
                 continue
+            else:
+                db_task.create(self._current_plugin)
 
             self._log.info(f'Received new plugin for Processing. name: {self._current_plugin.repository}')
 
@@ -70,17 +70,22 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
                 time.sleep(1)
                 continue
 
-    def _relevant_plugin(self) -> SPP_plugin:
-        return db_plugin.relevant_plugin()
+    def _relevant_plugin(self) -> SPP_plugin | Exception:
+        if self.PLUGIN_TYPE in ('ALL', 'PARSER', 'ML'):
+            return db_plugin.relevant_plugin(self.PLUGIN_TYPE)
+        else:
+            raise ValueError(f'Plugin type must be of ALL or PARSER or ML')
 
-    def _prepared_plugin(self, plugin: SPP_plugin) -> GIT_Plugin:
-        _plugin = GIT_Plugin(plugin)
+    @staticmethod
+    def _prepared_plugin(plugin: SPP_plugin) -> GitPlugin:
+        _plugin = GitPlugin(plugin)
         return _plugin
 
     def _broke_current_task(self, error: Exception):
         db_task.broke(self._current_plugin)
         self._log.error(f'Plugin {self._current_plugin.repository} is done with Error: {error}')
 
-    def _start_task(self, plugin: GIT_Plugin):
-        task = SPP_Parser_Task(plugin)
+    @staticmethod
+    def _start_task(plugin: GitPlugin):
+        task = SPP_Payload_Task(plugin)
         task.run()

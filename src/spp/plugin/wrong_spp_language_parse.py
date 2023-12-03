@@ -1,7 +1,8 @@
 import logging
+import re
 
 from spp.plugin.config import Config
-from spp.plugin.config.schemes import Task, Parser, Module, Middleware
+from spp.plugin.config.schemes import Task, Payload, Module, Middleware, Plugin
 
 
 class WRONG_SPP_Language_Parse:
@@ -9,46 +10,62 @@ class WRONG_SPP_Language_Parse:
     Временный парсер конфигурации
     """
     INSTRUCTIONS = (
-        "PARSER",
+        "TYPE",
+        "PAYLOAD",
         "FROM",
         "SET",
-        "START",
+        "ENTRY",
         "ADD",
         "INIT",
         "RETURN",
-        "SOURCE",
-        "BUS_ADD",
+        "REF",
+        "NEW_FLOW",
+        "FILE",
     )
     __vars: dict
+    __plugin_files: list
 
-    source_name: str
+    reference_name: str | None
+    plugin_type: str | None
 
-    parser_filename: str
-    parser_classname: str
-    parser_method: str
-    parser_init_keywords: list
+    payload_filename: str | None
+    payload_classname: str | None
+    payload_method: str | None
+    payload_init_keywords: list
 
-    restart_interval: str
+    restart_interval: str | None
+    logmod: str | None
 
     bus_entities: list
-
     pipelines: list
 
     def __init__(self, src: str | list[str]):
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.logger.debug("SPPfile parser start")
+        self.logger.debug("SPPfile parse start")
 
         # Переопределяем свойства во избежание проблем с возможными ошибками или багами. ООП в Python ....
         self.__vars = {}
-        self.parser_init_keywords = []
+        self.__plugin_files = []
+
+        self.reference_name = None
+        self.plugin_type = None
+
+        self.payload_filename = None
+        self.payload_classname = None
+        self.payload_method = None
+        self.payload_init_keywords = []
+
         self.restart_interval = None
+        self.logmod = None
+
         self.bus_entities = []
         self.pipelines = []
 
         self.__parse(self.__prepare_useful_commands(src))
-        self.logger.debug("SPPfile parser finished")
+        self.logger.debug("SPPfile parse done")
 
+    @property
     def config(self) -> Config:
         """
         Метод возвращает объект настроек
@@ -56,7 +73,11 @@ class WRONG_SPP_Language_Parse:
         :rtype:
         """
         return Config(
-            self.source_name,
+            Plugin(
+                reference_name=self.reference_name,
+                type=self.plugin_type,
+                filenames=tuple(self.__plugin_files)
+            ),
             Task(  # DRAFT нет обработчика
                 -1,
                 self.restart_interval
@@ -65,11 +86,11 @@ class WRONG_SPP_Language_Parse:
                 tuple(self.pipelines),
                 tuple(self.bus_entities)
             ),
-            Parser(
-                self.parser_filename,
-                self.parser_classname,
-                self.parser_method,
-                tuple(self.parser_init_keywords),
+            Payload(
+                self.payload_filename + '.py',
+                self.payload_classname,
+                self.payload_method,
+                tuple(self.payload_init_keywords),
                 None
             )
         )
@@ -87,6 +108,10 @@ class WRONG_SPP_Language_Parse:
         # Выбирает те строки, в которых есть полезные команды из списка команд
         for line in lines:
             if any(line.startswith(instruction) for instruction in self.INSTRUCTIONS):
+
+                # Удаляет все пробелы и комменты после инструкции и параметров
+                regex = r" *#.*"
+                line = re.sub(regex, "", line, 0, re.MULTILINE)
                 useful_lines.append(line)
 
         return useful_lines
@@ -96,35 +121,43 @@ class WRONG_SPP_Language_Parse:
 
         # тут по хорошему организовать нормальную валидацию и обработку инструкций
         for cmd in commands:
-            if cmd.startswith('PARSER'):
-                self.parser_filename = cmd.split()[1]
+            if cmd.startswith('TYPE'):
+                self.plugin_type = cmd.split()[1]
 
-                self.logger.debug(f"Set parser file : {self.parser_filename}")
+                self.logger.debug(f'Set plugin type : {self.plugin_type}')
 
-            elif cmd.startswith('START'):
+            elif cmd.startswith('PAYLOAD'):
+                self.payload_filename = cmd.split()[1]
+
+                self.logger.debug(f"Set payload file : {self.payload_filename}")
+
+            elif cmd.startswith('ENTRY'):
                 classname, method = cmd.split()[1:]
-                self.parser_classname = classname
-                self.parser_method = method
+                self.payload_classname = classname
+                self.payload_method = method
 
-                self.logger.debug(f"Set parser classname : {self.parser_classname}")
-                self.logger.debug(f"Set parser class method : {self.parser_method}")
+                self.logger.debug(f"Set payload classname : {self.payload_classname}")
+                self.logger.debug(f"Set payload class method : {self.payload_method}")
 
-            elif cmd.startswith('SOURCE'):
-                self.source_name = cmd.split()[1]
+            elif cmd.startswith('REF'):
+                self.reference_name = cmd.split()[1]
 
-                self.logger.debug(f"Set unique source name is {self.source_name}")
+                self.logger.debug(f"Set unique reference name is {self.reference_name}")
 
             elif cmd.startswith('INIT'):
                 keyword, module = cmd.split()[1:]
-                self.parser_init_keywords.append((keyword, module))
+                self.payload_init_keywords.append((keyword, module))
 
-                self.logger.debug(f"Set init parser parameter named {keyword} which represents {module}")
+                self.logger.debug(f"Set init payload parameter named {keyword} which represents {module}")
 
             elif cmd.startswith('SET'):
                 keyword, *param = cmd.split()[1:]
                 if keyword == "restart-interval":
                     self.restart_interval = ' '.join(param)
                     self.logger.debug(f"Set restart interval is {param}")
+                elif keyword == "LogMode":
+                    self.logmod = param[0]
+                    self.logger.debug(f"Set logging mode is {param}")
 
             elif cmd.startswith('ADD'):
                 module, *params = cmd.split()[1:]
@@ -134,8 +167,13 @@ class WRONG_SPP_Language_Parse:
 
                 self.logger.debug(f"Add pipeline module named: {module}, with parameters: {params}")
 
-            elif cmd.startswith('BUS_ADD'):
+            elif cmd.startswith('NEW_FLOW'):
                 module, *params = cmd.split()[1:]
                 self.bus_entities.append((module, params))
 
                 self.logger.debug(f"Add new bus flow named: {module}, with parameters: {params}")
+
+            elif cmd.startswith('FILE'):
+                filename = cmd.split()[1]
+                self.__plugin_files.append(filename)
+                self.logger.debug(f'File of plugin named: {filename}')

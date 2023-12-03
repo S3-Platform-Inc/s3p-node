@@ -73,8 +73,13 @@ class Document:
             res.append(SPP_document(
                 doc_id=row[0],
                 title=row[1],
+                abstract=None,
+                text=None,
                 web_link=row[2],
+                local_link=None,
+                other_data=None,
                 pub_date=row[3],
+                load_date=None,
             ))
         return res
 

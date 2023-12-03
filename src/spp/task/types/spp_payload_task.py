@@ -10,9 +10,9 @@ if TYPE_CHECKING:
     from src.spp.types import SPP_document
 
 
-class SPP_Parser_Task(SPP_Pipeline_Task):
+class SPP_Payload_Task(SPP_Pipeline_Task):
     """
-    Задача (Task) с парсером. Расширенная версия задачи с постобработкой.
+    Задача (Task) с нагрузкой (Payload). Расширенная версия задачи с постобработкой.
     """
 
     def __init__(self, plugin):
@@ -25,14 +25,14 @@ class SPP_Parser_Task(SPP_Pipeline_Task):
         self._finish_hook()
 
     def _main(self):
-        # Запуск парсера и ожидаение его работы
+        # Запуск нагрузки и ожидаение его работы
 
         # DRAFT
-        self._bus.documents.data = self._parser()
+        self._bus.documents.data = self._payload()
         # self._bus.documents.data = []
         self._cycle()
 
-    def _parser(self) -> list[SPP_document]:
+    def _payload(self) -> list[SPP_document]:
         init = {key: get_module_by_name(value)() for key, value in
                 self._plugin.config.payload.entry_keywords}
 

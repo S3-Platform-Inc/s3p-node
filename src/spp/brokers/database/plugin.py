@@ -4,7 +4,7 @@ import datetime
 from sqlalchemy import text
 
 from spp.types import SPP_plugin
-from . import sync_get_engine, _datetime_param
+from . import sync_get_engine, _datetime_param, _text_param, _def_null_param
 
 
 class Plugin:
@@ -56,7 +56,7 @@ class Plugin:
         return res
 
     @staticmethod
-    def relevant_plugin() -> SPP_plugin:
+    def relevant_plugin(_type: str) -> SPP_plugin:
         """
         Получения релевантного плагина.
         Плагин считается релевантным если:
@@ -69,13 +69,14 @@ class Plugin:
         :return:
         :rtype:
         """
-        _plugin = asyncio.run(Plugin.__relevant_plugin_for_processing())
+        _plugin = asyncio.run(Plugin.__relevant_plugin_for_processing(_type))
         if len(_plugin) == 1:
             return SPP_plugin(
                 plugin_id=_plugin[0][0],
                 repository=_plugin[0][1],
                 active=True,
                 pub_date=_plugin[0][2],
+                type=_plugin[0][3],
             )
         raise ValueError('No relevant plugins')
 
@@ -156,9 +157,9 @@ class Plugin:
         return result.fetchall()
 
     @staticmethod
-    async def __relevant_plugin_for_processing() -> list[tuple]:
+    async def __relevant_plugin_for_processing(_type: str) -> list[tuple]:
         async with sync_get_engine().begin() as conn:
-            query_param = f"SELECT * FROM public.relevant_plugin_for_processing();"
+            query_param = f"SELECT * FROM public.relevant_plugin_for_processing({_text_param(_def_null_param(_type))});"
             result = await conn.execute(text(query_param))
             await conn.commit()
         return result.fetchall()

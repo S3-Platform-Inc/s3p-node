@@ -1,11 +1,13 @@
-from .parser import Parser
+from .payload import Payload
 from .module import Module
 from .task import Task
 from .middleware import Middleware
+from .plugin import Plugin
 
 __all__ = [
-    "Parser",
+    "Payload",
     "Module",
     "Task",
     "Middleware",
+    "Plugin",
 ]

@@ -4,32 +4,21 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .schemes import Task, Parser, Middleware
+    from .schemes import Task, Payload, Middleware, Plugin
 
 
 @dataclass
 class Config:
     """
-    :source name: Уникальное имя источника, за который отвечает плагин
+    :plugin: настройки плагина
 
-    :Task
-        - logging
-        - Условие активации
+    :task: настройки задачи
 
-    :Parser: optional
-        - Уникальное имя источника
-        - Имя файла парсера
-        - Имя класса парсера и точки входа
-        - доп методы: optional
+    :middleware: настройки постобработки
 
-    :Middleware
-        - Добавления модуля постобработки
-        - Установки критичности
-        - Дополнительный поток
+    :payload: optional - настройки нагрузки
     """
-
-    source_name: str
+    plugin: Plugin
     task: Task
     middleware: Middleware
-    parser: Parser | None
-    ...
+    payload: Payload | None

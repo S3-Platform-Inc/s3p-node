@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from queue import Queue
 from typing import Callable, TYPE_CHECKING
 import multiprocessing
 
@@ -18,7 +17,7 @@ from spp.task.task import Task
 from spp.task.status import PREPARING, READY, WORKING, SUSPENDED, FINISHED, BROKEN
 
 if TYPE_CHECKING:
-    from spp.plugin import GIT_Plugin
+    from spp.plugin.gitplugin import GitPlugin
 
 
 class SPP_Pipeline_Task(Task):
@@ -33,7 +32,7 @@ class SPP_Pipeline_Task(Task):
     _current_module_name: str
     _bus: Bus
 
-    def __init__(self, plugin: GIT_Plugin):
+    def __init__(self, plugin: GitPlugin):
         super().__init__(plugin)
 
         self.upload_status(PREPARING)

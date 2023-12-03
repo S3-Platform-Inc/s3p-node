@@ -5,10 +5,8 @@ from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.spp.plugin.config import Config
-    from src.spp.types import ABC_Plugin_Parser, SPP_plugin
-    from github.GitRelease import GitRelease
+    from src.spp.types import SPP_plugin
     import zipfile
-
 
 
 class ABC_Plugin(metaclass=ABCMeta):
@@ -17,20 +15,19 @@ class ABC_Plugin(metaclass=ABCMeta):
     """
     metadata: SPP_plugin
 
-    _parser: ABC_Plugin_Parser | Callable = None
+    _payload: Callable = None
     _config: Config
 
     BASE_PLUGIN_ARCHIVE_DIR_PATH: str  # Абсолютный путь до архива плагинов
     PLUGIN_CATALOG_NAME: str  # Имя каталога плагина. Нужен для проверки на уже существующее имя.
-    PARSER_FILENAME: str | None
-    PARSER_REPO_FILENAME: str | None  # Имя файла парсера в репозитории
-    SPPFILE_REPO_FILENAME: str  # Имя файла конфигурации в репозитории
+    PAYLOAD_FILENAME: str | None  # Мия файла нагрузки (логики)
+    PAYLOAD_REPO_FILENAME: str | None  # Имя файла нагрузки (логики) в репозитории
+    CONFIG_REPO_FILENAME: str  # Имя файла конфигурации в репозитории
     zip_repository: zipfile.ZipFile
-    latest_release: GitRelease
 
     @property
     @abstractmethod
-    def parser(self): ...
+    def payload(self): ...
 
     @property
     @abstractmethod

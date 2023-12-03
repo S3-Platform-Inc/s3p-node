@@ -8,18 +8,18 @@ from .status import NONSET, _statusToName
 from .types.abc_spp_task import ABC_SPP_Task
 
 if TYPE_CHECKING:
-    from src.spp.plugin import GIT_Plugin
+    from src.spp.plugin.gitplugin import GitPlugin
     from src.spp.types import SPP_source
 
 
 class Task(ABC_SPP_Task):
-    _plugin: GIT_Plugin
+    _plugin: GitPlugin
     _log: logging.Logger
     _source: SPP_source
 
     _status: int
 
-    def __init__(self, plugin: GIT_Plugin, classname: str = None):
+    def __init__(self, plugin: GitPlugin, classname: str = None):
         super().__init__()
         if classname is None:
             self._log = logging.getLogger(self.__class__.__name__)
@@ -38,11 +38,10 @@ class Task(ABC_SPP_Task):
         """
         return self._status
 
-    def run(self):
-        ...
+    def run(self): ...
 
     def __safe_get_source(self):
-        self._source = Source.safe(self._plugin.config.source_name)
+        self._source = Source.safe(self._plugin.config.plugin.reference_name)
 
     def upload_status(self, status: int):
         """
