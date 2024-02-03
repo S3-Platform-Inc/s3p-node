@@ -15,17 +15,17 @@ class Middleware:
     modules: tuple[Module]
     additional_bus_entities: tuple[tuple]
 
-    def module_by_name(self, name: str) -> Module | Exception:
+    def module_by_name(self, _name: str) -> Module | Exception:
         """
         Возвращает объект модуля по его имени. Если модуля нет, то выбрасывает ошибку
-        :param name:
-        :type name:
+        :param _name:
+        :type _name:
         :return:
         :rtype:
         """
         for module in self.modules:
-            if module.name == name:
+            if module.name == _name:
                 return module
 
         # Ошибка модуль не найден
-        raise NotImplemented(f'Module {name} has not found')
+        raise NotImplemented(f'Module has not found: ', _name)

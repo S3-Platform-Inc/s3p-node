@@ -2,16 +2,22 @@
 version: '3.5'
 
 services:
-#  spp-app-master:
-#    container_name: ${SPP_CONTAINER_NAME}
-#    platform: linux/amd64
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    volumes:
-#      - type: bind
-#        source: ./${SPP_BASE_TEMP_DIR}
-#        target: /sppapp
+  spp-node:
+    container_name: ${SPP_CONTAINER_NAME}
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}
+        target: ${SPP_ABSOLUTE_PATH_TO_LOCAL_STORAGE}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}
+        target: ${SPP_ABSOLUTE_PATH_TO_PLUGIN_ARCHIVE}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}
+        target: ${PATH_TO_PROJECT_DIR}/${LS_BASE_TEMP_DIR}
   db-postgres:
     container_name: ${DB_CONTAINER_NAME}
     platform: linux/amd64

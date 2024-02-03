@@ -4,7 +4,7 @@ from hashlib import sha224
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from spp.types import SPP_document
+    from src.spp.types import SPP_document
 
 
 def hashed_document_filename(doc: SPP_document, pad: str = ""):

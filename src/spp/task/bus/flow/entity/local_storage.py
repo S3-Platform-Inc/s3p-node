@@ -9,11 +9,11 @@ import io
 from datetime import datetime
 from typing import BinaryIO, TYPE_CHECKING
 
-from spp.brokers.localstorage import SPP_temp_broker
+from src.spp.brokers.localstorage import SPP_temp_broker
 from .. import Flow
 
 if TYPE_CHECKING:
-    from spp.types import SPP_source, SPP_document
+    from src.spp.types import SPP_source, SPP_document
 
 
 class SPP_FE_local_storage(Flow):

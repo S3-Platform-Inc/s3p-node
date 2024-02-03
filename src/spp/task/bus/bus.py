@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ..exceptions.bus.bus_entity_not_found_error import BusEntityNotFoundError
 
 if TYPE_CHECKING:
-    from spp.types import SPP_document
+    from src.spp.types import SPP_document
     from .flow.entity import \
         SPP_FE_options, \
         SPP_FE_documents, \

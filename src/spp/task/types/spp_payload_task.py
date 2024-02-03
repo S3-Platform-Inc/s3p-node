@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from spp.task.status import WORKING
-from spp.task.module import get_module_by_name
+from src.spp.task.status import WORKING
+from src.spp.task.module import get_module_by_name
 from .spp_pipeline_task import SPP_Pipeline_Task
 
 if TYPE_CHECKING:
@@ -33,8 +33,15 @@ class SPP_Payload_Task(SPP_Pipeline_Task):
         self._cycle()
 
     def _payload(self) -> list[SPP_document]:
-        init = {key: get_module_by_name(value)() for key, value in
-                self._plugin.config.payload.entry_keywords}
+        init = {}
+
+        for entry_obj in self._plugin.config.payload.entry_keywords:
+            if entry_obj.type == 'MODULE':
+                init[entry_obj.key] = get_module_by_name(entry_obj.value)()
+            elif entry_obj.type == 'FILE':
+                init[entry_obj.key] = self._plugin.file(entry_obj.value)
+            else:
+                raise ValueError(f'Entry object type as {entry_obj.type} don`t prosecuting')
 
         # Затем запускается модуль
         # DRAFT не подтягивается

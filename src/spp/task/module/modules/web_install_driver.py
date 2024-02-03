@@ -26,12 +26,8 @@ class WebInstallerDriver:
 
         options.add_argument('--no-sandbox')
         options.add_argument("--disable-gpu")
-        # options.add_argument('headless')
-        # options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
         options.add_argument("--start-maximized")  # open Browser in maximized mode
         options.add_argument('--disable-dev-shm-usage')
-        # options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        # options.add_experimental_option('useAutomationExtension', False)
 
         os.environ['WDM_LOG'] = str(logging.NOTSET)
 
@@ -42,12 +38,10 @@ class WebInstallerDriver:
             "profile.default_content_settings.popups": 0,
             "download.default_directory": dir_path,
         }
-        # options.add_extension('Adblock-Plus_v1.4.1.crx')
-        # options.add_argument(r'--user-data-dir=C:\Users\Roman\AppData\Local\Google\Chrome\User Data')
         options.add_experimental_option("prefs", chrome_prefs)
         driver = webdriver.Chrome(
             service=Service(
-                ChromeDriverManager(path=r'C:\Users\Roman\Desktop\.Drivers').install(),
+                ChromeDriverManager().install(),
             ),
             options=options,
         )

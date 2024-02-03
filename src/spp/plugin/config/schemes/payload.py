@@ -1,4 +1,10 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from src.spp.plugin.config.schemes.entry_object import EntryObject
+
+if TYPE_CHECKING:
+    from .entry_object import EntryObject
 
 
 @dataclass
@@ -13,5 +19,5 @@ class Payload:
     file_name: str
     class_name: str
     entry_point: str
-    entry_keywords: tuple | None
+    entry_keywords: tuple[EntryObject] | None
     additional_methods: tuple | None

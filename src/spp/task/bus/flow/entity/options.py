@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from ..flow import Flow
 
 if TYPE_CHECKING:
-    from spp.plugin.config.schemes import Module
+    from src.spp.plugin.config.schemes import Module
 
 
 class SPP_FE_options(Flow):

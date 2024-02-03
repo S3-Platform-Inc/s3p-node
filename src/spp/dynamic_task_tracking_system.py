@@ -56,13 +56,16 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
 
             try:
                 self._start_task(self._prepared_plugin(self._current_plugin))
-            except UnknownObjectException | RateLimitExceededException as e:
-                # Ошибка возникающая при ошибке загрузке плагина
-                self._broke_current_task(e)
+            # except UnknownObjectException | RateLimitExceededException as e:
+            #     # Ошибка возникающая при ошибке загрузке плагина
+            #     self._broke_current_task(e)
+            #     self._log.error(e)
+            #     print(e)
             except Exception as e:
                 # Иная ошибка задачи
                 self._broke_current_task(e)
-                self._log.exception(e)
+                self._log.error(e)
+                print(e)
             else:
                 self._log.info(f'Plugin {self._current_plugin.repository} is done successfully')
             finally:

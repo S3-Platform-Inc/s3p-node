@@ -2,7 +2,7 @@ import asyncio
 
 from sqlalchemy import text
 
-from spp.types import SPP_source
+from src.spp.types import SPP_source
 from .main import sync_get_engine
 
 

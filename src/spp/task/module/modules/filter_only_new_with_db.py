@@ -1,6 +1,6 @@
-from spp.task.bus import Bus
-from spp.task.module.spp_module import SPP_module
-from spp.types import SPP_document
+from src.spp.task.bus import Bus
+from src.spp.task.module.spp_module import SPP_module
+from src.spp.types import SPP_document
 
 
 class FilterOnlyNewDocumentWithDB(SPP_module):
@@ -12,8 +12,6 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
 
     def __init__(self, bus: Bus):
         super().__init__(bus, 'FilterOnlyNewDocumentWithDB')
-
-        self.logger.info(f"module start")
 
         new_doc = self.__filter(self.__previous_documents(), bus.documents.data)
         self.bus.documents.data = new_doc

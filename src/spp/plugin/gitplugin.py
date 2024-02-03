@@ -7,6 +7,7 @@ import os
 import re
 import zipfile
 from typing import Callable, TYPE_CHECKING, BinaryIO
+from pathlib import Path
 
 import requests
 from github import Github, RateLimitExceededException, UnknownObjectException
@@ -17,7 +18,7 @@ from .wrong_spp_language_parse import WRONG_SPP_Language_Parse
 
 if TYPE_CHECKING:
     from github.GitRelease import GitRelease
-    from spp.types import SPP_plugin
+    from src.spp.types import SPP_plugin
 
 
 class GitPlugin(ABC_Plugin):
@@ -86,11 +87,16 @@ class GitPlugin(ABC_Plugin):
             self._extract_plugin_files()
             self._verify()
 
-    def _path_for_filename(self, filename: str, exists: bool = False) -> str:
+    def _path_for_filename(self, filename: str, exists: bool = False, mkdir: bool = False) -> str:
         local_path = os.path.join(
             os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME),
             filename
         )
+        if mkdir:
+            directory_path = re.sub(r'\/([^\/]+)$', '', local_path)
+            print(directory_path)
+            Path(directory_path).mkdir(parents=True, exist_ok=True)
+
         if exists and not os.path.isfile(local_path):
             raise FileNotFoundError(f'file {filename} not found in the plugin {self.PLUGIN_CATALOG_NAME}')
         return local_path
@@ -119,14 +125,14 @@ class GitPlugin(ABC_Plugin):
         return self._config
 
     # Нужно обдумать метод загрузки и использования файлов из плагина
-    def file(self, filename: str) -> BinaryIO | Exception:
+    def file(self, filename: str) -> BinaryIO | io.BytesIO | Exception:
         """
         Методы возвращает файл плагина по его мени
         """
         if isinstance(filename, str):
             _path = self._path_for_filename(filename, True)
-            with open(_path, 'wb') as file:
-                return file
+            with open(_path, 'rb') as file:
+                return io.BytesIO(file.read())
         else:
             raise TypeError(f'filename must be of str type')
 
@@ -184,7 +190,7 @@ class GitPlugin(ABC_Plugin):
 
         for filename in self.config.plugin.filenames:
             repository_filename = os.path.join(self.REPOSITORY_ROOT_CATALOG_NAME, filename)
-            self._extract_file_from_zip(self._path_for_filename(filename), repository_filename)
+            self._extract_file_from_zip(self._path_for_filename(filename, mkdir=True), repository_filename)
 
     def _verify(self):
         """

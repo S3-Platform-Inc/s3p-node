@@ -155,5 +155,4 @@ cython_debug/
 /localstorage/
 /db/
 /plugin_archive/
-
-*.log
+/logs/

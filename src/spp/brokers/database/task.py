@@ -4,7 +4,7 @@ import datetime
 import sqlalchemy.exc
 from sqlalchemy import text
 
-from spp.types import SPP_plugin
+from src.spp.types import SPP_plugin
 from .main import sync_get_engine, _def_null_param, _datetime_param, _interval_param
 
 

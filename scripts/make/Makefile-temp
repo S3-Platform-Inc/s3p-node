@@ -1,0 +1,28 @@
+# Импорт параметров окружения
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
+OS := $(shell uname)
+
+ifeq ($(OS), Darwin)
+##################################
+#     Include MacOS commands     #
+##################################
+include ./scripts/make/MacOS.file
+
+else
+ifeq ($(OS),Windows_NT)
+##################################
+#      Run Windows commands      #
+##################################
+include ./scripts/make/Windows.file
+else
+##################################
+#       Run Linux commands       #
+##################################
+
+
+endif
+endif

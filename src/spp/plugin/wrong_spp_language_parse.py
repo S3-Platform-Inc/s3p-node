@@ -1,8 +1,8 @@
 import logging
 import re
 
-from spp.plugin.config import Config
-from spp.plugin.config.schemes import Task, Payload, Module, Middleware, Plugin
+from src.spp.plugin.config import Config
+from src.spp.plugin.config.schemes import Task, Payload, Module, Middleware, Plugin, EntryObject
 
 
 class WRONG_SPP_Language_Parse:
@@ -79,19 +79,19 @@ class WRONG_SPP_Language_Parse:
                 filenames=tuple(self.__plugin_files)
             ),
             Task(  # DRAFT нет обработчика
-                -1,
-                self.restart_interval
+                log_mode=-1,
+                restart_interval=self.restart_interval
             ),
             Middleware(
-                tuple(self.pipelines),
-                tuple(self.bus_entities)
+                modules=tuple(self.pipelines),
+                additional_bus_entities=tuple(self.bus_entities)
             ),
             Payload(
-                self.payload_filename + '.py',
-                self.payload_classname,
-                self.payload_method,
-                tuple(self.payload_init_keywords),
-                None
+                file_name=self.payload_filename + '.py',
+                class_name=self.payload_classname,
+                entry_point=self.payload_method,
+                entry_keywords=tuple(self.payload_init_keywords),
+                additional_methods=None
             )
         )
 
@@ -103,6 +103,10 @@ class WRONG_SPP_Language_Parse:
             lines = [line.replace('\n', '') for line in text]
         elif isinstance(text, str):
             lines = [line for line in text.split('\n')]
+
+        # Шаблон для проверки и выделения первой инструкции и параметров
+        # re_template = "^([_A-Z]+) ([\w\d\=\ \-\.\/]+[\w\d])$"
+
 
         # Check lines
         # Выбирает те строки, в которых есть полезные команды из списка команд
@@ -145,10 +149,12 @@ class WRONG_SPP_Language_Parse:
                 self.logger.debug(f"Set unique reference name is {self.reference_name}")
 
             elif cmd.startswith('INIT'):
-                keyword, module = cmd.split()[1:]
-                self.payload_init_keywords.append((keyword, module))
+                match = re.match(r"^[A-Z]+\ +([a-zA-Z0-9_]+)\ +([A-Z]+)\((.*)\)", cmd)
+                _key, _type, _value = tuple(match.groups())
 
-                self.logger.debug(f"Set init payload parameter named {keyword} which represents {module}")
+                self.payload_init_keywords.append(EntryObject(_key, _type, _value))
+
+                self.logger.debug(f"Set init payload parameter named: {_key} which type: {_type} represents: {_value} ")
 
             elif cmd.startswith('SET'):
                 keyword, *param = cmd.split()[1:]

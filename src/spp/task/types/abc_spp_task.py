@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from spp.plugin.abc_plugin import ABC_Plugin
+    from src.spp.plugin.abc_plugin import ABC_Plugin
     from src.spp.types import SPP_source
 
 

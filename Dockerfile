@@ -1,31 +1,33 @@
 FROM python:3.11.5-alpine
 
-#RUN adduser -D sppuser
-USER root
-WORKDIR /sppapp
+# базовая директория контейнера
+WORKDIR /sppnode
 
-ENV PATH="/root/.local/bin:${PATH}"
-#ENV PYTHONUNBUFFERED 1
+# копирование файлов пакетного менеджера в контейнер
+COPY pyproject.toml poetry.lock ./
 
-#COPY --chown=root:root pyproject.toml .
-#COPY --chown=root:root poetry.lock .
-COPY --chown=root:root src ./src
-COPY --chown=root:root .env .
-COPY --chown=root:root requirements.txt .
+# установка пакетного менеджера poetry фиксированной версии (1.6.1)
+RUN python -m pip install --no-cache-dir poetry==1.6.1
 
-# RUN apk update
-# RUN apk add make automake gcc g++ subversion python3-dev
-RUN apk update && \
-    apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers postgresql-dev \
-    python3-dev gfortran musl-dev make automake g++ subversion python3-dev\
-    && apk add libffi-dev
+# установка библиотеки для python magic и драйвера для selenium
+RUN apk update && apk add -y --no-install-recommends --no-cache libmagic chromium-chromedriver
 
-# RUN pip3 install wheel --user && \
-    #pip3 install --platform manylinux2010_x86_64 :none: faster_fifo
-    #pip3 install poetry --user
-    #pip3 install Cython --user && \
-    #pip3 install --upgrade pip setuptools --user
+# установка зависимостей в виртуальное окружение poetry
+RUN poetry install --no-directory --no-root --no-interaction
 
-RUN pip3 install -r requirements.txt --user
+# Создание необходимых директорий в контейнере:
+#   [] /logs - для хранения логов
+#   [] /plugin_archive - для хранения загруженных плагинов
+#   [] /localstorage - для файлов локального хранилища
+RUN mkdir -p ./logs && mkdir -p ./plugin_archive && mkdir -p ./localstorage
+
+# копирование исходного кода, main файла, скриптов, конфигураций, .env файл
+COPY src ./src
+COPY main.py ./
+COPY scripts ./scripts
+COPY configurations ./configurations
+COPY configurations/envs/.env.node.docker ./.env
+
+# запуск узла SPP
+CMD ["poetry", "run", "python", "main.py"]
 

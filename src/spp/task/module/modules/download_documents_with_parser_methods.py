@@ -4,9 +4,9 @@ from functools import lru_cache
 import requests
 from requests import RequestException
 
-from spp.types import SPP_document
-from spp.task.bus import Bus
-from spp.task.module.spp_module import SPP_module
+from src.spp.types import SPP_document
+from src.spp.task.bus import Bus
+from src.spp.task.module.spp_module import SPP_module
 from .web_driver import WebDriver
 
 

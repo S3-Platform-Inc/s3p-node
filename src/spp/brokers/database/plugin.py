@@ -3,7 +3,7 @@ import datetime
 
 from sqlalchemy import text
 
-from spp.types import SPP_plugin
+from src.spp.types import SPP_plugin
 from . import sync_get_engine, _datetime_param, _text_param, _def_null_param
 
 

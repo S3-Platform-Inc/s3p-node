@@ -4,9 +4,9 @@ import json
 from sqlalchemy import text
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from spp.types import SPP_document, SPP_source
+from src.spp.types import SPP_document, SPP_source
 from .main import sync_get_engine, _def_null_param, _text_param, _datetime_param
-from spp.utils import pack, unpack
+from src.spp.utils import pack, unpack
 
 
 class AlchemyEncoder(json.JSONEncoder):

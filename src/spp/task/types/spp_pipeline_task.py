@@ -4,20 +4,20 @@ import os
 from typing import Callable, TYPE_CHECKING
 import multiprocessing
 
-from spp.task.bus import Bus
-from spp.task.bus.flow.entity import \
+from src.spp.task.bus import Bus
+from src.spp.task.bus.flow.entity import \
     SPP_FE_source, \
     SPP_FE_database, \
     SPP_FE_documents, \
     SPP_FE_options, \
     SPP_FE_fileserver, \
     SPP_FE_local_storage
-from spp.task.module import get_module_by_name
-from spp.task.task import Task
-from spp.task.status import PREPARING, READY, WORKING, SUSPENDED, FINISHED, BROKEN
+from src.spp.task.module import get_module_by_name
+from src.spp.task.task import Task
+from src.spp.task.status import PREPARING, READY, WORKING, SUSPENDED, FINISHED, BROKEN
 
 if TYPE_CHECKING:
-    from spp.plugin.gitplugin import GitPlugin
+    from src.spp.plugin.gitplugin import GitPlugin
 
 
 class SPP_Pipeline_Task(Task):
@@ -44,7 +44,7 @@ class SPP_Pipeline_Task(Task):
         self._log.debug(f"Task for {self._plugin.metadata.repository} plugin is running")
         self.upload_status(WORKING)
         self._cycle()
-        self.upload_status(FINISHED)
+        self._finish_hook()
         self._log.debug(f"Task for {self._plugin.metadata.repository} plugin is finished")
 
     def pause(self):
@@ -52,7 +52,7 @@ class SPP_Pipeline_Task(Task):
         pass
 
     def stop(self):
-        self.upload_status(FINISHED)
+        self._finish_hook()
         pass
 
     def _cycle(self):
@@ -66,19 +66,19 @@ class SPP_Pipeline_Task(Task):
 
             # initial and start current module
             try:
-                self._log.debug(f"Module {self._current_module.__class__.__name__} start")
+                self._log.debug(f"Module {self._current_module.__name__} start")
                 self._current_module(self._bus)
-                self._log.debug(f"Module {self._current_module.__class__.__name__} finished")
-            except Exception as e:
+                self._log.debug(f"Module {self._current_module.__name__} finished")
+            except Exception as _e:
                 # Ошибка работы модуля. Если модуль является критическим, то вся обработка останавливается. Иначе продолжается
-                if self._plugin.config.middleware.module_by_name(self._current_module.__class__.__name__).critical:
+                if self._plugin.config.middleware.module_by_name(self._current_module.__name__).critical:
                     self._status = BROKEN
                     self._log.critical(
-                        f"Module {self._current_module.__class__.__name__} is broken. Cycle was stopped")
-                    raise NotImplemented(e)
+                        f"Module {self._current_module.__name__} is broken. Cycle was stopped")
+                    raise _e
                 else:
                     self._log.error(
-                        f"Module {self._current_module.__class__.__name__} is broken. Cycle continues")
+                        f"Module {self._current_module.__name__} is broken. Cycle continues")
                     continue
         else:
             self._log.debug(f"Main cycle of middleware is finished")

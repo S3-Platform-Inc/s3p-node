@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from .. import Flow
 
 if TYPE_CHECKING:
-    from spp.types import SPP_source
+    from src.spp.types import SPP_source
 
 
 class SPP_FE_source(Flow):

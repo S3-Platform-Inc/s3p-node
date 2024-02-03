@@ -6,9 +6,9 @@ import magic
 import docx
 import pandas
 
-from spp.types import SPP_document
-from spp.task.bus import Bus
-from spp.task.module.spp_module import SPP_module
+from src.spp.types import SPP_document
+from src.spp.task.bus import Bus
+from src.spp.task.module.spp_module import SPP_module
 
 
 class ExtractTextFromFile(SPP_module):

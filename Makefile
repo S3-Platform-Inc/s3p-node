@@ -114,7 +114,7 @@ poetry: pyproject.toml poetry.lock
 	poetry --version
 	poetry install
 
-setup-env-files: $(DB_BASE_TEMP_DIR) $(FS_BASE_TEMP_DIR) $(LS_BASE_TEMP_DIR) $(PL_BASE_TEMP_DIR)
+setup-env-files: $(DB_BASE_TEMP_DIR) $(FS_BASE_TEMP_DIR) $(LS_BASE_TEMP_DIR) $(PL_BASE_TEMP_DIR) $(SPP_LOG_TEMP_PATH)
 
 setup-dependencies: database-init | setup-env-files
 
