@@ -38,8 +38,24 @@ INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('Cub
 INSERT INTO public.spp_source (name, load_date) VALUES ('cen&cenelec', now());
 INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-cen-cenelec', false, currval('spp_source_source_id_seq'), 1);
 
-INSERT INTO public.spp_source (name, load_date) VALUES ('jcb', now());
-INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-jcb', false, currval('spp_source_source_id_seq'), 1);
-
 INSERT INTO public.spp_source (name, load_date) VALUES ('fintechfutures', now());
 INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-fintechfutures', false, currval('spp_source_source_id_seq'), 1);
+
+-- Verified plugins for testing
+INSERT INTO public.spp_source (name, load_date) VALUES ('ecb', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-ecb', false, currval('spp_source_source_id_seq'), 1);
+
+INSERT INTO public.spp_source (name, load_date) VALUES ('visa', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-visa', false, currval('spp_source_source_id_seq'), 1);
+
+INSERT INTO public.spp_source (name, load_date) VALUES ('pwc', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-pwc', false, currval('spp_source_source_id_seq'), 1);
+
+INSERT INTO public.spp_source (name, load_date) VALUES ('openbanking', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-openbanking', false, currval('spp_source_source_id_seq'), 1);
+
+INSERT INTO public.spp_source (name, load_date) VALUES ('kpmg', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-kpmg', false, currval('spp_source_source_id_seq'), 1);
+
+INSERT INTO public.spp_source (name, load_date) VALUES ('jcb', now());
+INSERT INTO public.spp_plugin (repository, active, source_id, type) VALUES ('CuberHuber/NSPK-DI-SPP-plugin-jcb', false, currval('spp_source_source_id_seq'), 1);

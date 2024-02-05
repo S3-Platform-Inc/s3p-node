@@ -28,18 +28,6 @@ create table if not exists spp_document
         references spp_source
 );
 
-create table if not exists spp_plugin
-(
-    plugin_id  serial
-        primary key,
-    repository text    not null,
-    active     boolean,
-    pub_date   timestamp with time zone,
-    other_data json,
-    source_id  integer not null
-        references spp_source
-);
-
 create table if not exists spp_task_status
 (
     status_id serial
@@ -50,6 +38,47 @@ create table if not exists spp_task_status
 );
 
 comment on table spp_task_status is 'таблица возможных статусов состояний';
+
+create table if not exists spp_plugin_type
+(
+    id   serial
+        constraint spp_plugin_type_pk
+            primary key,
+    type text not null
+);
+
+create table if not exists spp_model
+(
+    id       serial
+        constraint spp_model_pk
+            primary key,
+    name     text not null,
+    comment  text,
+    pub_date timestamp with time zone
+);
+
+create table if not exists spp_plugin
+(
+    plugin_id  serial
+        primary key,
+    repository text    not null,
+    active     boolean,
+    pub_date   timestamp with time zone,
+    other_data json,
+    source_id  integer
+        references spp_source,
+    type       integer
+        constraint spp_plugin_spp_plugin_type_id_fk
+            references spp_plugin_type,
+    model_id   integer
+        constraint spp_plugin_spp_model_id_fk
+            references spp_model,
+    constraint check_foreign_id
+        check (((source_id IS NOT NULL) AND (model_id IS NULL) AND (type = 1)) OR
+               ((source_id IS NULL) AND (model_id IS NOT NULL) AND (type = 2)))
+);
+
+comment on constraint check_foreign_id on spp_plugin is 'Check plugin type and correct foreign refference to source or model';
 
 create table if not exists spp_task
 (
@@ -83,15 +112,86 @@ create table if not exists task_error
             references spp_task
 );
 
-create or replace view task_dashboard(id, time_next_launch, plugin_id, last_finish_time, status_id) as
-SELECT id,
-       time_next_launch,
-       plugin_id,
-       last_finish_time,
-       status_id
-FROM spp_task;
+create table if not exists spp_model_score
+(
+    id          serial
+        constraint spp_model_score_pk
+            primary key,
+    score       json,
+    plugin_id   integer
+        constraint spp_model_score_spp_plugin_plugin_id_fk
+            references spp_plugin,
+    document_id integer
+        constraint spp_model_score_spp_document_doc_id_fk
+            references spp_document
+);
 
-comment on view task_dashboard is 'Dashboard for view all information about tasks, plugins and sources';
+create table if not exists roles
+(
+    id      serial
+        constraint roles_pk
+            primary key,
+    name    text,
+    comment integer
+);
+
+create table if not exists spp_plugins_roles
+(
+    id        serial
+        constraint spp_plugins_roles_pk
+            primary key,
+    plugin_id integer
+        constraint spp_plugins_roles_spp_plugin_plugin_id_fk
+            references spp_plugin,
+    role_id   integer
+        constraint spp_plugins_roles___fk
+            references roles
+);
+
+create table if not exists spp_roles_sources
+(
+    id        serial
+        constraint spp_roles_sources_pk
+            primary key,
+    role      integer
+        constraint spp_roles_sources_roles_id_fk
+            references roles,
+    source_id integer
+        constraint spp_roles_sources_spp_source_source_id_fk
+            references spp_source
+);
+
+create or replace view "task dashboard"
+            (sousrce, plugin, type, status, "old launch", "future launch 1", "task id", "status id") as
+SELECT ss.name                   AS sousrce,
+       sp.repository             AS plugin,
+       sp.type,
+       sts.name                  AS status,
+       spp_task.last_finish_time AS "old launch",
+       spp_task.time_next_launch AS "future launch 1",
+       spp_task.id               AS "task id",
+       spp_task.status_id        AS "status id"
+FROM spp_plugin sp
+         JOIN spp_task ON sp.plugin_id = spp_task.plugin_id
+         JOIN spp_source ss ON ss.source_id = sp.source_id
+         JOIN spp_task_status sts ON spp_task.status_id = sts.status_id;
+
+create or replace view view_name
+            (sousrce, plugin, type, status, "old launch", "future launch 1", "task id", "status id", active) as
+SELECT ss.name                   AS sousrce,
+       sp.repository             AS plugin,
+       pt.type,
+       sts.name                  AS status,
+       spp_task.last_finish_time AS "old launch",
+       spp_task.time_next_launch AS "future launch 1",
+       spp_task.id               AS "task id",
+       spp_task.status_id        AS "status id",
+       sp.active
+FROM spp_plugin sp
+         JOIN spp_task ON sp.plugin_id = spp_task.plugin_id
+         JOIN spp_source ss ON ss.source_id = sp.source_id
+         JOIN spp_task_status sts ON spp_task.status_id = sts.status_id
+         JOIN spp_plugin_type pt ON sp.type = pt.id;
 
 create or replace function set_plugin_activity(__plugin_id integer, __activity boolean) returns void
     language plpgsql
@@ -497,38 +597,6 @@ begin
 end;
 $$;
 
-create or replace function relevant_plugin_for_processing()
-    returns TABLE(plugin_id integer, repository text, pub_date timestamp with time zone, other_data json)
-    language plpgsql
-as
-$$
-begin
---   Релевантный плагин для исполнения на платформе это тот:
---         1. Плагин является активным
---         2. связанная задача или не существует
---         3. связанная задача в состоянии (FINISHED или BROKEN или TERMINATED) и время старта < now()
---
-
-    RETURN QUERY SELECT sp.plugin_id  as plugin_id,
-                        sp.repository as repository,
-                        sp.pub_date   as pub_date,
-                        sp.other_data as other_data
-                 FROM public.spp_task as st
-                          RIGHT JOIN public.spp_plugin sp on sp.plugin_id = st.plugin_id
-                 WHERE sp.active IS TRUE
-                   AND (
-                         st.plugin_id IS NULL
-                         OR
-                         (st.plugin_id IS NOT NULL
-                             AND
-                          (st.status_id = 7 OR st.status_id = 8 or st.status_id = 9) AND st.time_next_launch < now()
-                             )
-                     )
-                LIMIT 1;
-
-end;
-$$;
-
 create or replace function task_broke(__plugin_id integer) returns boolean
     language plpgsql
 as
@@ -601,4 +669,48 @@ begin
 end;
 $$;
 
+create or replace function relevant_plugin_for_processing(__plugin_type text)
+    returns TABLE(plugin_id integer, repository text, pub_date timestamp with time zone, type text)
+    language plpgsql
+as
+$$
+declare
+    __plugin_type_id INTEGER;
+begin
+--   Релевантный плагин для исполнения на платформе это тот:
+--         1. Плагин является активным
+--         2. связанная задача или не существует
+--         3. связанная задача в состоянии (FINISHED или BROKEN или TERMINATED) и время старта < now()
+--
+    IF (__PLUGIN_TYPE IS NULL or __PLUGIN_TYPE like 'ALL') THEN
+-- 		Если __PLUGIN_TYPE пустой, то мы не должны обращать внимания на группу
+        __plugin_type_id := 0;
+    ELSE
+        SELECT pl_type.id INTO __plugin_type_id FROM public.spp_plugin_type as pl_type WHERE pl_type.type = __PLUGIN_TYPE LIMIT 1;
+    END IF;
+
+    RETURN QUERY SELECT sp.plugin_id  as plugin_id,
+                        sp.repository as repository,
+                        sp.pub_date   as pub_date,
+                        spt.type as type
+                 FROM public.spp_task as st
+                    RIGHT JOIN public.spp_plugin sp on sp.plugin_id = st.plugin_id
+                    RIGHT JOIN public.spp_plugin_type spt on spt.id = sp.type
+                 WHERE sp.active IS TRUE
+                   AND (
+                         st.plugin_id IS NULL
+                         OR
+                         (st.plugin_id IS NOT NULL
+                             AND
+                          (st.status_id = 7 OR st.status_id = 8 or st.status_id = 9) AND st.time_next_launch < now()
+                             )
+                     )
+                   AND (__PLUGIN_TYPE IS NULL
+                            OR (__PLUGIN_TYPE IS NOT NULL AND __plugin_type_id = 0)
+                            OR (__PLUGIN_TYPE IS NOT NULL AND sp.type = __plugin_type_id)
+                       )
+                LIMIT 1;
+
+end;
+$$;
 
