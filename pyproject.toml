@@ -16,7 +16,7 @@ python-dotenv = "^1.0.0"
 requests = "2.31.0"
 python-magic-bin = { version = "^0.4.14", platform = "Windows_NT"}
 python-docx = "^0.8.11"
-pygithub = "^1.59.1"
+pygithub = "2.2.0"
 pypdf = "^3.16.1"
 python-magic = "^0.4.27"
 beautifulsoup4 = "^4.12.2"

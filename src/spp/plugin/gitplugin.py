@@ -10,7 +10,7 @@ from typing import Callable, TYPE_CHECKING, BinaryIO
 from pathlib import Path
 
 import requests
-from github import Github, RateLimitExceededException, UnknownObjectException
+from github import Github, RateLimitExceededException, UnknownObjectException, Auth
 
 from .abc_plugin import ABC_Plugin
 from .config import Config
@@ -199,8 +199,12 @@ class GitPlugin(ABC_Plugin):
         self._path_for_filename(self._SPPFILERX, True)
 
     def _git_last_release(self) -> GitRelease:
-        repository = Github().get_repo(self.metadata.repository)
-        return repository.get_latest_release()
+        _release: GitRelease | None = None
+        auth = Auth.Token(str(os.getenv("GITHUB_TOKEN")))
+        with Github(auth=auth) as g:
+            repository = g.get_repo(self.metadata.repository)
+            _release = repository.get_latest_release()
+        return _release
 
     @staticmethod
     def _parse_config(config: str) -> Config | Exception:
