@@ -74,11 +74,11 @@ class SPP_Pipeline_Task(Task):
                 if self._plugin.config.middleware.module_by_name(self._current_module.__name__).critical:
                     self._status = BROKEN
                     self._log.critical(
-                        f"Module {self._current_module.__name__} is broken. Cycle was stopped")
+                        f"Module {self._current_module.__name__} is broken. Cycle was stopped. Error message: {_e}")
                     raise _e
                 else:
                     self._log.error(
-                        f"Module {self._current_module.__name__} is broken. Cycle continues")
+                        f"Module {self._current_module.__name__} is broken. Cycle continues. Error message: {_e}")
                     continue
         else:
             self._log.debug(f"Main cycle of middleware is finished")
