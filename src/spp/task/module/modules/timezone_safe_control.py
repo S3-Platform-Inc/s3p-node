@@ -13,9 +13,13 @@ class TimezoneSafeControl(SPP_module):
     def __init__(self, bus: Bus):
         super().__init__(bus, 'TimezoneSafeControl')
 
+        count: int = 0
         for doc in self.bus.documents.data:
             if not self.__exists_timezone(doc):
+                count += 1
                 self._add_default_timezone(doc)
+                self.logger.debug(f'Added timezone to datetime in document {doc.title}')
+        self.logger.info(f'{len(self.bus.documents.data)} documents which timezone has been added')
 
     @staticmethod
     def __exists_timezone(document: SPP_document) -> bool:

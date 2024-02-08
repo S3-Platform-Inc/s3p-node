@@ -34,7 +34,7 @@ def _text_param(param: str) -> str:
         if str(param).lower() == "null":
             return param
         else:
-            return f"$${param}$$"
+            return f"'{param}'"
     else:
         return "Null"
 

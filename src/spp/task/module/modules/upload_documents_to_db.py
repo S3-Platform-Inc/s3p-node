@@ -15,19 +15,8 @@ class UploadDocumentToDB(SPP_module):
         for doc in self.bus.documents.data:
             self._upload(doc)
 
+        self.logger.info(f'Updated {len(self.bus.documents.data)} documents')
+
     def _upload(self, doc: SPP_document):
         self.bus.database.doc.safe_update(self.bus.source.data, doc)
-
-    def _draft_upload(self, doc: SPP_document):
-        """
-        !! DRAFT
-
-        Временный метод, который ограничивает размер передаваемого поля text в базу данных
-        :param doc:
-        :type doc:
-        :return:
-        :rtype:
-        """
-        max_length = 2 << 16 if len(doc.text) > (2 << 16) else len(doc.text)
-        doc.text = doc.text[:max_length]
-        res = self.bus.database.doc.safe_update(self.bus.source.data, doc)
+        self.logger.debug(f'Upload document title:{doc.title}, pubdate:{doc.pub_date} to database')
