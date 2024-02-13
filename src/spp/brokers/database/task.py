@@ -1,11 +1,7 @@
-import asyncio
 import datetime
 
-import sqlalchemy.exc
-from sqlalchemy import text
-
 from src.spp.types import SPP_plugin
-from .main import sync_get_engine, _def_null_param, _datetime_param, _interval_param
+from .main import psConnection, interval
 
 
 class Task:
@@ -20,101 +16,42 @@ class Task:
         :return: ID Задачи (Task)
         :rtype:
         """
-        task = asyncio.run(Task.__create_task(plugin.plugin_id, time_start, status_code))
-        print(task)
-        return task
+        with psConnection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'public.create_task', (int(plugin.plugin_id), time_start, status_code))
+                output = cursor.fetchone()
+                print(f'Create task. ID {output[0]}')
+                return output[0]
 
     @staticmethod
-    def set_status(plugin: SPP_plugin, status: int):
+    def status_update(plugin: SPP_plugin, status: int):
         """
         Обновления даты публикации плагина
-        :param status:
-        :type status:
-        :param plugin:
-        :type plugin:
-        :return:
-        :rtype:
         """
-        asyncio.run(Task.__set_task_status(plugin.plugin_id, status))
+        with psConnection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'public.set_task_status', (int(plugin.plugin_id), int(status)))
+                cursor.fetchone()
 
     @staticmethod
     def finish(plugin: SPP_plugin, restart_interval: str | None):
         """
-        Завершение работы задачи.
-        :param plugin:
-        :type plugin:
-        :param restart_interval:
-        :type restart_interval:
-        :return:
-        :rtype:
+        Завершение работы задачи и установка времени перезапуска
         """
-        asyncio.run(Task.__finish_task(plugin.plugin_id, restart_interval))
+        with psConnection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'public.task_finish', (int(plugin.plugin_id), interval(restart_interval)))
+                cursor.fetchone()
 
     @staticmethod
     def broke(plugin: SPP_plugin):
         """
         Выпадение ошибки в задаче на различных этапах
         """
-        asyncio.run(Task.__broke_task(plugin.plugin_id))
-
-    @staticmethod
-    async def __create_task(plugin_id: int, time_start: datetime.datetime | None, status_code: int | None) -> int:
-        """
-        Асинхронное получение всех активных плагинов
-        :return:
-        :rtype:
-        """
-        try:
-            async with sync_get_engine().begin() as conn:
-                query_param = f"SELECT * FROM public.create_task(" \
-                              f"{plugin_id}, " \
-                              f"{_def_null_param(_datetime_param(time_start))}, " \
-                              f"{_def_null_param(status_code)}" \
-                              f");"
-                result = await conn.execute(text(query_param))
-                await conn.commit()
-            return result.fetchall()
-        except sqlalchemy.exc.DBAPIError as e:
-            return 1
-        except Exception as e:
-            raise e
-
-    @staticmethod
-    async def __set_task_status(_id: int, status: int) -> bool:
-        """
-        Асинхронное обновление даты публикации плагина
-        :param _id:
-        :type _id:
-        :return:
-        :rtype:
-        """
-        async with sync_get_engine().begin() as conn:
-            query_param = f"SELECT * FROM public.set_task_status(" \
-                          f"{_id}, " \
-                          f"{status}" \
-                          f");"
-            result = await conn.execute(text(query_param))
-            await conn.commit()
-        return result.fetchall()
-
-    @staticmethod
-    async def __finish_task(_id: int, restart_time: str | None):
-        async with sync_get_engine().begin() as conn:
-            query_param = f"SELECT * FROM public.task_finish(" \
-                          f"{_id}, " \
-                          f"{_def_null_param(_interval_param(restart_time))}" \
-                          f");"
-            result = await conn.execute(text(query_param))
-            await conn.commit()
-        return result.fetchall()
-
-    @staticmethod
-    async def __broke_task(_id: int):
-        async with sync_get_engine().begin() as conn:
-            query_param = f"SELECT * FROM public.task_broke({_id});"
-            result = await conn.execute(text(query_param))
-            await conn.commit()
-        return result.fetchall()
+        with psConnection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'public.task_broke', (int(plugin.plugin_id),))
+                cursor.fetchone()
 
 
 if __name__ == "__main__":

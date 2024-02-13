@@ -27,7 +27,7 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
         :rtype:
         """
         self.logger.info(f"Receive previous documents by source '{self.bus.source.data.name}'")
-        documents: list[SPP_document] = self.bus.database.doc.all_hashed_by_source_name(self.bus.source.data.name)
+        documents: list[SPP_document] = self.bus.database.doc.little_documents(self.bus.source.data.name)
         self.logger.info(f"Received previous documents - {len(documents)}")
         return documents
 
@@ -61,6 +61,6 @@ class FilterOnlyNewDocumentWithDB(SPP_module):
     def __save_new_docs(self):
 
         for new_doc in self.bus.documents.data:
-            self.bus.database.doc.safe_init(self.bus.source.data, new_doc)
+            self.bus.database.doc.init(self.bus.source.data, new_doc)
             self.logger.debug(f'Saved new document {new_doc.title} to database')
         ...

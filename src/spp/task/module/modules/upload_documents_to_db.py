@@ -18,5 +18,5 @@ class UploadDocumentToDB(SPP_module):
         self.logger.info(f'Updated {len(self.bus.documents.data)} documents')
 
     def _upload(self, doc: SPP_document):
-        self.bus.database.doc.safe_update(self.bus.source.data, doc)
+        self.bus.database.doc.update(self.bus.source.data, doc)
         self.logger.debug(f'Upload document title:{doc.title}, pubdate:{doc.pub_date} to database')

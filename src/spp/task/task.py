@@ -3,16 +3,16 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from src.spp.brokers.database import Source, Task as db_task
+from src.spp.brokers.database import Source as dbSource, Task as dbTask
 from .status import NONSET, _statusToName
-from .types.abc_spp_task import ABC_SPP_Task
+from .types.abcspptask import AbcSppTask
 
 if TYPE_CHECKING:
     from src.spp.plugin.gitplugin import GitPlugin
     from src.spp.types import SPP_source
 
 
-class Task(ABC_SPP_Task):
+class Task(AbcSppTask):
     _plugin: GitPlugin
     _log: logging.Logger
     _source: SPP_source
@@ -41,7 +41,7 @@ class Task(ABC_SPP_Task):
     def run(self): ...
 
     def __safe_get_source(self):
-        self._source = Source.safe(self._plugin.config.plugin.reference_name)
+        self._source = dbSource.safe(self._plugin.config.plugin.reference_name)
 
     def upload_status(self, status: int):
         """
@@ -59,9 +59,9 @@ class Task(ABC_SPP_Task):
         :type status:
         """
         self._status = status
-        db_task.set_status(self._plugin.metadata, status)
+        dbTask.status_update(self._plugin.metadata, status)
         self._log.debug(f'Task {self._plugin.metadata.plugin_id} change status to {_statusToName[status]}')
 
     def _finish_hook(self):
         restart_interval = self._plugin.config.task.restart_interval
-        db_task.finish(self._plugin.metadata, restart_interval)
+        dbTask.finish(self._plugin.metadata, restart_interval)

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from src.spp.types import SPP_source
 
 
-class ABC_SPP_Task(metaclass=ABCMeta):
+class AbcSppTask(metaclass=ABCMeta):
     """
     Абстрактный класс задачи платформы.
     """

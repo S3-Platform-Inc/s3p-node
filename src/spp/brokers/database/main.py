@@ -1,53 +1,35 @@
-import datetime
 import os
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+import psycopg2
 
-DRIVERNAME = os.getenv('DB_DRIVERNAME')
 USERNAME = os.getenv('DB_USER')
 HOST = os.getenv('DB_DOCKER_HOST')
 PORT = os.getenv('DB_DOCKER_PORT')
 DATABASE = os.getenv('DB_DATABASE')
 PASSWORD = os.getenv('DB_PASSWORD')
 
-url = f"{DRIVERNAME}+asyncpg://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+
+def psConnection():
+    """
+    Create a connection to the PostgreSQL Control-database by psycopg2
+    :return:
+    """
+    return psycopg2.connect(
+        database=DATABASE,
+        user=USERNAME,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT
+    )
 
 
-# async_engine = create_async_engine(url, echo=True)
-
-
-# async def get_async_engine() -> AsyncEngine:
-#     while True:
-#         yield create_async_engine(url, echo=True)
-
-
-def sync_get_engine() -> AsyncEngine:
-    return create_async_engine(url, echo=False)
-
-
-def _def_null_param(param) -> str:
-    return param if param else "Null"
-
-
-def _text_param(param: str) -> str:
+def interval(param: str | None) -> str | None:
+    """
+    Function that wrapped interval parameter for SQL query
+    :param param:
+    :return:
+    """
     if param:
-        if str(param).lower() == "null":
-            return param
-        else:
-            return f"'{param}'"
-    else:
-        return "Null"
-
-
-def _datetime_param(param: datetime.datetime | None) -> str | None:
-    if param:
-        return f"TIMESTAMP {_text_param(str(param))}"
-    else:
-        return None
-
-
-def _interval_param(param: str | None) -> str | None:
-    if param:
-        return f"{_text_param(param)}::interval"
+        return f"'{param}'::interval"
     else:
         return None
