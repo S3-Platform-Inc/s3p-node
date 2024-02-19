@@ -1,10 +1,10 @@
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 from .web_install_driver import WebInstallerDriver
 
 
-class DownloadDocumentsThroughSeleniumTemp(SPP_module):
+class DownloadDocumentsThroughSeleniumTemp(SppModule):
     """
     Модуль для скачивания документов, используя метод парсера для скачивания документа в локальное хранилище,
     с последующим переименованием и загрузкой в файловый сервер.
@@ -16,7 +16,7 @@ class DownloadDocumentsThroughSeleniumTemp(SPP_module):
     ENTITY_METHOD_NAME = 's_download'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'DownloadDocumentsThroughSeleniumTemp')
+        super().__init__(bus)
         self.download()
 
     def download(self):
@@ -40,7 +40,7 @@ class DownloadDocumentsThroughSeleniumTemp(SPP_module):
                 self.bus.documents.update(
                     doc,
                     SPP_document(
-                        doc_id=doc.doc_id,
+                        id=doc.id,
                         title=doc.title,
                         abstract=doc.abstract,
                         text=doc.text,
@@ -62,7 +62,6 @@ class DownloadDocumentsThroughSeleniumTemp(SPP_module):
             raise NotImplemented
 
         ls_path = self.bus.local_storage.full_source_storage_path
-        downloaded_filename = ""
         try:
             downloaded_filename = download_selenium_method(WebInstallerDriver(ls_path), ls_path, url)
             return downloaded_filename

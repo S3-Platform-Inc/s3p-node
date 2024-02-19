@@ -1,27 +1,28 @@
+"""
+gitplugin.py
+"""
+
 from __future__ import annotations
 
 import importlib.util
 import io
-import logging
 import os
 import re
 import zipfile
-from typing import Callable, TYPE_CHECKING, BinaryIO
 from pathlib import Path
+from typing import Callable, TYPE_CHECKING, BinaryIO
 
 import requests
 from github import Github, RateLimitExceededException, UnknownObjectException, Auth
 
-from .abc_plugin import ABC_Plugin
-from .config import Config
-from .wrong_spp_language_parse import WRONG_SPP_Language_Parse
+from .plugin import Plugin
 
 if TYPE_CHECKING:
     from github.GitRelease import GitRelease
-    from src.spp.types import SPP_plugin
+    from src.spp.types import SppPlugin
 
 
-class GitPlugin(ABC_Plugin):
+class GitPlugin(Plugin):
     """
     :metadata: структура плагина, получаемая от БД
 
@@ -30,42 +31,15 @@ class GitPlugin(ABC_Plugin):
 
     """
 
-    metadata: SPP_plugin
+    def __init__(self, meta: SppPlugin):
+        super().__init__(meta)
 
-    _payload: Callable = None
-    _config: Config
+        self._payload: Callable = None
 
-    BASE_PLUGIN_ARCHIVE_DIR_PATH: str  # Абсолютный путь до архива плагинов
-    PLUGIN_CATALOG_NAME: str  # Имя каталога плагина. Нужен для проверки на уже существующее имя.
-    REPOSITORY_ROOT_CATALOG_NAME: str
-    PAYLOAD_FILENAME: str | None
-    PAYLOAD_REPO_FILENAME: str | None  # Имя файла парсера в репозитории
-    CONFIG_REPO_FILENAME: str  # Имя файла конфигурации в репозитории
-    zip_repository: zipfile.ZipFile
-
-    def __del__(self):
-        # Delete documents
-        # Нужно подумать, стоит ли хранить прошлые версии !!
-        # plugin_dir = os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME)
-        # shutil.rmtree(plugin_dir, ignore_errors=True)
-        ...
-
-    def __init__(self, meta: SPP_plugin):
-        self.metadata = meta
-        self._log = logging.Logger(self.__class__.__name__)
-
-        self._payload = None
-        self._config = None
-
-        self._SPPFILERX = os.environ.get('SPP_PLUGIN_CONFIG_FILENAME')
-
-        self.BASE_PLUGIN_ARCHIVE_DIR_PATH = os.environ.get('SPP_ABSOLUTE_PATH_TO_PLUGIN_ARCHIVE')
-        self.PLUGIN_CATALOG_NAME = None
-        self.REPOSITORY_ROOT_CATALOG_NAME = None
-        self.PAYLOAD_FILENAME = None
-        self.PAYLOAD_REPO_FILENAME = None
-        self.CONFIG_REPO_FILENAME = None
-        self.zip_repository = None
+        self.REPOSITORY_ROOT_CATALOG_NAME: str | None = None
+        self.PAYLOAD_FILENAME: str | None = None
+        self.PAYLOAD_REPO_FILENAME: str | None = None  # Имя файла парсера в репозитории
+        self.zip_repository: zipfile.ZipFile | None = None
 
         try:
             # Получение последнего релиза
@@ -87,6 +61,21 @@ class GitPlugin(ABC_Plugin):
             self._extract_plugin_files()
             self._verify()
 
+    @property
+    def payload(self) -> Callable | Exception:
+        """
+        Свойство, которое возвращает payload класс плагина
+        :return:
+        """
+        if self._payload is None:
+            self._payload = self._payload_python_class_from_file(
+                self._path_for_filename(
+                    self.config.payload.file, True
+                )
+            )
+
+        return self._payload
+
     def _path_for_filename(self, filename: str, exists: bool = False, mkdir: bool = False) -> str:
         local_path = os.path.join(
             os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME),
@@ -101,30 +90,6 @@ class GitPlugin(ABC_Plugin):
             raise FileNotFoundError(f'file {filename} not found in the plugin {self.PLUGIN_CATALOG_NAME}')
         return local_path
 
-    @property
-    def payload(self) -> Callable | Exception:
-        if self._payload is None:
-            self._payload = self._payload_python_class_from_file(self._path_for_filename(self.config.payload.file_name, True))
-
-        return self._payload
-
-    @property
-    def config(self) -> Config | Exception:
-        if self._config is None:
-            # Загрузка конфигурации
-            conf_text: str = None
-            try:
-                with open(self._path_for_filename(self._SPPFILERX, True), 'rb') as config_file:
-                    conf_text = config_file.read().decode()
-            except FileNotFoundError:
-                conf_text = self.zip_repository.read(self.CONFIG_REPO_FILENAME).decode()
-            finally:
-                config: Config = GitPlugin._parse_config(conf_text)
-                self._config = config
-
-        return self._config
-
-    # Нужно обдумать метод загрузки и использования файлов из плагина
     def file(self, filename: str) -> BinaryIO | io.BytesIO | Exception:
         """
         Методы возвращает файл плагина по его мени
@@ -136,6 +101,7 @@ class GitPlugin(ABC_Plugin):
         else:
             raise TypeError(f'filename must be of str type')
 
+    # Нужно обдумать метод загрузки и использования файлов из плагина
     def _zip_latest_release(self) -> zipfile.ZipFile | Exception:
         """
         Возвращает zip архив последнего релиза плагина
@@ -144,9 +110,9 @@ class GitPlugin(ABC_Plugin):
         """
         if not self.latest_release:
             self._log.exception('Plugin repository does not contain a release')
-            raise UnknownObjectException(f'self.latest_release не загружен')
-        zipBytes = requests.get(self.latest_release.zipball_url).content
-        return zipfile.ZipFile(io.BytesIO(zipBytes))
+            raise UnknownObjectException(f'{str(self.latest_release)} не загружен')
+        zip_bytes = requests.get(self.latest_release.zipball_url).content
+        return zipfile.ZipFile(io.BytesIO(zip_bytes))
 
     def _extract_file_from_zip(self, filename: str, repository_filename: str):
         assert isinstance(self.PLUGIN_CATALOG_NAME, str)
@@ -156,7 +122,7 @@ class GitPlugin(ABC_Plugin):
             ext_file.write(self.zip_repository.read(repository_filename))
 
     def _payload_python_class_from_file(self, path: str) -> Callable:
-        spec = importlib.util.spec_from_file_location("SPP.spp_plugin." + self.config.payload.file_name, path)
+        spec = importlib.util.spec_from_file_location("SPP.spp_plugin." + self.config.payload.file, path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -164,21 +130,19 @@ class GitPlugin(ABC_Plugin):
         payload_class = plugin_payload
         return payload_class
 
-    def  _fill_plugin_const(self):
+    def _fill_plugin_const(self):
         """
-        Чтобы получить PLUGIN_CATALOG_NAME, нужно найти в списке имя, принадлежащее директории, в котором бы был только один символ `/`
+        Чтобы получить PLUGIN_CATALOG_NAME, нужно найти в списке имя, принадлежащее директории,
+         в котором бы был только один символ `/`
         Example:
                                                            {Вложенная папка}
             [no] CuberHuber-NSPK-DI-SPP-plugin-nist-092ba29/spp/rep/
 
             [yes] CuberHuber-NSPK-DI-SPP-plugin-nist-092ba29/
         """
-        self.PLUGIN_CATALOG_NAME = re.sub(r"^(.+)\/", "", self.metadata.repository, 0, re.MULTILINE)
-
         for name in self.zip_repository.namelist():
             if name.endswith('/') and name.count('/') == 1:
                 self.REPOSITORY_ROOT_CATALOG_NAME = name
-                self.CONFIG_REPO_FILENAME = os.path.join(self.REPOSITORY_ROOT_CATALOG_NAME, self._SPPFILERX)
                 return
         raise ValueError(f'Zip release does not contain a root directory')
 
@@ -194,24 +158,27 @@ class GitPlugin(ABC_Plugin):
 
     def _verify(self):
         """
-        В плагине должен быть как минимум файл SPPfile
+        Нужно реализовать валидацию плагина
         """
-        self._path_for_filename(self._SPPFILERX, True)
+        return
 
     def _git_last_release(self) -> GitRelease:
         _release: GitRelease | None = None
         auth = Auth.Token(str(os.getenv("GITHUB_TOKEN")))
+        print(self.metadata.repository)
         with Github(auth=auth) as g:
             repository = g.get_repo(self.metadata.repository)
             _release = repository.get_latest_release()
         return _release
 
-    @staticmethod
-    def _parse_config(config: str) -> Config | Exception:
-        config: Config = WRONG_SPP_Language_Parse(config).config
-        return config
-
     def __eq__(self, other):
         if isinstance(other, GitPlugin):
             return self.metadata == other.metadata
         return False
+
+    def __del__(self):
+        # Delete documents
+        # Нужно подумать, стоит ли хранить прошлые версии !!
+        # plugin_dir = os.path.join(self.BASE_PLUGIN_ARCHIVE_DIR_PATH, self.PLUGIN_CATALOG_NAME)
+        # shutil.rmtree(plugin_dir, ignore_errors=True)
+        ...

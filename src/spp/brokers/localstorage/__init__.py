@@ -1,5 +1,5 @@
-from .spp_temp_broker import SPP_temp_broker
+from .spp_temp_broker import SppTempBroker
 
 __all__ = [
-    "SPP_temp_broker",
+    "SppTempBroker",
 ]

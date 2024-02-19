@@ -2,10 +2,10 @@ import urllib.request
 
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 
 
-class DownloadDocumentsWithDB(SPP_module):
+class DownloadDocumentsWithDB(SppModule):
     """
     Модуль для скачивания документов. При успешном скачивании, сохраняет файл в FTP сервер. Если есть необходимость,
     то сохраняет в локальное хранилище
@@ -22,7 +22,7 @@ class DownloadDocumentsWithDB(SPP_module):
     }
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'DownloadDocumentsWithDB')
+        super().__init__(bus)
 
         ...
 
@@ -34,7 +34,7 @@ class DownloadDocumentsWithDB(SPP_module):
                 self.bus.documents.update(
                     document,
                     SPP_document(
-                        doc_id=document.doc_id,
+                        id=document.id,
                         title=document.title,
                         abstract=document.abstract,
                         text=document.text,

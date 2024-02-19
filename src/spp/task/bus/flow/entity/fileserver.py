@@ -9,20 +9,20 @@ import io
 from datetime import datetime
 from typing import BinaryIO, TYPE_CHECKING
 
-from src.spp.brokers.ftpstorage import SPP_file_server_broker
+from src.spp.brokers.ftpstorage import SppFileServerBroker
 from .. import Flow
 
 if TYPE_CHECKING:
-    from src.spp.types import SPP_source, SPP_document
+    from src.spp.types import SppRefer, SPP_document
 
 
-class SPP_FE_fileserver(Flow):
-    _file_broker: SPP_file_server_broker
+class SppFeFileserver(Flow):
+    _file_broker: SppFileServerBroker
 
-    def __init__(self, source: SPP_source):
+    def __init__(self, ref: SppRefer):
         super().__init__()
 
-        self._file_broker = SPP_file_server_broker(source)
+        self._file_broker = SppFileServerBroker(ref)
         ...
 
     def upload_file(self, document: SPP_document, data: bytes | io.BytesIO | BinaryIO) -> bool | tuple[str, datetime]:

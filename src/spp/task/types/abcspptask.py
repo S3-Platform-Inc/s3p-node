@@ -5,8 +5,8 @@ from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.spp.plugin.abc_plugin import ABC_Plugin
-    from src.spp.types import SPP_source
+    from src.spp.plugin.abc_plugin import AbcPlugin
+    from src.spp.types import SppTask
 
 
 class AbcSppTask(metaclass=ABCMeta):
@@ -14,9 +14,9 @@ class AbcSppTask(metaclass=ABCMeta):
     Абстрактный класс задачи платформы.
     """
 
-    _plugin: ABC_Plugin
+    _task: SppTask
+    _plugin: AbcPlugin
     _log: logging.Logger
-    _source: SPP_source
     _status: int
 
     @property

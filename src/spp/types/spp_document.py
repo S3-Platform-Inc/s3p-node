@@ -8,7 +8,7 @@ class SPP_document:
     """
     Объект документа в SPP
     """
-    doc_id: int | None
+    id: int | None
     title: str
     abstract: str | None
     text: str | None

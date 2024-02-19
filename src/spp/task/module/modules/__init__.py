@@ -8,6 +8,7 @@ from .extract_text_from_file import ExtractTextFromFile
 from .upload_documents_to_db import UploadDocumentToDB
 from .timezone_safe_control import TimezoneSafeControl
 from .cut_junk_characters_from_document_text import CutJunkCharactersFromDocumentText
+from .save_documents import SaveDocumentToDB
 
 __all__ = [
     "FilterOnlyNewDocumentWithDB",
@@ -20,4 +21,5 @@ __all__ = [
     "UploadDocumentToDB",
     "TimezoneSafeControl",
     "CutJunkCharactersFromDocumentText",
+    "SaveDocumentToDB",
 ]

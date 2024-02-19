@@ -1,15 +1,15 @@
-from .database import SPP_FE_database
-from .documents import SPP_FE_documents
-from .fileserver import SPP_FE_fileserver
-from .options import SPP_FE_options
-from .source import SPP_FE_source
-from .local_storage import SPP_FE_local_storage
+from .database import SppFeDatabase
+from .documents import SppFeDocuments
+from .fileserver import SppFeFileserver
+from .options import SppFeOptions
+from .source import SppFeSource
+from .local_storage import SppFeLocalStorage
 
 __all__ = [
-    "SPP_FE_options",
-    "SPP_FE_documents",
-    "SPP_FE_source",
-    "SPP_FE_database",
-    "SPP_FE_fileserver",
-    "SPP_FE_local_storage",
+    "SppFeOptions",
+    "SppFeDocuments",
+    "SppFeSource",
+    "SppFeDatabase",
+    "SppFeFileserver",
+    "SppFeLocalStorage",
 ]

@@ -1,9 +1,9 @@
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 from src.spp.types import SPP_document
 
 
-class DeterminingFileMimetype(SPP_module):
+class DeterminingFileMimetype(SppModule):
     """
     Модуль для определения типа файла документа
 
@@ -17,7 +17,7 @@ class DeterminingFileMimetype(SPP_module):
     DETERMINE_METHOD: str = 'document'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'DeterminingFileMimetype')
+        super().__init__(bus)
 
         for doc in self.bus.documents.data:
             self._determine(doc)

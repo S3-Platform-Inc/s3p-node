@@ -4,25 +4,27 @@ from typing import TYPE_CHECKING
 
 from src.spp.task.status import WORKING
 from src.spp.task.module import get_module_by_name
-from .spp_pipeline_task import SPP_Pipeline_Task
+from .spp_pipeline_task import SppPipelineTask
 
 if TYPE_CHECKING:
-    from src.spp.types import SPP_document
+    from src.spp.types import SPP_document, SppTask
+    from src.spp.plugin.gitplugin import GitPlugin
 
 
-class SPP_Payload_Task(SPP_Pipeline_Task):
+class SppPayloadTask(SppPipelineTask):
     """
     Задача (Task) с нагрузкой (Payload). Расширенная версия задачи с постобработкой.
     """
 
-    def __init__(self, plugin):
-        super().__init__(plugin)
+    def __init__(self, task: SppTask, plugin: GitPlugin):
+        super().__init__(task, plugin)
+
+        self._plugin: GitPlugin = plugin
         ...
 
     def run(self):
         self.upload_status(WORKING)
         self._main()
-        self._finish_hook()
 
     def _main(self):
         # Запуск нагрузки и ожидаение его работы
@@ -35,11 +37,16 @@ class SPP_Payload_Task(SPP_Pipeline_Task):
     def _payload(self) -> list[SPP_document]:
         init = {}
 
-        for entry_obj in self._plugin.config.payload.entry_keywords:
-            if entry_obj.type == 'MODULE':
+        for entry_obj in self._plugin.config.payload.entry_params:
+            if entry_obj.type.lower() == 'module':
+                # Загружает класс модуля
                 init[entry_obj.key] = get_module_by_name(entry_obj.value)()
-            elif entry_obj.type == 'FILE':
+            elif entry_obj.type.lower() == 'file':
+                # Загружает файл в bytes-like представлении
                 init[entry_obj.key] = self._plugin.file(entry_obj.value)
+            elif entry_obj.type.lower() == 'const':
+                # Передает константу из конфигурации
+                init[entry_obj.key] = entry_obj.value
             else:
                 raise ValueError(f'Entry object type as {entry_obj.type} don`t prosecuting')
 

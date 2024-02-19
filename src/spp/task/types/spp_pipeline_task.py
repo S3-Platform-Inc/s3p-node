@@ -1,26 +1,27 @@
 from __future__ import annotations
 
+import multiprocessing
 import os
 from typing import Callable, TYPE_CHECKING
-import multiprocessing
 
 from src.spp.task.bus import Bus
 from src.spp.task.bus.flow.entity import \
-    SPP_FE_source, \
-    SPP_FE_database, \
-    SPP_FE_documents, \
-    SPP_FE_options, \
-    SPP_FE_fileserver, \
-    SPP_FE_local_storage
+    SppFeSource, \
+    SppFeDatabase, \
+    SppFeDocuments, \
+    SppFeOptions, \
+    SppFeFileserver, \
+    SppFeLocalStorage
 from src.spp.task.module import get_module_by_name
+from src.spp.task.status import WORKING, BROKEN
 from src.spp.task.task import Task
-from src.spp.task.status import PREPARING, READY, WORKING, SUSPENDED, FINISHED, BROKEN
 
 if TYPE_CHECKING:
-    from src.spp.plugin.gitplugin import GitPlugin
+    from src.spp.plugin.abc_plugin import AbcPlugin
+    from src.spp.types import SppTask
 
 
-class SPP_Pipeline_Task(Task):
+class SppPipelineTask(Task):
     """
     Главный класс Задачи (Task). Содержит в себе только постобработку (Шины).
 
@@ -29,31 +30,24 @@ class SPP_Pipeline_Task(Task):
 
     _modules: multiprocessing.Queue[Callable]
     _current_module: Callable
-    _current_module_name: str
     _bus: Bus
 
-    def __init__(self, plugin: GitPlugin):
-        super().__init__(plugin)
+    def __init__(self, task: SppTask, plugin: AbcPlugin):
+        super().__init__(task, plugin)
 
-        self.upload_status(PREPARING)
         self._prepare()
-        self.upload_status(READY)
-        ...
 
     def run(self):
-        self._log.debug(f"Task for {self._plugin.metadata.repository} plugin is running")
+        self._log.debug(f"Task ID:{self._task.id} SesID: {self._task.session_id} "
+                        f"for plugin:{self._plugin.metadata.repository} is running")
         self.upload_status(WORKING)
         self._cycle()
-        self._finish_hook()
-        self._log.debug(f"Task for {self._plugin.metadata.repository} plugin is finished")
+        self._log.debug(f"Task ID:{self._task.id} SesID: {self._task.session_id} "
+                        f"for plugin:{self._plugin.metadata.repository} is finished")
 
-    def pause(self):
-        self.upload_status(SUSPENDED)
-        pass
+    def pause(self): ...
 
-    def stop(self):
-        self._finish_hook()
-        pass
+    def stop(self): ...
 
     def _cycle(self):
         self._log.debug(f"Main cycle of middleware is running")
@@ -70,7 +64,8 @@ class SPP_Pipeline_Task(Task):
                 self._current_module(self._bus)
                 self._log.debug(f"Module {self._current_module.__name__} finished")
             except Exception as _e:
-                # Ошибка работы модуля. Если модуль является критическим, то вся обработка останавливается. Иначе продолжается
+                # Ошибка работы модуля. Если модуль является критическим, то вся обработка останавливается.
+                # Иначе продолжается
                 if self._plugin.config.middleware.module_by_name(self._current_module.__name__).critical:
                     self._status = BROKEN
                     self._log.critical(
@@ -109,40 +104,40 @@ class SPP_Pipeline_Task(Task):
         )
         self._log.debug("Bus initialize completed")
 
-    def __prepare_fe_options(self) -> SPP_FE_options:
+    def __prepare_fe_options(self) -> SppFeOptions:
         # Подготовка потока настроек для шины
         self._log.debug("Bus flow 'options' initializing")
-        options = SPP_FE_options(self._plugin.config.middleware.modules)
+        options = SppFeOptions(self._plugin.config.middleware.modules)
         self._log.debug("Bus flow 'options' initialized")
         return options
 
-    def __prepare_fe_documents(self) -> SPP_FE_documents:
+    def __prepare_fe_documents(self) -> SppFeDocuments:
         self._log.debug("Bus flow 'documents' initializing")
         self._log.debug("Bus flow 'documents' initialized")
-        return SPP_FE_documents([])
+        return SppFeDocuments([])
 
-    def __prepare_fe_source(self) -> SPP_FE_source:
+    def __prepare_fe_source(self) -> SppFeSource:
         # подготовка потока источника для шины
 
         self._log.debug("Bus flow 'source' initializing")
-        source_entity = SPP_FE_source(self._source)
+        source_entity = SppFeSource(self._task.refer)
         self._log.debug("Bus flow 'source' initialized")
         return source_entity
 
-    def __prepare_fe_database(self) -> SPP_FE_database:
+    def __prepare_fe_database(self) -> SppFeDatabase:
         # Подготовка потока базы данных для шины
         self._log.debug("Bus flow 'database' initializing")
         self._log.debug("Bus flow 'database' initialized")
-        return SPP_FE_database()
+        return SppFeDatabase()
 
-    def __prepare_fe_fileserver(self) -> SPP_FE_fileserver:
+    def __prepare_fe_fileserver(self) -> SppFeFileserver:
         self._log.debug("Bus flow 'fileserver' initializing")
-        fileserver = SPP_FE_fileserver(self._source)
+        fileserver = SppFeFileserver(self._task.refer)
         self._log.debug("Bus flow 'fileserver' initialized")
         return fileserver
 
-    def __prepare_fe_local_storage(self) -> SPP_FE_local_storage:
+    def __prepare_fe_local_storage(self) -> SppFeLocalStorage:
         self._log.debug("Bus flow 'local storage' initializing")
-        localstorage = SPP_FE_local_storage(self._source, os.environ.get('SPP_ABSOLUTE_PATH_TO_LOCAL_STORAGE'))
+        localstorage = SppFeLocalStorage(self._task.refer, os.environ.get('SPP_ABSOLUTE_PATH_TO_LOCAL_STORAGE'))
         self._log.debug("Bus flow 'local storage' initialized")
         return localstorage

@@ -8,10 +8,10 @@ import pandas
 
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 
 
-class ExtractTextFromFile(SPP_module):
+class ExtractTextFromFile(SppModule):
     """
     Модуль для извлечения текста из документов и занесения его в параметр SPP_document._text
 
@@ -28,7 +28,7 @@ class ExtractTextFromFile(SPP_module):
     STORAGE = 'localstorage'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'ExtractTextFromFile')
+        super().__init__(bus)
 
         self._MIMETYPES_methods: dict[str, Callable] = {
             '.pdf': self._extract_pdf,
@@ -57,11 +57,10 @@ class ExtractTextFromFile(SPP_module):
                 else:
 
                     # Тоже ошибка. Файл не поддерживается. Нужно продолжить обработку, но запомнить это.
-                    print(f'[ExtractTextFromFile] | ERROR: MIMETYPES не поддерживается | [{doc.doc_id}, {doc.title}]')
+                    print(f'[ExtractTextFromFile] | ERROR: MIMETYPES не поддерживается | [{doc.id}, {doc.title}]')
         except Exception as e:
-
             # В случае, если документ невозможно прочитать, просто продолжаем.
-            print(f'[ExtractTextFromFile] | ERROR: File not exist | [{doc.doc_id}, {doc.title}]')
+            self.logger.warning(f'[ExtractTextFromFile] | ERROR: File not exist with e: {e} | [{doc.id}, {doc.title}]')
             ...
         ...
 
@@ -87,7 +86,7 @@ class ExtractTextFromFile(SPP_module):
         self.bus.documents.update(
             doc,
             SPP_document(
-                doc_id=doc.doc_id,
+                id=doc.id,
                 title=doc.title,
                 abstract=doc.abstract,
                 text=_text,

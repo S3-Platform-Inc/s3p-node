@@ -6,7 +6,7 @@ from requests import RequestException
 
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 from .web_driver import WebDriver
 
 
@@ -15,7 +15,7 @@ class ForbiddenError(RequestException):
     ...
 
 
-class DownloadDocumentsWithParserMethods(SPP_module):
+class DownloadDocumentsWithParserMethods(SppModule):
     """
     Модуль для скачивания документов, используя метод парсера для прохождения проверок и получения кук.
     При успешном скачивании, сохраняет файл в FTP сервер. Если есть необходимость,
@@ -29,7 +29,7 @@ class DownloadDocumentsWithParserMethods(SPP_module):
     cookies: list[dict] = []
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'DownloadDocumentsWithParserMethods')
+        super().__init__(bus)
         self.download()
         ...
 
@@ -79,7 +79,7 @@ class DownloadDocumentsWithParserMethods(SPP_module):
             self.bus.documents.update(
                 document,
                 SPP_document(
-                    doc_id=document.doc_id,
+                    id=document.id,
                     title=document.title,
                     abstract=document.abstract,
                     text=document.text,

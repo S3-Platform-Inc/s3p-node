@@ -8,12 +8,13 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SPP_plugin:
+class SppPlugin:
     """
     Структура плагина платформы.
     """
-    plugin_id: int | None
+    id: int | None
     repository: str
     active: bool
-    pub_date: datetime | None
+    loaded: datetime | None
+    config: dict | None
     type: str

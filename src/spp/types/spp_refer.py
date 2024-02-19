@@ -8,12 +8,11 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SPP_source:
+class SppRefer:
     """
     Объект источника в SPP
     """
-    src_id: int
-    name: str
-    config: dict
-    sphere: str
-    load_date: datetime
+    id: int
+    name: str | None
+    type: str | None
+    load_date: datetime | None

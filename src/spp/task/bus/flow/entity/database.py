@@ -7,7 +7,7 @@ from src.spp.brokers.database import Document as DB_Document, Source as DB_Sourc
 from .. import Flow
 
 
-class SPP_FE_database(Flow):
+class SppFeDatabase(Flow):
     _document: DB_Document
     _source: DB_Source
 

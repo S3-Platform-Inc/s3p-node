@@ -4,12 +4,16 @@ from dataclasses import dataclass
 @dataclass
 class Plugin:
     """
-    :reference name: Уникальное имя связанного объекта, за который отвечает плагин (источник или модель)
+    :reference: Уникальное имя связанного объекта, за который отвечает плагин (источник или модель).
 
-    :plugin_type: Уникальный тип плагина (Parser | ML)
+    :type: *Уникальный тип плагина (Parser | ML)
 
-    :filenames: Кортеж файлов плагина, которые будут использоваться
+    :filenames: *Кортеж файлов плагина, которые будут использоваться
+
+    :localstorage: Настройка локального хранилища: определяет как задача будет работать
+    (отправлять только на файловый сервер или локально дублировать файлы
     """
-    reference_name: str
+    reference: str
     type: str
     filenames: tuple[str]
+    localstorage: bool | None

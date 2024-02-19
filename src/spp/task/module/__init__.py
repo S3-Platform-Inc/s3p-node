@@ -11,7 +11,8 @@ from .modules import \
     ExtractTextFromFile, \
     UploadDocumentToDB, \
     TimezoneSafeControl, \
-    CutJunkCharactersFromDocumentText
+    CutJunkCharactersFromDocumentText, \
+    SaveDocumentToDB
 
 __all__ = [
     "get_module_by_name",
@@ -25,6 +26,7 @@ __all__ = [
     "UploadDocumentToDB",
     "TimezoneSafeControl",
     "CutJunkCharactersFromDocumentText",
+    "SaveDocumentToDB",
 ]
 
 

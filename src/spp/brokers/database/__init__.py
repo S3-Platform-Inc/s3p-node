@@ -1,14 +1,13 @@
 from .document import Document
-from .main import psConnection, interval
+from .main import ps_connection
 from .source import Source
-from .plugin import Plugin
 from .task import Task
+from .node import Node
 
 __all__ = [
     "Source",
     "Document",
-    "Plugin",
     "Task",
-    "psConnection",
-    "interval",
+    "ps_connection",
+    'Node',
 ]

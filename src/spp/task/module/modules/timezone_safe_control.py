@@ -1,17 +1,17 @@
 import datetime
 
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 from src.spp.types import SPP_document
 
 
-class TimezoneSafeControl(SPP_module):
+class TimezoneSafeControl(SppModule):
     """
     Модуль для защиты поля datetime
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'TimezoneSafeControl')
+        super().__init__(bus)
 
         count: int = 0
         for doc in self.bus.documents.data:

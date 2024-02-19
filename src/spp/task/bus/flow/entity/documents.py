@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from src.spp.types import SPP_document
 
 
-class SPP_FE_documents(Flow):
+class SppFeDocuments(Flow):
     data: list[SPP_document]
 
     def __init__(self, documents: list[SPP_document]):

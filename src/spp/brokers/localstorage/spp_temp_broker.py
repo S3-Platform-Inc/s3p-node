@@ -3,17 +3,17 @@ import pickle
 from hashlib import sha224
 from typing import BinaryIO
 
-from src.spp.types import SPP_source, SPP_document
+from src.spp.types import SppRefer, SPP_document
 from .setting import setting, Control
 
 
-class SPP_temp_broker:
-    __source: SPP_source
+class SppTempBroker:
+    __ref: SppRefer
     __base_path: str
     __control: Control
 
-    def __init__(self, src: SPP_source, local_path: str):
-        self.__source = src
+    def __init__(self, ref: SppRefer, local_path: str):
+        self.__ref = ref
         self.__base_path = local_path
 
         self._check_directory(self.work_dir)
@@ -39,7 +39,7 @@ class SPP_temp_broker:
         :return:
         :rtype:
         """
-        return os.path.join(self.work_dir, self.__source.name)
+        return os.path.join(self.work_dir, self.__ref.name)
 
     def _sourced_file_path(self, file: str) -> str:
         return os.path.join(self.source_dir, file)

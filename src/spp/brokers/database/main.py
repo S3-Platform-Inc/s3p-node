@@ -9,7 +9,7 @@ DATABASE = os.getenv('DB_DATABASE')
 PASSWORD = os.getenv('DB_PASSWORD')
 
 
-def psConnection():
+def ps_connection():
     """
     Create a connection to the PostgreSQL Control-database by psycopg2
     :return:
@@ -21,15 +21,3 @@ def psConnection():
         host=HOST,
         port=PORT
     )
-
-
-def interval(param: str | None) -> str | None:
-    """
-    Function that wrapped interval parameter for SQL query
-    :param param:
-    :return:
-    """
-    if param:
-        return f"'{param}'::interval"
-    else:
-        return None

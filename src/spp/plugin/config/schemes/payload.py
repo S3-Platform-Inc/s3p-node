@@ -16,8 +16,8 @@ class Payload:
     :entry_keywords: кортеж элементов ключ-значение, которые нужно передать в конструктор класса.
     :additional_methods: дополнительные методы, которые нужно поместить в дополнительные потоки после инициализации класса
     """
-    file_name: str
+    file: str
     class_name: str
     entry_point: str
-    entry_keywords: tuple[EntryObject] | None
+    entry_params: tuple[EntryObject, ...] | None
     additional_methods: tuple | None

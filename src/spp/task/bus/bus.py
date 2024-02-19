@@ -11,12 +11,12 @@ from ..exceptions.bus.bus_entity_not_found_error import BusEntityNotFoundError
 if TYPE_CHECKING:
     from src.spp.types import SPP_document
     from .flow.entity import \
-        SPP_FE_options, \
-        SPP_FE_documents, \
-        SPP_FE_source, \
-        SPP_FE_database, \
-        SPP_FE_fileserver, \
-        SPP_FE_local_storage
+        SppFeOptions, \
+        SppFeDocuments, \
+        SppFeSource, \
+        SppFeDatabase, \
+        SppFeFileserver, \
+        SppFeLocalStorage
 
 
 class Bus:
@@ -35,22 +35,22 @@ class Bus:
 
     """
 
-    _options: SPP_FE_options
-    _documents: SPP_FE_documents
-    _source: SPP_FE_source
-    _database: SPP_FE_database
-    _fileserver: SPP_FE_fileserver
-    _local_storage: SPP_FE_local_storage
+    _options: SppFeOptions
+    _documents: SppFeDocuments
+    _source: SppFeSource
+    _database: SppFeDatabase
+    _fileserver: SppFeFileserver
+    _local_storage: SppFeLocalStorage
     _other: dict
 
     def __init__(
             self,
-            option: SPP_FE_options,
-            documents: SPP_FE_documents,
-            source: SPP_FE_source,
-            database: SPP_FE_database,
-            fileserver: SPP_FE_fileserver,
-            local_storage: SPP_FE_local_storage,
+            option: SppFeOptions,
+            documents: SppFeDocuments,
+            source: SppFeSource,
+            database: SppFeDatabase,
+            fileserver: SppFeFileserver,
+            local_storage: SppFeLocalStorage,
             **kwargs
     ):
         self._options = option
@@ -67,16 +67,16 @@ class Bus:
         self.log = logging.getLogger(self.__class__.__name__)
 
     @property
-    def options(self) -> SPP_FE_options:
+    def options(self) -> SppFeOptions:
         """
         Свойство предоставляет сущность настроек
         :return:
-        :rtype: SPP_FE_options
+        :rtype: SppFeOptions
         """
         return self._options
 
     @property
-    def documents(self) -> SPP_FE_documents:
+    def documents(self) -> SppFeDocuments:
         """
         Свойство предоставляет сущность из потока documents
         :return: список объектов документов (SPP_documents)
@@ -86,41 +86,41 @@ class Bus:
 
     @documents.setter
     def documents(self, docs: list[SPP_document]):
-        self._documents = SPP_FE_documents(docs)
+        self._documents = SppFeDocuments(docs)
 
     @property
-    def source(self) -> SPP_FE_source:
+    def source(self) -> SppFeSource:
         """
         Свойство предоставляет сущность из потока source
         :return: объект источника (SPP_source)
-        :rtype: SPP_FE_source
+        :rtype: SppFeSource
         """
         return self._source
 
     @property
-    def database(self) -> SPP_FE_database:
+    def database(self) -> SppFeDatabase:
         """
         Свойство предоставляет сущность из потока database
         :return: брокер базы данных
-        :rtype: SPP_FE_database
+        :rtype: SppFeDatabase
         """
         return self._database
 
     @property
-    def fileserver(self) -> SPP_FE_fileserver:
+    def fileserver(self) -> SppFeFileserver:
         """
         Свойство предоставляет сущность из потока fileserver
         :return: брокер файлового сервера
-        :rtype: SPP_FE_fileserver
+        :rtype: SppFeFileserver
         """
         return self._fileserver
 
     @property
-    def local_storage(self) -> SPP_FE_local_storage:
+    def local_storage(self) -> SppFeLocalStorage:
         """
         Свойство предоставляет сущность из потока localstorage
         :return: брокер локального хранилища
-        :rtype: SPP_FE_local_storage
+        :rtype: SppFeLocalStorage
         """
         return self._local_storage
 

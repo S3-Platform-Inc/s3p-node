@@ -10,19 +10,19 @@ from typing import TYPE_CHECKING
 from .. import Flow
 
 if TYPE_CHECKING:
-    from src.spp.types import SPP_source
+    from src.spp.types import SppRefer
 
 
-class SPP_FE_source(Flow):
-    _data: SPP_source
+class SppFeSource(Flow):
+    _data: SppRefer
 
-    def __init__(self, src: SPP_source):
+    def __init__(self, ref: SppRefer):
         super().__init__()
 
-        self._data = src
+        self._data = ref
 
     @property
-    def data(self) -> SPP_source:
+    def data(self) -> SppRefer:
         """
         Возвращает информацию об источнике
         :return: объект источника

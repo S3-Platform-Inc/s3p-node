@@ -12,8 +12,8 @@ class Middleware:
     """
     Схема конфигурации middleware, содержащую список модулей и дополнительные потоки шины
     """
-    modules: tuple[Module]
-    additional_bus_entities: tuple[tuple]
+    modules: tuple[Module, ...]
+    bus: tuple[tuple] | None
 
     def module_by_name(self, _name: str) -> Module | Exception:
         """

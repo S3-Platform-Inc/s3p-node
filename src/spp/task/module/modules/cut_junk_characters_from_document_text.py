@@ -1,10 +1,10 @@
 import re
 
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SPP_module
+from src.spp.task.module.spp_module import SppModule
 
 
-class CutJunkCharactersFromDocumentText(SPP_module):
+class CutJunkCharactersFromDocumentText(SppModule):
     """
     Модуль для защиты поля datetime
 
@@ -13,24 +13,24 @@ class CutJunkCharactersFromDocumentText(SPP_module):
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus, 'CutJunkCharactersFromDocumentText')
+        super().__init__(bus)
 
-        PATTERN = r'[^a-zA-Z0-9;,. _]+'
+        self.PATTERN: str = r'[^a-zA-Z0-9;,. _]+'
 
         count: int = 0
 
         for doc in self.bus.documents.data:
             is_cut: bool = False
             if isinstance(doc.title, str):
-                doc.title = self.cut_junk_characters(doc.title, PATTERN)
+                doc.title = self.cut_junk_characters(doc.title)
                 is_cut = True
                 self.logger.debug(f'title field of doc: {doc.title} was cut')
             if isinstance(doc.text, str):
-                doc.text = self.cut_junk_characters(doc.text, PATTERN)
+                doc.text = self.cut_junk_characters(doc.text)
                 is_cut = True
                 self.logger.debug(f'text field of doc: {doc.title} was cut')
             if isinstance(doc.abstract, str):
-                doc.abstract = self.cut_junk_characters(doc.abstract, PATTERN)
+                doc.abstract = self.cut_junk_characters(doc.abstract)
                 is_cut = True
                 self.logger.debug(f'abstract field of doc: {doc.title} was cut')
             if is_cut:
@@ -38,9 +38,8 @@ class CutJunkCharactersFromDocumentText(SPP_module):
 
         self.logger.info(f'Count of cut docs: {count}')
 
-    @staticmethod
-    def cut_junk_characters(text: str, pattern) -> str:
+    def cut_junk_characters(self, text: str) -> str:
         """
         Метод удаляет
         """
-        return re.sub(pattern, ' ', text)
+        return re.sub(self.PATTERN, ' ', text)

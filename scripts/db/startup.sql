@@ -1,274 +1,580 @@
-create sequence spp_plugins_meta_id_seq
+create schema nodes;
+
+comment on schema nodes is 'Схема для представления и работы с функциями';
+
+create schema tasks;
+
+comment on schema tasks is 'Схема для представления и работы с задачами';
+
+create schema plugins;
+
+comment on schema plugins is 'Схема для представления и работы с плагинами';
+
+create schema sources;
+
+comment on schema sources is 'схема для представления и работы с источниками';
+
+create schema ml;
+
+comment on schema ml is 'Схема для представления и работы с ml';
+
+create schema documents;
+
+comment on schema documents is 'Схема для представления и работы с документами';
+
+
+
+create sequence tasks.sessions_n_session_id_seq
     as integer;
 
-create table if not exists spp_source
+create table if not exists nodes.node
 (
-    source_id serial
+    id     serial
         primary key,
-    name      text                     not null
-        unique,
-    config    json,
-    sphere    text,
-    load_date timestamp with time zone not null
+    name   text not null,
+    ip     text,
+    config json
 );
 
-create table if not exists spp_document
+create table if not exists nodes.sessions
 (
-    doc_id     serial
+    id     serial
         primary key,
-    title      text                     not null,
-    abstract   text,
-    text       text,
-    web_link   text                     not null,
-    local_link text,
-    other_data json,
-    pub_date   timestamp with time zone not null,
-    load_date  timestamp with time zone,
-    source_id  integer                  not null
-        references spp_source
+    start  timestamp with time zone not null,
+    stop   timestamp with time zone,
+    alive  timestamp with time zone,
+    nodeid serial
+        references nodes.node
 );
 
-create table if not exists spp_task_status
+create table if not exists plugins.plugin
 (
-    status_id serial
-        constraint spp_task_status_pk
-            primary key,
-    name      text    not null,
-    code      integer not null
-);
-
-comment on table spp_task_status is 'таблица возможных статусов состояний';
-
-create table if not exists spp_plugin_type
-(
-    id   serial
-        constraint spp_plugin_type_pk
-            primary key,
-    type text not null
-);
-
-create table if not exists spp_model
-(
-    id       serial
-        constraint spp_model_pk
-            primary key,
-    name     text not null,
-    comment  text,
-    pub_date timestamp with time zone
-);
-
-create table if not exists spp_plugin
-(
-    plugin_id  serial
+    id         serial
         primary key,
     repository text    not null,
-    active     boolean,
-    pub_date   timestamp with time zone,
-    other_data json,
-    source_id  integer
-        references spp_source,
-    type       integer
-        constraint spp_plugin_spp_plugin_type_id_fk
-            references spp_plugin_type,
-    model_id   integer
-        constraint spp_plugin_spp_model_id_fk
-            references spp_model,
-    constraint check_foreign_id
-        check (((source_id IS NOT NULL) AND (model_id IS NULL) AND (type = 1)) OR
-               ((source_id IS NULL) AND (model_id IS NOT NULL) AND (type = 2)))
+    active     boolean not null,
+    loaded     timestamp with time zone,
+    config     json
 );
 
-comment on constraint check_foreign_id on spp_plugin is 'Check plugin type and correct foreign refference to source or model';
-
-create table if not exists spp_task
+create table if not exists tasks.status
 (
-    id               integer default nextval('spp_plugins_meta_id_seq'::regclass) not null
-        constraint spp_task_pk
-            primary key,
-    time_next_launch timestamp with time zone,
-    plugin_id        integer                                                      not null
-        constraint spp_task_spp_plugin_plugin_id_fk
-            references spp_plugin,
-    last_finish_time timestamp with time zone,
-    status_id        integer                                                      not null
-        constraint spp_task_spp_task_status_status_id_fk
-            references spp_task_status,
-    error_stack      integer default 0                                            not null
+    code integer not null
+        primary key,
+    name text    not null
+        constraint status_pk
+            unique
 );
 
-comment on column spp_task.status_id is 'Статус работы плагина и его состояний';
+create table if not exists tasks.errors
+(
+    id       serial
+        primary key,
+    datetime timestamp with time zone not null,
+    comment  text                     not null,
+    taskid   serial
+);
 
-alter sequence spp_plugins_meta_id_seq owned by spp_task.id;
+create table if not exists tasks.schedule
+(
+    id     serial
+        primary key,
+    start  timestamp with time zone not null,
+    taskid serial
+);
 
-create table if not exists task_error
+create table if not exists ml.model
+(
+    id     serial
+        primary key,
+    name   text,
+    config json
+);
+
+create table if not exists sources.source
 (
     id      serial
-        constraint task_error_pk
-            primary key,
-    text    text,
-    data    timestamp with time zone not null,
-    task_id integer                  not null
-        constraint task_error___fk
-            references spp_task
+        primary key,
+    name    text not null,
+    sphere  text,
+    created timestamp with time zone
 );
 
-create table if not exists spp_model_score
+create table if not exists documents.document
 (
     id          serial
-        constraint spp_model_score_pk
-            primary key,
-    score       json,
-    plugin_id   integer
-        constraint spp_model_score_spp_plugin_plugin_id_fk
-            references spp_plugin,
-    document_id integer
-        constraint spp_model_score_spp_document_doc_id_fk
-            references spp_document
+        primary key,
+    sourceid    serial
+        references sources.source,
+    title       text                     not null,
+    weblink     text                     not null,
+    published   timestamp with time zone not null,
+    abstract    text,
+    text        text,
+    storagelink text,
+    loaded      timestamp with time zone,
+    otherdata   json
 );
 
-create table if not exists roles
+create table if not exists ml.plugin
 (
-    id      serial
-        constraint roles_pk
-            primary key,
-    name    text,
-    comment integer
-);
+    modelid serial
+        references ml.model,
+    primary key (id)
+)
+    inherits (plugins.plugin);
 
-create table if not exists spp_plugins_roles
+create table if not exists sources.plugin
 (
-    id        serial
-        constraint spp_plugins_roles_pk
-            primary key,
-    plugin_id integer
-        constraint spp_plugins_roles_spp_plugin_plugin_id_fk
-            references spp_plugin,
-    role_id   integer
-        constraint spp_plugins_roles___fk
-            references roles
-);
+    sourceid serial
+        references sources.source,
+    primary key (id)
+)
+    inherits (plugins.plugin);
 
-create table if not exists spp_roles_sources
+create table if not exists tasks.task
 (
-    id        serial
-        constraint spp_roles_sources_pk
-            primary key,
-    role      integer
-        constraint spp_roles_sources_roles_id_fk
-            references roles,
-    source_id integer
-        constraint spp_roles_sources_spp_source_source_id_fk
-            references spp_source
+    id       serial
+        primary key,
+    status   integer not null
+        references tasks.status,
+    pluginid integer not null
+        unique
 );
 
-create or replace view "task dashboard"
-            (sousrce, plugin, type, status, "old launch", "future launch 1", "task id", "status id") as
-SELECT ss.name                   AS sousrce,
-       sp.repository             AS plugin,
-       sp.type,
-       sts.name                  AS status,
-       spp_task.last_finish_time AS "old launch",
-       spp_task.time_next_launch AS "future launch 1",
-       spp_task.id               AS "task id",
-       spp_task.status_id        AS "status id"
-FROM spp_plugin sp
-         JOIN spp_task ON sp.plugin_id = spp_task.plugin_id
-         JOIN spp_source ss ON ss.source_id = sp.source_id
-         JOIN spp_task_status sts ON spp_task.status_id = sts.status_id;
+create table if not exists tasks.sessions
+(
+    id           serial
+        primary key,
+    start        timestamp with time zone not null,
+    stop         timestamp with time zone,
+    taskid       serial
+        constraint sessions_task_id_fk
+            references tasks.task,
+    n_session_id integer default nextval('tasks.sessions_n_session_id_seq'::regclass)
+        references nodes.sessions
+);
 
-create or replace view view_name
-            (sousrce, plugin, type, status, "old launch", "future launch 1", "task id", "status id", active) as
-SELECT ss.name                   AS sousrce,
-       sp.repository             AS plugin,
-       pt.type,
-       sts.name                  AS status,
-       spp_task.last_finish_time AS "old launch",
-       spp_task.time_next_launch AS "future launch 1",
-       spp_task.id               AS "task id",
-       spp_task.status_id        AS "status id",
-       sp.active
-FROM spp_plugin sp
-         JOIN spp_task ON sp.plugin_id = spp_task.plugin_id
-         JOIN spp_source ss ON ss.source_id = sp.source_id
-         JOIN spp_task_status sts ON spp_task.status_id = sts.status_id
-         JOIN spp_plugin_type pt ON sp.type = pt.id;
+alter sequence tasks.sessions_n_session_id_seq owned by tasks.sessions.n_session_id;
 
-create or replace function set_plugin_activity(__plugin_id integer, __activity boolean) returns void
+create table if not exists ml.score
+(
+    id         serial
+        primary key,
+    score      json                     not null,
+    date       timestamp with time zone not null,
+    config     json,
+    documentid serial
+        references documents.document,
+    pluginid   serial
+        references ml.plugin
+);
+
+create or replace view plugins.complete(tid, status, pid, repository, loaded, config, type, refid, refname) as
+SELECT task.id AS tid,
+       task.status,
+       pl.id   AS pid,
+       pl.repository,
+       pl.loaded,
+       pl.config,
+       pl.type,
+       pl.refid,
+       pl.refname
+FROM tasks.task
+         JOIN (SELECT plugin.id,
+                      plugin.repository,
+                      plugin.loaded,
+                      plugin.config,
+                      'SOURCE'::text                      AS type,
+                      plugin.sourceid                     AS refid,
+                      (SELECT source.name
+                       FROM sources.source
+                       WHERE source.id = plugin.sourceid) AS refname
+               FROM sources.plugin
+               UNION ALL
+               SELECT plugin.id,
+                      plugin.repository,
+                      plugin.loaded,
+                      plugin.config,
+                      'ML'::text                        AS type,
+                      plugin.modelid                    AS refid,
+                      (SELECT model.name
+                       FROM ml.model
+                       WHERE model.id = plugin.modelid) AS refname
+               FROM ml.plugin) pl ON task.pluginid = pl.id;
+
+comment on view plugins.complete is 'Выбирает задачи и добавляет к ним данные о плагине и связанным с ним объектом (источник, модель, pipeline)';
+
+create or replace function nodes.active_sessions()
+    returns TABLE(session_id integer, node_id integer, alive timestamp with time zone)
     language plpgsql
 as
 $$
 begin
-    UPDATE public.spp_plugin as sp
-    SET active = __activity
-    WHERE public.spp_plugin.plugin_id = __plugin_id;
+    RETURN QUERY SELECT ns.id, ns.nodeid, ns.alive as alive
+                 FROM nodes.sessions ns
+                 WHERE (ns.alive is NOT NULL AND ns.stop IS NULL AND ns.start < NOW());
 end;
 $$;
 
-create or replace function task_clear(__task_id integer) returns boolean
+comment on function nodes.active_sessions() is 'Возвращает таблицу со всеми активными сессиями всех узлов';
+
+create or replace function nodes.active_session(nodeid integer) returns integer
     language plpgsql
 as
 $$
+    declare sid integer;
 begin
-    IF (EXISTS(SELECT id FROM spp_task WHERE id = __task_id)) THEN
-        RETURN FALSE;
+
+    select session_id into sid from nodes.active_sessions() where node_id = nodeid ORDER BY alive DESC LIMIT 1;
+    RETURN sid;
+end;
+$$;
+
+comment on function nodes.active_session(integer) is 'Возвращает id активной сессии узла по его id (передаваемый параметр)';
+
+create or replace function nodes.alive(__id integer) returns integer
+    language plpgsql
+as
+$$
+    declare
+        sid integer;
+begin
+    select nodes.active_session(__id) into sid;
+    if (sid IS NULL)
+    THEN
+        insert into nodes.sessions(start, nodeid, alive)
+        VALUES (now(), __id, now());
     end if;
 
-    DELETE
-    FROM public.spp_task
-    WHERE id = __task_id;
-    return TRUE;
+    UPDATE nodes.sessions SET alive = now() WHERE id = sid;
+
+    return sid;
 end;
 $$;
 
-create or replace function set_task_status(__plugin_id integer, __status_code integer) returns boolean
+comment on function nodes.alive(integer) is 'Функция, которую вызывает узел SPP для обновления статуса "я жив"';
+
+create or replace function nodes.observe_node_session() returns integer
     language plpgsql
 as
 $$
-declare
-    __status_id integer;
+    declare
+        dead_sessions integer;
 begin
 
+    SELECT COUNT(*) into dead_sessions FROM nodes.active_sessions() n, LATERAL nodes.kill_session(n.session_id) sid WHERE AGE(now(), alive) > '3 secs'::interval;
 
-    SELECT status_id INTO __status_id FROM public.spp_task_status WHERE code = __status_code;
+--     SELECT sid FROM nodes.active_sessions() n, LATERAL nodes.kill_session(n.session_id) sid WHERE AGE(now(), alive) > interval '3 secs';
 
-    UPDATE public.spp_task
-    SET status_id = __status_id
-    WHERE plugin_id = __plugin_id;
-    return TRUE;
+    return dead_sessions;
 end;
 $$;
 
-create or replace function task_finish(__plugin_id integer, __restart_time interval) returns boolean
+comment on function nodes.observe_node_session() is 'Просматривает все активные сессии и проверяет, чтобы дата последнего обновления статуса "я жив" узла SPP был не больше N секунд. Если находятся сессии, чей статус не обновился, то для этой сессии вызывается функция nodes.kill_session(id integer)';
+
+create or replace function nodes.kill_session(__id integer) returns integer
     language plpgsql
 as
 $$
-declare
-    __status_id            integer;
-    __new_time_next_launch timestamp WITH TIME ZONE;
-    __last_finish_time     timestamp WITH TIME ZONE;
 begin
-
-
-    SELECT status_id INTO __status_id FROM public.spp_task_status WHERE name LIKE 'FINISHED';
-    SELECT now()::timestamp WITH TIME ZONE INTO __last_finish_time;
-
-
-    IF (__restart_time IS NULL) THEN
-        __restart_time := '7 days'::interval;
-    end IF;
-
-    __new_time_next_launch := __last_finish_time + __restart_time;
-    UPDATE public.spp_task
-        SET status_id        = __status_id,
-            last_finish_time = __last_finish_time,
-            time_next_launch = __new_time_next_launch
-        WHERE plugin_id = __plugin_id;
-
-    return TRUE;
+    UPDATE nodes.sessions SET alive = NULL, stop = now() WHERE id = __id;
+    return __id;
 end;
 $$;
 
-create or replace function equal_documents(doc_id_1 integer, title_1 text, web_link_1 text, pub_date_1 timestamp with time zone, source_id_1 integer, doc_id_2 integer, title_2 text, web_link_2 text, pub_date_2 timestamp with time zone, source_id_2 integer) returns boolean
+comment on function nodes.kill_session(integer) is 'Фукнция для уничтожения активной сессии узла SPP';
+
+create or replace function tasks.add_task(__pluginid integer, iscreateschedule boolean) returns integer
+    language plpgsql
+as
+$$
+    declare
+        tid integer;
+begin
+    INSERT INTO tasks.task (status, pluginid) values (0, __pluginID) RETURNING id into tid;
+
+    IF isCreateSchedule is true THEN
+        perform tasks.schedule(tid, null);
+    end if;
+
+    return tid;
+end
+$$;
+
+create or replace function plugins.on_addition_plugin() returns trigger
+    language plpgsql
+as
+$$
+begin
+
+    if not EXISTS(select *
+                  FROM tasks.task t
+                  WHERE t.pluginid = new.id)
+    THEN
+--         Добавлен плагин, задача для которого не была создана
+        perform tasks.add_task(new.id, new.active);
+    end if;
+
+--     perform public.observe_plugins();
+
+    return new;
+end
+$$;
+
+create trigger plugin_insert_observer
+    after insert
+    on plugins.plugin
+execute procedure plugins.on_addition_plugin();
+
+create trigger ml_plugin_insert_observer
+    after insert
+    on ml.plugin
+    for each row
+execute procedure plugins.on_addition_plugin();
+
+create trigger s_plugin_insert_observer
+    after insert
+    on sources.plugin
+    for each row
+execute procedure plugins.on_addition_plugin();
+
+create or replace function plugins.plugin_update_active() returns trigger
+    language plpgsql
+as
+$$
+    declare tid integer;
+begin
+
+    select id into tid from tasks.task where pluginid = new."id";
+
+    if (new.active is true) then
+        perform tasks.schedule(tid, now());
+    else
+        perform * from tasks.schedule sch, lateral tasks.unschedule(sch.id, 80) where sch.taskid = tid;
+    end if;
+
+    return new;
+end
+$$;
+
+create trigger plugin_update_observer
+    after update
+        of active
+    on plugins.plugin
+    for each row
+execute procedure plugins.plugin_update_active();
+
+create trigger s_plugin_update_observer
+    after update
+        of active
+    on ml.plugin
+    for each row
+execute procedure plugins.plugin_update_active();
+
+create trigger s_plugin_update_observer
+    after update
+        of active
+    on sources.plugin
+    for each row
+execute procedure plugins.plugin_update_active();
+
+create or replace function tasks.check_add_task() returns trigger
+    language plpgsql
+as
+$$
+    declare pluginIdExists boolean;
+begin
+    select (pl.id is not null) from plugins.plugin pl where pl.id = new.pluginid into pluginIdExists;
+    if (pluginIdExists) then
+        return NEW;
+    else
+        raise exception 'Nonexistent ID --> %', new.pluginid;
+        return null;
+    end if;
+end
+$$;
+
+create trigger pluginid_add_task_check
+    before insert or update
+    on tasks.task
+    for each row
+execute procedure tasks.check_add_task();
+
+create or replace function tasks.schedule(taskid integer, start timestamp with time zone) returns integer
+    language plpgsql
+as
+$$
+    declare schID integer;
+begin
+
+    if (start is null) then
+--         Если время запуска не указана, то выбрать текущее время
+        start := now();
+    end if;
+    if (start < now()) then
+        raise exception 'Start time --> % in the past', start;
+    end if;
+
+    insert into tasks.schedule (start, taskid) values (start, schedule.taskID) returning schedule.id into schID;
+    UPDATE tasks.task t set status = 10 where t.id = taskID;
+
+    return schID;
+end
+$$;
+
+create or replace function tasks.unschedule(scheduleid integer, _status integer) returns integer
+    language plpgsql
+as
+$$
+begin
+
+    if (_status is not null) then
+--         Изменение статуса при необходимости
+        perform tasks.set_status((select taskid from tasks.schedule where id = scheduleID), _status);
+    end if;
+
+--     Удаление записи из таблицы расписания
+    delete from tasks.schedule where id = scheduleID;
+
+    return scheduleID;
+end
+$$;
+
+create or replace function tasks.set_status(taskid integer, _status integer) returns integer
+    language plpgsql
+as
+$$
+begin
+
+    UPDATE tasks.task set status = _status where id = taskID;
+    return taskID;
+end
+$$;
+
+create or replace function nodes.plugin_types(nodeid integer)
+    returns TABLE(type text)
+    language plpgsql
+as
+$$
+begin
+    return query select value as type from json_array_elements_text((select config -> 'plugins' -> 'types' from nodes.node where id = nodeID));
+end
+$$;
+
+create or replace function nodes.init(__name text, __ip text, __config json) returns integer
+    language plpgsql
+as
+$$
+    declare
+        __id integer;
+begin
+    if not EXISTS(select *
+                  FROM nodes.node
+                  WHERE name = __name)
+    THEN
+
+        insert into nodes.node (name, ip, config)
+        VALUES (__name, __ip, __config);
+
+        RETURN currval('nodes.node_id_seq');
+    else
+        select id into __id
+                  FROM nodes.node
+                  WHERE name = __name;
+        return __id;
+    end if;
+end;
+$$;
+
+create or replace function tasks.broke(nodeid integer, sessionid integer, comment text) returns integer
+    language plpgsql
+as
+$$
+    declare _tid integer;
+begin
+    UPDATE tasks.sessions set stop = now() where id = broke.sessionID;
+    UPDATE tasks.task set status = 60 where id = (select taskid from tasks.sessions where id = broke.sessionID) returning id into _tid;
+
+    insert into tasks.errors (datetime, comment, taskid) values (now(), broke.comment, _tid);
+    return _tid;
+end
+$$;
+
+create or replace function plugins.timer(id integer) returns interval
+    language plpgsql
+as
+$$
+    declare int interval;
+begin
+    select (config -> 'task' -> 'trigger' ->> 'interval')::interval into int from plugins.plugin where plugin.id = timer.id limit 1;
+    return int;
+end
+$$;
+
+create or replace function tasks.finish(nodeid integer, sessionid integer) returns integer
+    language plpgsql
+as
+$$
+    declare _tid integer; _pid integer;
+begin
+    UPDATE tasks.sessions set stop = now() where id = finish.sessionID; -- // Завершение текущей сессии
+    UPDATE tasks.task set status = 50
+                      where id = (select taskid from tasks.sessions where id = finish.sessionID)
+                      returning id into _tid; -- // Обновление статуса задача на 'finished'
+    select pc.pid into _pid from plugins.complete pc where pc.tid = _tid;
+
+    if (select * from plugins.timer(_pid)) is not null then
+        perform tasks.schedule(_tid, now() + (select * from plugins.timer(_pid))); -- // Добавление нового расписания
+    end if;
+
+    return _tid;
+
+end
+$$;
+
+create or replace function tasks.relevant(nodeid integer)
+    returns TABLE(sessionid integer, taskid integer, taskstatus integer, pluginid integer, repository text, loaded timestamp with time zone, config json, type text, referenceid integer, referencename text)
+    language plpgsql
+as
+$$
+    declare
+        _tid integer; _schid integer; _tsession integer; _pluginId integer;
+begin
+--         Эта функция должна выбрать одну задачу, основываясь на таблице расписания. Удалить выбранную запись расписания, собрать данные о задаче и об плагине этой задачи и вернуть их в форме таблицы.
+
+--     Выбираются такие задачи, для которых плагин имеет тип, который поддерживает узел. При этом на полученные задачи должно иметься расписание. Затем выбирается одна старая запланированная задача.
+    select sch.id, pl.tid, pl.pid into _schid, _tid, _pluginId from plugins.complete pl
+        left join tasks.schedule sch on sch.taskid = pl.tid
+             where
+                 pl.type in (select * from nodes.plugin_types(nodeID))
+                 and sch.id is not null
+                 and sch.start < now()
+             order by sch.start
+             limit 1;
+
+--     select schedule.id, schedule.taskid into schid, tid from tasks.schedule where tasks.schedule.start < now() order by schedule.start limit 1;
+    if (_schid is null) then
+--         Если не было получена запись расписания, значит нет задач для запуска
+        return;
+    end if;
+
+    perform tasks.set_status(_tid, 20); -- // Задача перешла в режим "получена" (<given> status)
+    perform tasks.unschedule(_schid, null); -- // удаление записи расписания
+
+    insert into tasks.sessions (start, stop, taskid, n_session_id)
+        values (
+                now(),
+                null,
+                _tid,
+                null
+        )
+        returning id into _tsession; -- // Создание сессии задачи и получение id новой сессии
+    return query select _tsession as sessionid, * from plugins.complete where complete.tid = _tid; -- // полные данные о задаче с ID сессии этой задачи
+end
+$$;
+
+create or replace function documents.equals(lhid integer, lhtitle text, lhweblink text, lhpubdate timestamp with time zone, lhsource integer, rhid integer, rhtitle text, rhweblink text, rhpubdate timestamp with time zone, rhsource integer) returns boolean
     language plpgsql
 as
 $$
@@ -277,440 +583,81 @@ begin
 
     --     1. Сначала проверяем совпадают ли у документов источники
 --     Если источники документов не равны, то ДОКУМЕНТЫ НЕ РАВНЫ
-    IF (source_id_1 <> source_id_2) THEN
+    IF (lhSource <> rhSource) THEN
         RETURN FALSE;
     end if;
 
 --      2. Проверяем есть ли у документов поле ID. Если у какого-нибудь документа поля ID нет, то проверять соответствие будем по 3 уникальным полям, который должны быть.
-    IF (doc_id_1 IS NULL) OR (doc_id_2 IS NULL) THEN
-        RETURN (title_1 = title_2) AND (web_link_1 = web_link_2) AND (pub_date_1 = pub_date_2);
+    IF (lhID IS NULL) OR (rhID IS NULL) THEN
+        RETURN (lhTitle = rhTitle) AND (lhWebLink = rhWebLink) AND (lhPubDate = rhPubDate);
     end if;
 
 --      3. Если у двух документов есть ID, то сравнение происходит по ним
-    IF (doc_id_1 IS NOT NULL) AND (doc_id_2 IS NOT NULL) THEN
-        RETURN doc_id_1 = doc_id_2;
+    IF (lhID IS NOT NULL) AND (rhID IS NOT NULL) THEN
+        RETURN lhID = rhID;
     end if;
 
     RETURN FALSE;
 end;
 $$;
 
-create or replace function create_task(__plugin_id integer, __time_next_launch timestamp with time zone, __status_code integer) returns integer
+create or replace function documents.save(sourceid integer, newtitle text, newabstract text, newtext text, newweblink text, newlocallink text, newotherdata json, newpubdate timestamp with time zone, newloaddate timestamp with time zone) returns integer
     language plpgsql
 as
 $$
 declare
-    __time           timestamp WITH TIME ZONE;
-    __default_status integer;
-    __status_id      integer;
-begin
-    IF (__time_next_launch IS NULL) THEN
-        __time := now();
-    ELSE
-        __time := __time_next_launch;
-    end if;
-
-    IF (__status_code IS NULL) THEN
-        __status_id := 1;
-    ELSE
-        SELECT status_id INTO __status_id FROM public.spp_task_status WHERE code = __status_code;
-    end if;
-
-    IF (EXISTS(SELECT id FROM public.spp_task WHERE plugin_id = __plugin_id)) THEN
-        RAISE EXCEPTION 'Plugin with id % already processing', __plugin_id USING HINT = 'Please check your plugin id';
-    end if;
-
-    INSERT INTO public.spp_task (time_next_launch, plugin_id, status_id)
-    VALUES (__time, __plugin_id, __status_id);
-
-    RETURN currval('spp_plugins_meta_id_seq');
-end;
-$$;
-
-create or replace function get_all_active_plugins()
-    returns TABLE(plugin_id integer, repository text, active boolean, pub_date timestamp with time zone)
-    language plpgsql
-as
-$$
-begin
-    return query select sp.plugin_id,
-                        sp.repository,
-                        sp.active,
-                        sp.pub_date
---                         sp.other_data
-                 from public.spp_plugin as sp
-                 WHERE sp.active = TRUE;
-end;
-$$;
-
-create or replace function get_all_documents_by_source(__source_id integer, __sourcename text)
-    returns TABLE(doc_id integer, title text, abstract text, text text, web_link text, local_link text, other_data json, pub_date timestamp with time zone, load_date timestamp with time zone)
-    language plpgsql
-as
-$$
-declare
-    temp_spource_id INTEGER;
+    docID INTEGER;
 
 begin
-    IF (__source_id IS NULL) THEN
--- 		Если source_id пустой, то нужно найти источник по его имени
-        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
-    ELSE
---      Если source_id есть, то просто вставляем его
-        temp_spource_id := __source_id;
-    END IF;
 
-    return query select sd.doc_id,
-                        sd.title,
-                        sd.abstract,
-                        sd.text,
-                        sd.web_link,
-                        sd.local_link,
-                        sd.other_data,
-                        sd.pub_date,
-                        sd.load_date
-                 from public.spp_document as sd
-                 WHERE sd.source_id = temp_spource_id;
-end;
-$$;
+    select id into docID FROM documents.document d
+             WHERE d.sourceid = save.sourceID
+               AND d.title = save.newTitle
+               AND d.weblink = save.newWeblink
+               AND d.published = save.newPubDate;
 
-create or replace function relevant_plugins_for_processing()
-    returns TABLE(plugin_id integer, repository text, pub_date timestamp with time zone, other_data json)
-    language plpgsql
-as
-$$
-begin
-    --   Релевантные задачи для исполнения на платформе это те:
---         1. Плагин является активным
---         2. связанная задача или не существует
---         3. связанная задача в состоянии FINISHED или BROKEN и время старта < now()
---
-
-    RETURN QUERY SELECT sp.plugin_id  as plugin_id,
-                        sp.repository as repository,
-                        sp.pub_date   as pub_date,
-                        sp.other_data as other_data
-                 FROM public.spp_task as st
-                          RIGHT JOIN public.spp_plugin sp on sp.plugin_id = st.plugin_id
-                 WHERE sp.active IS TRUE
-                   AND (
-                         st.plugin_id IS NULL
-                         OR
-                         (st.plugin_id IS NOT NULL
-                             AND
-                          (st.status_id = 7 OR st.status_id = 8 or st.status_id = 9) AND st.time_next_launch < now()
-                             )
-                     );
-
-end;
-$$;
-
-create or replace function safe_get_source(__sourcename text)
-    returns TABLE(source_id integer, sourcename text, config json, sphere text, load_date timestamp with time zone)
-    language plpgsql
-as
-$$
-declare
-    d_check integer;
-begin
-    IF EXISTS (select * from public.spp_source where name LIKE __sourcename) THEN
-        return query select * from public.spp_source where name LIKE __sourcename;
-    ELSE
-        INSERT INTO public.spp_source(source_id, name, load_date) values (default, __sourcename, NOW());
-        return query select s.source_id, s.name, s.config, s.sphere, s.load_date
-                     from public.spp_source as s
-                     where name LIKE __sourcename;
-    END IF;
-end;
-$$;
-
-create or replace function safe_init_document(__source_id integer, __sourcename text, __title text, __abstract text, __web_link text, __pub_date timestamp with time zone) returns boolean
-    language plpgsql
-as
-$$
-declare
-    temp_spource_id INTEGER;
-
-begin
-    IF (__source_id IS NULL) THEN
--- 		Если source_id пустой, то нужно найти источник по его имени
-        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
-    ELSE
---      Если source_id есть, то просто вставляем его
-        temp_spource_id := __source_id;
-    END IF;
-
-    if not EXISTS(select *
-                  FROM public.spp_document
-                  WHERE source_id = temp_spource_id
-                    AND title = __title
-                    AND abstract = __abstract)
-    THEN
-
-        insert into public.spp_document (title, abstract, web_link, pub_date, source_id)
-        VALUES (__title, __abstract, __web_link, __pub_date, temp_spource_id);
-
-        return true;
+    if (docID is null) then
+        insert into documents.document (sourceid, title, weblink, published, abstract, text, storagelink, loaded, otherdata)
+        VALUES (save.sourceID, newTitle, newWeblink, newPubDate, newAbstract, newText, newLocalLink, newLoadDate, newOtherData) returning id into docID;
     else
-        return false;
-    end if;
-end;
-$$;
+        update documents.document d set
+                                      abstract = newAbstract,
+                                      text = newText,
+                                      storagelink = newLocalLink,
+                                      loaded = newLoadDate,
+                                      otherdata = newOtherData
+        where d.id = docID;
 
-create or replace function safe_update_document(__source_id integer, __sourcename text, __doc_id integer, __title text, __abstract text, __text text, __web_link text, __local_link text, __other_data json, __pub_date timestamp with time zone, __load_date timestamp with time zone) returns boolean
-    language plpgsql
-as
-$$
-declare
-    temp_spource_id INTEGER;
-
-begin
-    IF (__source_id IS NULL) THEN
--- 		Если source_id пустой, то нужно найти источник по его имени
-        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
-    ELSE
---      Если source_id есть, то просто вставляем его
-        temp_spource_id := __source_id;
-    END IF;
-
---     Если документ существует и обновился, то возвращаем TRUE
-    IF (SELECT *
-        FROM public.update_document(
-                __source_id,
-                __sourcename,
-                __doc_id,
-                __title,
-                __abstract,
-                __text,
-                __web_link,
-                __local_link,
-                __other_data,
-                __pub_date,
-                __load_date
-            ))::boolean IS TRUE THEN
-        RETURN TRUE;
-    ELSE
---         Если документа не существовало, то добавляем его и возвращаем TRUE
-        INSERT INTO public.spp_document (title, abstract, text, web_link, local_link, other_data, pub_date, load_date,
-                                         source_id)
-        VALUES (__title,
-                __abstract,
-                __text,
-                __web_link,
-                __local_link,
-                __other_data,
-                __pub_date,
-                __load_date,
-                temp_spource_id);
-
-        RETURN FALSE;
-    END IF;
-
-end;
-$$;
-
-create or replace function set_next_launch_time(__task_id integer, __next_time timestamp with time zone) returns boolean
-    language plpgsql
-as
-$$
-begin
-    IF (EXISTS(SELECT id FROM spp_task WHERE id = __task_id)) THEN
-        RETURN FALSE;
     end if;
 
-    UPDATE public.spp_task
-    SET time_next_launch = __next_time
-    WHERE id = __task_id;
-    return TRUE;
+    return docID;
 end;
 $$;
 
-create or replace function set_plugin_pub_date(__plugin_id integer, __pub_date timestamp with time zone) returns void
+create or replace function documents."all"(_sourceid integer)
+    returns TABLE(id integer, sourceid integer, title text, weblink text, published timestamp with time zone, abstract text, text text, storagelink text, loaded timestamp with time zone, otherdata json)
     language plpgsql
 as
 $$
 begin
-    UPDATE public.spp_plugin as sp
-    SET pub_date = __pub_date
-    WHERE public.spp_plugin.plugin_id = __plugin_id;
-end;
+--     Фукнция для получения всех документов.
+--          Если источник указан, то выбираются все документы этого источника
+--          Если источник не указан, то выдаются все документы
+    return query select * from documents.document d
+                          where (_sourceID is NULL) or (_sourceID = d.sourceid);
+end
 $$;
 
-create or replace function update_document(__source_id integer, __sourcename text, __doc_id integer, __title text, __abstract text, __text text, __web_link text, __local_link text, __other_data json, __pub_date timestamp with time zone, __load_date timestamp with time zone) returns boolean
+create or replace function documents.littles(_sourceid integer)
+    returns TABLE(id integer, sourceid integer, title text, weblink text, published timestamp with time zone)
     language plpgsql
 as
 $$
-declare
-    temp_spource_id INTEGER;
-
 begin
-    IF (__source_id IS NULL) THEN
--- 		Если source_id пустой, то нужно найти источник по его имени
-        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
-    ELSE
---      Если source_id есть, то просто вставляем его
-        temp_spource_id := __source_id;
-    END IF;
-
-
-    IF exists(SELECT *
-              FROM public.spp_document as sd
-              WHERE public.equal_documents(
-                            sd.doc_id,
-                            sd.title,
-                            sd.web_link,
-                            sd.pub_date,
-                            sd.source_id,
-                            __doc_id,
-                            __title,
-                            __web_link,
-                            __pub_date,
-                            temp_spource_id
-                        )) THEN
-
-        UPDATE "sourceParserPlatform".public.spp_document as sd
-        SET title      = __title,
-            abstract   = __abstract,
-            text       = __text,
-            web_link   = __web_link,
-            local_link = __local_link,
-            other_data = __other_data,
-            pub_date   = __pub_date,
-            load_date  = __load_date
-        WHERE public.equal_documents(
-                      sd.doc_id,
-                      sd.title,
-                      sd.web_link,
-                      sd.pub_date,
-                      sd.source_id,
-                      __doc_id,
-                      __title,
-                      __web_link,
-                      __pub_date,
-                      temp_spource_id);
-
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-
-end;
+--     Функция возвращает все документы (как в функции documents."all"), но обрезает, чтобы уменьшить размер получаемого пакета
+--          такая функция используется там, где нужно сравнить документы (например, в модуле фильтрации платформы)
+    return query select "all".id, "all".sourceid, "all".title, "all".weblink, "all".published from documents.all(_sourceid);
+end
 $$;
 
-create or replace function task_broke(__plugin_id integer) returns boolean
-    language plpgsql
-as
-$$
---     Функция вызывается, когда задача уходит в отбраковку.
---     При падении задачи в ошибку, SPP пытается перезапустить ее через N минут.
---     Если после 3 перезапусков подряд, задача снова упадет в ошибку - Она уходит надолго
---     Временно работает простая обработка ошибок
---     Параметр рестарта и текста ошибки - временно не используется
-declare
-    __status_id            integer;
-    __error_stack          integer;
-    __restart_error_time   interval;
-    __restart_stack_time   interval;
-    __new_stack            integer;
-    __new_time_next_launch timestamp WITH TIME ZONE;
-    __last_finish_time     timestamp WITH TIME ZONE;
-begin
-
-
-    SELECT status_id INTO __status_id FROM public.spp_task_status WHERE name LIKE 'BROKEN';
-    SELECT now()::timestamp WITH TIME ZONE INTO __last_finish_time;
-    SELECT '1 day'::interval INTO __restart_error_time;
-    SELECT '10 minutes'::interval INTO __restart_stack_time;
-    SELECT task.error_stack INTO __error_stack FROM public.spp_task as task WHERE task.plugin_id = __plugin_id;
-
-    IF (__error_stack >= 3) THEN
---         Число попыток перезапуска превысило 3. Нужно отправлять на исправления
-        __new_time_next_launch := __last_finish_time + __restart_error_time;
-        __new_stack := 0;
-    ELSE
-        __new_time_next_launch := __last_finish_time + __restart_stack_time;
-        __new_stack := __error_stack + 1;
-    end IF;
-
-    UPDATE public.spp_task as task
-    SET status_id        = __status_id,
-        last_finish_time = __last_finish_time,
-        time_next_launch = __new_time_next_launch,
-        error_stack = __new_stack
-    WHERE task.plugin_id = __plugin_id;
-
-    return TRUE;
-end;
-$$;
-
-create or replace function get_all_documents_for_hash_by_source(__source_id integer, __sourcename text)
-    returns TABLE(doc_id integer, title text, web_link text, pub_date timestamp with time zone)
-    language plpgsql
-as
-$$
-declare
-    temp_spource_id INTEGER;
-
-begin
-    IF (__source_id IS NULL) THEN
--- 		Если source_id пустой, то нужно найти источник по его имени
-        SELECT s.source_id INTO temp_spource_id FROM public.safe_get_source(__sourcename) as s;
-    ELSE
---      Если source_id есть, то просто вставляем его
-        temp_spource_id := __source_id;
-    END IF;
-
-    return query select sd.doc_id,
-                        sd.title,
-                        sd.web_link,
-                        sd.pub_date
-                 from public.spp_document as sd
-                 WHERE sd.source_id = temp_spource_id;
-end;
-$$;
-
-create or replace function relevant_plugin_for_processing(__plugin_type text)
-    returns TABLE(plugin_id integer, repository text, pub_date timestamp with time zone, type text)
-    language plpgsql
-as
-$$
-declare
-    __plugin_type_id INTEGER;
-begin
---   Релевантный плагин для исполнения на платформе это тот:
---         1. Плагин является активным
---         2. связанная задача или не существует
---         3. связанная задача в состоянии (FINISHED или BROKEN или TERMINATED) и время старта < now()
---
-    IF (__PLUGIN_TYPE IS NULL or __PLUGIN_TYPE like 'ALL') THEN
--- 		Если __PLUGIN_TYPE пустой, то мы не должны обращать внимания на группу
-        __plugin_type_id := 0;
-    ELSE
-        SELECT pl_type.id INTO __plugin_type_id FROM public.spp_plugin_type as pl_type WHERE pl_type.type = __PLUGIN_TYPE LIMIT 1;
-    END IF;
-
-    RETURN QUERY SELECT sp.plugin_id  as plugin_id,
-                        sp.repository as repository,
-                        sp.pub_date   as pub_date,
-                        spt.type as type
-                 FROM public.spp_task as st
-                    RIGHT JOIN public.spp_plugin sp on sp.plugin_id = st.plugin_id
-                    RIGHT JOIN public.spp_plugin_type spt on spt.id = sp.type
-                 WHERE sp.active IS TRUE
-                   AND (
-                         st.plugin_id IS NULL
-                         OR
-                         (st.plugin_id IS NOT NULL
-                             AND
-                          (st.status_id = 7 OR st.status_id = 8 or st.status_id = 9) AND st.time_next_launch < now()
-                             )
-                     )
-                   AND (__PLUGIN_TYPE IS NULL
-                            OR (__PLUGIN_TYPE IS NOT NULL AND __plugin_type_id = 0)
-                            OR (__PLUGIN_TYPE IS NOT NULL AND sp.type = __plugin_type_id)
-                       )
-                LIMIT 1;
-
-end;
-$$;
 

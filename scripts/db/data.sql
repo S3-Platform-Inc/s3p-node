@@ -1,18 +1,18 @@
-insert into public.spp_task_status (name, code)
-values ('NONSET', 0);
-insert into public.spp_task_status (name, code)
-values ('AWAITING', 10);
-insert into public.spp_task_status (name, code)
-values ('PREPARING', 20);
-insert into public.spp_task_status (name, code)
-values ('READY', 30);
-insert into public.spp_task_status (name, code)
-values ('WORKING', 40);
-insert into public.spp_task_status (name, code)
-values ('SUSPENDED', 50);
-insert into public.spp_task_status (name, code)
-values ('FINISHED', 60);
-insert into public.spp_task_status (name, code)
-values ('BROKEN', 70);
-insert into public.spp_task_status (name, code)
-values ('TERMINATED', 80);
+-- необходимо запустить после инициализации базы данных и завершения инициализирующих скриптов
+
+
+-- установка локального timezone
+alter database "sppIntegrateDB" set timezone to 'Europe/Moscow';
+set timezone to 'Europe/Moscow';
+
+
+-- установка статусов задачи
+INSERT INTO tasks.status(code, name) VALUES (0, 'noneset');
+INSERT INTO tasks.status(code, name) VALUES (10, 'scheduled');
+INSERT INTO tasks.status(code, name) VALUES (20, 'given');
+INSERT INTO tasks.status(code, name) VALUES (30, 'preparing');
+INSERT INTO tasks.status(code, name) VALUES (40, 'working');
+INSERT INTO tasks.status(code, name) VALUES (50, 'finish');
+INSERT INTO tasks.status(code, name) VALUES (60, 'broken');
+INSERT INTO tasks.status(code, name) VALUES (70, 'terminated');
+INSERT INTO tasks.status(code, name) VALUES (80, 'deactivated');

@@ -5,10 +5,12 @@ from dataclasses import dataclass
 class Module:
     """
     :Middleware
+        - Порядок запуска модуля
         - Добавления модуля постобработки
         - Установки критичности
         - Дополнительный поток
     """
+    order: int
     name: str
-    options: tuple
     critical: bool
+    options: tuple | None

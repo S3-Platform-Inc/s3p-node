@@ -9,20 +9,20 @@ import io
 from datetime import datetime
 from typing import BinaryIO, TYPE_CHECKING
 
-from src.spp.brokers.localstorage import SPP_temp_broker
+from src.spp.brokers.localstorage import SppTempBroker
 from .. import Flow
 
 if TYPE_CHECKING:
-    from src.spp.types import SPP_source, SPP_document
+    from src.spp.types import SppRefer, SPP_document
 
 
-class SPP_FE_local_storage(Flow):
-    _local_broker: SPP_temp_broker
+class SppFeLocalStorage(Flow):
+    _local_broker: SppTempBroker
 
-    def __init__(self, source: SPP_source, path: str):
+    def __init__(self, ref: SppRefer, path: str):
         super().__init__()
 
-        self._local_broker = SPP_temp_broker(source, path)
+        self._local_broker = SppTempBroker(ref, path)
 
     @property
     def full_source_storage_path(self) -> str:

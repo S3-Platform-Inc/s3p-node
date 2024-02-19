@@ -8,5 +8,5 @@ class Task:
         - logging
         - Условие активации
     """
-    log_mode: int  # DEBUG, INFO, CRITICAL
-    restart_interval: str  # Время перезапуска в секундах
+    log: int  # DEBUG, INFO, ERROR, CRITICAL
+    trigger: str  # Interval type: Строка интервала перезапуска задачи

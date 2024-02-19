@@ -13,10 +13,10 @@ if TYPE_CHECKING:
     from src.spp.plugin.config.schemes import Module
 
 
-class SPP_FE_options(Flow):
-    _options: tuple[Module]
+class SppFeOptions(Flow):
+    _options: tuple[Module, ...]
 
-    def __init__(self, module_options: tuple[Module]):
+    def __init__(self, module_options: tuple[Module, ...]):
         super().__init__()
 
         self._options = module_options
@@ -34,5 +34,6 @@ class SPP_FE_options(Flow):
             if module.name == module_name:
                 return module
 
-        # Нужно сделать свою ошибку https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/issues/31#issuecomment-1621309325
+        # Нужно сделать свою ошибку
+        # https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/issues/31#issuecomment-1621309325
         raise ModuleNotFoundError(f'{module_name}')

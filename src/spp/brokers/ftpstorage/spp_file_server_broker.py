@@ -5,14 +5,14 @@ from hashlib import sha224
 from typing import BinaryIO
 
 from .setting import setting
-from src.spp.types import SPP_source, SPP_document
+from src.spp.types import SppRefer, SPP_document
 
 
-class SPP_file_server_broker:
-    __source: SPP_source
+class SppFileServerBroker:
+    __ref: SppRefer
 
-    def __init__(self, src: SPP_source):
-        self.__source = src
+    def __init__(self, ref: SppRefer):
+        self.__ref = ref
         ...
 
     def upload_document(self, document: SPP_document, bin_doc: bytes | io.BytesIO | BinaryIO) -> bool | str:
@@ -27,7 +27,6 @@ class SPP_file_server_broker:
         """
 
         # Красивое применение парадигмы Elegant Objects. Уххх (^///^)
-        local_link = ""
         binaryfile = io.BytesIO(bin_doc) if isinstance(bin_doc, bytes) else bin_doc
         try:
             local_link, session = self.__safe_upload(
@@ -42,7 +41,6 @@ class SPP_file_server_broker:
             return False
 
             # Надо решить что делать в случае ошибки
-            raise NotImplemented
         else:
             return local_link
 
@@ -140,7 +138,7 @@ class SPP_file_server_broker:
         :return: Hash название директории источника
         :rtype:
         """
-        return str(sha224(self.__source.name.encode('utf8')).hexdigest())
+        return str(sha224(self.__ref.name.encode('utf8')).hexdigest())
 
     def __document_filename(self, doc: SPP_document, pad: str = "") -> str:
         concat_name = doc.title + '_' + doc.web_link + '_' + str(doc.pub_date.timestamp())
@@ -156,11 +154,11 @@ class SPP_file_server_broker:
 
     def test(self):
 
-        print(self.__exist_dir(self.__work_dir(self.__session()), self.__source.name))
+        print(self.__exist_dir(self.__work_dir(self.__session()), self.__ref.name))
 
 
 if __name__ == "__main__":
-    fs = SPP_file_server_broker(SPP_source(3, 'r3r', {}, '', datetime.datetime.now()))
+    fs = SppFileServerBroker(SppRefer(3, 'r3r', '', datetime.datetime.now()))
     dt = datetime.datetime.now()
     d = b'PNG?> test document PNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test documentPNG?> test document'
     fs.upload_document(SPP_document(1, '1', '2', '3', '4', '5', {}, dt, dt), d)
