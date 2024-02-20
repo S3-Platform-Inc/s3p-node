@@ -22,6 +22,11 @@ create schema documents;
 
 comment on schema documents is 'Схема для представления и работы с документами';
 
+create schema analytics;
+
+create user "sppTgBot";
+
+comment on role "sppTgBot" is 'login for users tg bot';
 
 
 create sequence tasks.sessions_n_session_id_seq
@@ -100,6 +105,8 @@ create table if not exists sources.source
     created timestamp with time zone
 );
 
+grant select on sources.source to "sppTgBot";
+
 create table if not exists documents.document
 (
     id          serial
@@ -115,6 +122,8 @@ create table if not exists documents.document
     loaded      timestamp with time zone,
     otherdata   json
 );
+
+grant select on documents.document to "sppTgBot";
 
 create table if not exists ml.plugin
 (
@@ -169,6 +178,29 @@ create table if not exists ml.score
     pluginid   serial
         references ml.plugin
 );
+
+create table if not exists analytics.offload
+(
+    id     serial
+        primary key,
+    date   timestamp with time zone not null,
+    params json
+);
+
+grant select, usage on sequence analytics.offload_id_seq to "sppTgBot";
+
+grant insert, select on analytics.offload to "sppTgBot";
+
+create table if not exists analytics.offloaded_documents
+(
+    document integer not null
+        primary key
+        references documents.document,
+    offload  integer
+        references analytics.offload
+);
+
+grant insert, select on analytics.offloaded_documents to "sppTgBot";
 
 create or replace view plugins.complete(tid, status, pid, repository, loaded, config, type, refid, refname) as
 SELECT task.id AS tid,
@@ -660,4 +692,52 @@ begin
 end
 $$;
 
+create or replace function analytics.offload_document(offloadid integer, documentid integer) returns integer
+    language plpgsql
+as
+$$
+    declare __id integer;
+begin
+--         Добавление новой выгрузки
+    insert into analytics.offloaded_documents (document, offload) VALUES (documentID, offloadID) returning document into __id;
+    return 1;
+end
+$$;
+
+grant execute on function analytics.offload_document(integer, integer) to "sppTgBot" with grant option;
+
+create or replace function analytics.export(export_id integer)
+    returns TABLE(id integer, title text, weblink text, published timestamp with time zone, abstract text, text text, storagelink text, loaded timestamp with time zone, otherdata json, source_id integer, source_name text)
+    language plpgsql
+as
+$$
+    declare offid integer;
+begin
+--         Добавление новой выгрузки
+    if (export_id is NULL) then
+        if exists(select * from documents.document d where d.id not in (select document from analytics.offloaded_documents)) then
+            insert into analytics.offload (date) VALUES (now()) returning offload.id into offid;
+            return query select d.id, d.title, d.weblink, d.published, d.abstract, d.text, d.storagelink, d.loaded, d.otherdata, s.id, s.name
+                     from documents.document d join sources.source s on d.sourceid = s.id,
+                         lateral analytics.offload_document(offid, d.id)
+                     where d.id not in (select document from analytics.offloaded_documents);
+        end if;
+    else
+        return query select d.id, d.title, d.weblink, d.published, d.abstract, d.text, d.storagelink, d.loaded, d.otherdata, s.id, s.name
+                         from analytics.offloaded_documents offdoc left join documents.document d on offdoc.document = d.id join sources.source s on s.id = d.sourceid
+                         where offdoc.offload = export_id;
+    end if;
+end
+$$;
+
+create or replace function analytics.export_lists()
+    returns TABLE(id integer, date timestamp with time zone, count bigint)
+    language plpgsql
+as
+$$
+begin
+    return query select o.id, o.date, count(*) from analytics.offload o left join analytics.offloaded_documents od on o.id = od.offload
+                 group by o.id order by o.id;
+end
+$$;
 
