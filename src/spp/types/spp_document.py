@@ -19,7 +19,7 @@ class SPP_document:
     load_date: datetime | None
 
     @property
-    def hash(self):
+    def hash(self) -> bytes:
         """
         Для проверки уникальности и новизны документа.
 
