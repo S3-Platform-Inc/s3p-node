@@ -1,9 +1,9 @@
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 from src.spp.types import SPP_document
 
 
-class DeterminingFileMimetype(SppModule):
+class DeterminingFileMimetype(BaseModule):
     """
     Модуль для определения типа файла документа
 

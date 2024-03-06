@@ -1,10 +1,10 @@
 import re
 
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 
 
-class CutJunkCharactersFromDocumentText(SppModule):
+class CutJunkCharactersFromDocumentText(BaseModule):
     """
     Модуль для защиты поля datetime
 
@@ -13,26 +13,22 @@ class CutJunkCharactersFromDocumentText(SppModule):
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
-
-        self.PATTERN: str = r'[^a-zA-Z0-9;,. _]+'
-
+        super().__init__(bus, {
+            'PATTERN': r'[^a-zA-Z0-9;,. _]+',
+            'REPL': ' ',
+            'fields': ('text',)
+        })
         count: int = 0
-
         for doc in self.bus.documents.data:
             is_cut: bool = False
-            if isinstance(doc.title, str):
-                doc.title = self.cut_junk_characters(doc.title)
-                is_cut = True
-                self.logger.debug(f'title field of doc: {doc.title} was cut')
-            if isinstance(doc.text, str):
-                doc.text = self.cut_junk_characters(doc.text)
-                is_cut = True
-                self.logger.debug(f'text field of doc: {doc.title} was cut')
-            if isinstance(doc.abstract, str):
-                doc.abstract = self.cut_junk_characters(doc.abstract)
-                is_cut = True
-                self.logger.debug(f'abstract field of doc: {doc.title} was cut')
+            for field in self.config.get('fields'):
+                # Не нравится такой
+                value = doc.__getattribute__(field)
+                if isinstance(value, str):
+                    is_cut = True
+                    cut_value = self.cut_junk_characters(value)
+                    doc.__setattr__(field, cut_value)
+                    self.logger.debug(f'{field} field of doc: {doc.title} was cut')
             if is_cut:
                 count += 1
 
@@ -42,4 +38,4 @@ class CutJunkCharactersFromDocumentText(SppModule):
         """
         Метод удаляет
         """
-        return re.sub(self.PATTERN, ' ', text)
+        return re.sub(self.config.get('PATTERN'), self.config.get('REPL'), text)

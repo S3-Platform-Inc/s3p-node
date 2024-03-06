@@ -71,7 +71,7 @@ class ParseConfig:
                         order=m.get("order"),
                         name=m.get("name"),
                         critical=m.get("critical"),
-                        options=tuple(m.get("params"))
+                        options=m.get("params")
                     ) for m in md.get("modules")]),
                 bus=tuple(md.get("bus").get("entities"))
             ),

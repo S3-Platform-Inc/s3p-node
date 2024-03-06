@@ -1,10 +1,10 @@
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 from .web_install_driver import WebInstallerDriver
 
 
-class DownloadDocumentsThroughSeleniumTemp(SppModule):
+class DownloadDocumentsThroughSeleniumTemp(BaseModule):
     """
     Модуль для скачивания документов, используя метод парсера для скачивания документа в локальное хранилище,
     с последующим переименованием и загрузкой в файловый сервер.

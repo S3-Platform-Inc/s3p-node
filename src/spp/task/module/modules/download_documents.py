@@ -1,11 +1,11 @@
 import urllib.request
 
 from src.spp.types import SPP_document
+from src.spp.task.module.base_module import BaseModule
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
 
 
-class DownloadDocumentsWithDB(SppModule):
+class DownloadDocumentsWithDB(BaseModule):
     """
     Модуль для скачивания документов. При успешном скачивании, сохраняет файл в FTP сервер. Если есть необходимость,
     то сохраняет в локальное хранилище
@@ -23,8 +23,6 @@ class DownloadDocumentsWithDB(SppModule):
 
     def __init__(self, bus: Bus):
         super().__init__(bus)
-
-        ...
 
     def __download(self, document: SPP_document, link: str):
         with urllib.request.urlopen(link) as f:

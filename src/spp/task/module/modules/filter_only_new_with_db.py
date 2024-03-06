@@ -1,9 +1,9 @@
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 from src.spp.types import SPP_document
 
 
-class FilterOnlyNewDocumentWithDB(SppModule):
+class FilterOnlyNewDocumentWithDB(BaseModule):
     """
     Модуль для фильтрации документов по их новизне, вызывая все документы из базы данных.
 
@@ -11,14 +11,15 @@ class FilterOnlyNewDocumentWithDB(SppModule):
     """
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, {'save': False})
 
         new_doc = self.__filter(self.__previous_documents(), bus.documents.data)
         self.bus.documents.data = new_doc
-        # Если есть новые документы, то их нужно сохранить
-        if len(new_doc) > 0:
-            self.__save_new_docs()
         self.logger.info(f"New {len(new_doc)} documents filtered")
+        # Если есть новые документы, то их можно сохранить
+        if self.config.get('save') and len(new_doc) > 0:
+            self.__save_new_docs()
+            self.logger.get(f"Saved {len(new_doc)} documents to DB")
 
     def __previous_documents(self) -> list[SPP_document]:
         """

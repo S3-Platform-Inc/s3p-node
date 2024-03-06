@@ -22,7 +22,7 @@ class SppFeOptions(Flow):
         self._options = module_options
         ...
 
-    def options(self, module_name) -> Module:
+    def config(self, module_name) -> Module:
         """
         Возвращает параметры по названию модуля
         :param module_name:
@@ -36,4 +36,4 @@ class SppFeOptions(Flow):
 
         # Нужно сделать свою ошибку
         # https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/issues/31#issuecomment-1621309325
-        raise ModuleNotFoundError(f'{module_name}')
+        raise ModuleNotFoundError(f'Module named {module_name} not found in options')

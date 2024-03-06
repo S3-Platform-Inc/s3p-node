@@ -1,9 +1,9 @@
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 from src.spp.types import SPP_document
 
 
-class UploadDocumentToDB(SppModule):
+class UploadDocumentToDB(BaseModule):
     """
     Модуль для обновления данных о документе в базе данных или создание записи в базе данных.
 

@@ -8,10 +8,10 @@ import pandas
 
 from src.spp.types import SPP_document
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 
 
-class ExtractTextFromFile(SppModule):
+class ExtractTextFromFile(BaseModule):
     """
     Модуль для извлечения текста из документов и занесения его в параметр SPP_document._text
 

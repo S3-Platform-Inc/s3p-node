@@ -13,4 +13,4 @@ class Module:
     order: int
     name: str
     critical: bool
-    options: tuple | None
+    options: dict | None

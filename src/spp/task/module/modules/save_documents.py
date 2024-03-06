@@ -1,9 +1,9 @@
 from src.spp.task.bus import Bus
-from src.spp.task.module.spp_module import SppModule
+from src.spp.task.module.base_module import BaseModule
 from src.spp.types import SPP_document
 
 
-class SaveDocumentToDB(SppModule):
+class SaveDocumentToDB(BaseModule):
     """
     Модуль для сохранения документов в базе данных.
 
@@ -19,5 +19,8 @@ class SaveDocumentToDB(SppModule):
 
     def _save(self, doc: SPP_document) -> SPP_document:
         new_doc = self.bus.database.doc.save(self.bus.source.data, doc)
-        self.logger.debug(f'Save document title:{doc.title}, weblink: {doc.web_link}, pubdate:{doc.pub_date} to database')
+        if new_doc.id == doc.id:
+            self.logger.debug(f'Update document title:{doc.title}, weblink: {doc.web_link}, pubdate:{doc.pub_date} to database')
+        else:
+            self.logger.debug(f'Save document title:{doc.title}, weblink: {doc.web_link}, pubdate:{doc.pub_date} to database')
         return new_doc

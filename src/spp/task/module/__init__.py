@@ -1,5 +1,6 @@
 import sys
 from typing import Callable
+from .base_module import BaseModule
 
 from .modules import \
     DownloadDocumentsWithDB, \
@@ -15,6 +16,7 @@ from .modules import \
     SaveDocumentToDB
 
 __all__ = [
+    "BaseModule",
     "get_module_by_name",
     "DownloadDocumentsWithDB",
     "FilterOnlyNewDocumentWithDB",
