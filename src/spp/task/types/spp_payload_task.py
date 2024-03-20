@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from src.spp.task.module import get_module_by_name
 from src.spp.task.status import WORKING
 from .spp_pipeline_task import SppPipelineTask
+from src.spp.plugin.config.schemes import Module, FileObject, ConstantObject
 
 if TYPE_CHECKING:
     from src.spp.types import SPP_document, SppTask

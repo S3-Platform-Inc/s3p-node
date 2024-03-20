@@ -15,6 +15,7 @@ from src.spp.task.bus.flow.entity import \
 from src.spp.task.module import get_module_by_name
 from src.spp.task.status import WORKING, BROKEN
 from src.spp.task.task import Task
+from src.spp.plugin.config.schemes import Module
 
 if TYPE_CHECKING:
     from src.spp.plugin.abc_plugin import AbcPlugin
