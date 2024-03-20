@@ -1,4 +1,4 @@
-export $(cat .env.prod | xargs) && rails c
+export $(cat .env | xargs) && rails c
 
 # Create dirs for localstorages
 mkdir ./"$LS_BASE_TEMP_DIR"/
