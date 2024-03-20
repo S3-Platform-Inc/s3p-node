@@ -13,7 +13,8 @@ from .modules import \
     UploadDocumentToDB, \
     TimezoneSafeControl, \
     CutJunkCharactersFromDocumentText, \
-    SaveDocumentToDB
+    SaveDocumentToDB, \
+    LastDocumentBySrc
 
 __all__ = [
     "BaseModule",
@@ -29,6 +30,7 @@ __all__ = [
     "TimezoneSafeControl",
     "CutJunkCharactersFromDocumentText",
     "SaveDocumentToDB",
+    "LastDocumentBySrc",
 ]
 
 
@@ -40,4 +42,4 @@ def get_module_by_name(modulename: str) -> Callable:
     # Добавить обработку исключений
     if modulename in __all__:
         return getattr(sys.modules[__name__], modulename)
-    raise NotImplemented
+    raise ModuleNotFoundError(f'{modulename} is not a valid or __all__ not contains module')

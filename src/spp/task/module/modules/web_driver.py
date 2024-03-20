@@ -3,10 +3,13 @@ import logging
 from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import LOGGER
 
+from src.spp.task.bus import Bus
+from src.spp.task.module.base_module import BaseModule
+
 LOGGER.setLevel(logging.WARNING)
 
 
-class WebDriver:
+class WebDriver(BaseModule):
     """
     Класс - рудимент.
 
@@ -15,7 +18,10 @@ class WebDriver:
     Настраивает и возвращает драйвер Selenium
     """
 
-    def __new__(cls, *args, **kwargs) -> webdriver.Chrome:
+    def __init__(self, bus: Bus):
+        super().__init__(bus, {})
+
+    def __call__(self, *args, **kwargs) -> webdriver.Chrome:
         options = webdriver.ChromeOptions()
 
         # Параметр для того, чтобы браузер не открывался.

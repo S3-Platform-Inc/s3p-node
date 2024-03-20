@@ -156,3 +156,5 @@ cython_debug/
 /db/
 /plugin_archive/
 /logs/
+
+.env.prod

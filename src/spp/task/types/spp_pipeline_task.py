@@ -19,6 +19,7 @@ from src.spp.task.task import Task
 if TYPE_CHECKING:
     from src.spp.plugin.abc_plugin import AbcPlugin
     from src.spp.types import SppTask
+    from src.spp.plugin.config.schemes import Module
 
 
 class SppPipelineTask(Task):
@@ -107,7 +108,18 @@ class SppPipelineTask(Task):
     def __prepare_fe_options(self) -> SppFeOptions:
         # Подготовка потока настроек для шины
         self._log.debug("Bus flow 'options' initializing")
-        options = SppFeOptions(self._plugin.config.middleware.modules)
+        # Вот тут мы находим все модули в конфигурации и выгружаем их параметры
+        # модули из middleware и entryObject
+        entry_modules = []
+        for param in self._plugin.config.payload.entry_params:
+            if isinstance((module := param.value), Module) and module.options:
+                entry_modules.append(module)
+
+        for module in self._plugin.config.middleware.modules:
+            if module.options:
+                entry_modules.append(module)
+
+        options = SppFeOptions(tuple(entry_modules))
         self._log.debug("Bus flow 'options' initialized")
         return options
 

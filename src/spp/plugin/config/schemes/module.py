@@ -9,8 +9,10 @@ class Module:
         - Добавления модуля постобработки
         - Установки критичности
         - Дополнительный поток
+        - Необходимость в шине для работы
     """
-    order: int
+    order: int | None
     name: str
     critical: bool
     options: dict | None
+    is_bus: bool | None

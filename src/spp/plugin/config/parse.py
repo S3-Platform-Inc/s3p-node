@@ -1,5 +1,5 @@
 from . import Config
-from .schemes import Plugin, Task, Middleware, Payload, Module, EntryObject
+from .schemes import Plugin, Task, Middleware, Payload, Module, EntryObject, FileObject, ConstantObject
 
 
 class ParseConfig:
@@ -54,7 +54,7 @@ class ParseConfig:
               f'  |  entry_params       |   {tuple(p.get("entry").get("params"))}\n\r'
               f'  |  additional_methods |   {p.get("additional_methods")}\n\r'
               f'-------------------------------')
-        return Config(
+        _config = Config(
             plugin=Plugin(
                 reference=pl.get("reference"),
                 type=pl.get("type"),
@@ -70,8 +70,9 @@ class ParseConfig:
                     [Module(
                         order=m.get("order"),
                         name=m.get("name"),
-                        critical=m.get("critical"),
-                        options=m.get("params")
+                        critical=bool(m.get("critical")),
+                        options=m.get("params"),
+                        is_bus=bool(m.get("bus"))
                     ) for m in md.get("modules")]),
                 bus=tuple(md.get("bus").get("entities"))
             ),
@@ -79,11 +80,38 @@ class ParseConfig:
                 file=p.get("file"),
                 class_name=p.get("class"),
                 entry_point=p.get("entry").get("point"),
-                entry_params=tuple([EntryObject(
-                    key=param.get("key"),
-                    type=param.get("value").get("type"),
-                    value=param.get("value").get("name")
-                ) for param in p.get("entry").get("params")]),
+                entry_params=None,
                 additional_methods=p.get("additional_methods")
             )
         )
+        _init_params = []
+        for param in p.get("entry").get("params"):
+            if param.get("value").get("type") == "module":
+                # объект модуля
+                _init_params.append(EntryObject(
+                    key=param.get("key"),
+                    value=Module(
+                        order=param.get("value").get("order"),
+                        name=param.get("value").get("name"),
+                        critical=bool(param.get("value").get("critical")),
+                        options=param.get("value").get("params"),
+                        # Все модули по умолчанию получают объект шины
+                        is_bus=True,
+                        # is_bus=bool(param.get("value").get("bus")),
+                    )
+                ))
+            elif param.get("value").get("type") == "file":
+                # объект файла
+                _init_params.append(EntryObject(
+                    key=param.get("key"),
+                    value=FileObject(name=param.get("value").get("name"))
+                ))
+            elif param.get("value").get("type") == "const":
+                # объект файла
+                _init_params.append(EntryObject(
+                    key=param.get("key"),
+                    value=ConstantObject(value=param.get("value").get("value"))
+                ))
+
+        _config.payload.entry_params = tuple(_init_params)
+        return _config

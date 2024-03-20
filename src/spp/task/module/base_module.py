@@ -1,6 +1,8 @@
 import logging
 from typing import TYPE_CHECKING
 
+from src.spp.task.bus.bus import Bus
+
 if TYPE_CHECKING:
     from src.spp.task.bus import Bus
 
@@ -20,7 +22,7 @@ class BaseModule:
     """
     DEF_CONFIG: dict
 
-    def __init__(self, bus, def_config: dict = None):
+    def __init__(self, bus: Bus, def_config: dict = None):
         if def_config is None:
             def_config = {}
         self.bus = bus
@@ -37,14 +39,13 @@ class BaseModule:
         """
         assert self._def_config
         if self._config is None:
+            self._config = self._def_config
             try:
                 config = self.bus.options.config(self.__class__.__name__).options
                 if isinstance(config, dict):
-                    self._config = self._def_config
                     self._config |= config
             except ModuleNotFoundError as e:
                 self.logger.error(f'Bus not contained config for "{self.__class__.__name__}" module')
-                return self._def_config
         # raise NameError(f'Bus not contained config for "{self.__class__.__name__}" module') from e
 
         return self._config

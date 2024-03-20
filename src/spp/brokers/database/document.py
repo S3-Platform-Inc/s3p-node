@@ -32,6 +32,38 @@ class Document:
                 return res
 
     @classmethod
+    def last(cls, source: SppRefer) -> SPP_document | ValueError:
+        """
+        Запрос последнего документа (title, web_link, pub_date) источника
+        :param source:
+        :return:
+        """
+        assert source.id or source.name
+        with ps_connection() as connection:
+            with connection.cursor() as cursor:
+                if source.id:
+                    cursor.callproc(f'{Document.schema}.last', (source.id,))
+                else:
+                    cursor.callproc(f'{Document.schema}.last', (source.name,))
+                output = cursor.fetchone()
+                print(output)
+                if not output:
+                    raise ValueError(f'No document found for {source.id}')
+
+                return SPP_document(
+                        id=output[0],
+                        title=output[2],
+                        abstract=None,
+                        text=None,
+                        web_link=output[3],
+                        local_link=None,
+                        other_data=None,
+                        pub_date=output[4],
+                        load_date=None,
+                    )
+
+
+    @classmethod
     def save(cls, source: SppRefer, document: SPP_document) -> SPP_document:
         """
 
