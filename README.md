@@ -52,32 +52,3 @@ plugin_path = < absolute_path_до_плагина >
 Все плагины создаются на основе [Плагина отца](https://github.com/CuberHuber/NSPK-DI-SPP-plugin-template).
 Для удобства тестирования рекомендуется стягивать репозиторий плагина на локальную машину. Затем, в пункте [4](#test)
 указать прямой путь до корня скачанного проекта.
-
-### Работа с PyCharm
-
-Чтобы удобно тестировать и работать с платформой и плагином одновременно, предлагается добавить в текущий проект
-платформы дополнительный проект плагина.
-
-1. Идем в пункт меню и называем `Open`
-
-![photo_3_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/300821d1-87fa-4930-ac06-121031399ad4)
-
-2. Выбираем каталог с проектом плагина
-
-![photo_2_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/32a8e51c-48d0-435d-8248-327121c9247d)
-
-3. Далее выбираем `Attach`.
-
-![photo_6_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/5e658107-a20e-432f-86ee-c116c9971b55)
-
-4. Гуд, теперь рядом с проектом платформы лежит проект плагина.
-
-![photo_1_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/80cb82c9-aace-4f1c-b5c5-5e825bcd8201)
-
-5. Жмем `пкм` по папке плагина и копируем абсолютный путь
-
-![photo_7_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/440fea02-b47f-43c9-a05c-4707e7ae6ba4)
-
-7. Возвращаемся к процессу настройки платформы
-
-![photo_5_2023-07-22_11-18-18](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/70877cb4-2724-42cf-8885-d15b7ae09392)
