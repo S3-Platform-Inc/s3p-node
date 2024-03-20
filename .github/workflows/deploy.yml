@@ -18,6 +18,6 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            cd /home/${{ secrets.VPS_USER }}/NSPK-DI-Sources-Parser-Platform/
+            cd /home/${{ secrets.VPS_USERNAME }}/NSPK-DI-Sources-Parser-Platform/
             git pull
             docker compose up -d --build
