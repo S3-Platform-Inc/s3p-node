@@ -2,65 +2,109 @@
 version: '3.5'
 
 services:
-  spp-node:
-    container_name: ${SPP_CONTAINER_NAME}
+  spp-node-1:
+    container_name: ${SPP_CONTAINER_NAME}1
     platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-1
+      - NODE_IP=-1
+      - NODE_TYPES=SOURCE
     volumes:
       - type: bind # директория для логов
-        source: ./${SPP_LOG_TEMP_PATH}
-        target: ${SPP_ABSOLUTE_PATH_TO_LOCAL_STORAGE}
+        source: ./${SPP_LOG_TEMP_PATH}/n1
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
       - type: bind # архив плагинов
-        source: ./${PL_BASE_TEMP_DIR}
-        target: ${SPP_ABSOLUTE_PATH_TO_PLUGIN_ARCHIVE}
+        source: ./${PL_BASE_TEMP_DIR}/n1
+        target: /sppnode/${PL_BASE_TEMP_DIR}
       - type: bind # локальное хранилище
-        source: ./${LS_BASE_TEMP_DIR}
-        target: ${PATH_TO_PROJECT_DIR}/${LS_BASE_TEMP_DIR}
-  db-postgres:
-    container_name: ${DB_CONTAINER_NAME}
+        source: ./${LS_BASE_TEMP_DIR}/n1
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-2:
+    container_name: ${SPP_CONTAINER_NAME}2
     platform: linux/amd64
-    image: 'postgres:${DB_POSTGRES_VERSION}'
-    restart: always
-    ports:
-      - "${DB_DOCKER_PORT}:5432"
-    volumes:
-      - type: bind
-        source: ./scripts/${DB_BASE_TEMP_DIR}/${DB_INIT_EXTERNAL_FILENAME}
-        target: ${DB_INIT_FILE}
-        read_only: true
-      - type: bind
-        source: ./scripts/${DB_BASE_TEMP_DIR}/data.sql
-        target: ${DB_DATA_FILE}
-        read_only: true
-      - type: bind
-        source: ./${DB_BASE_TEMP_DIR}
-        target: /var/lib/postgresql/data
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-  ftp-server:
-    container_name: ${FS_DOCKER_SERVICE_NAME}
+      - NODE_NAME=spp-node-2
+      - NODE_IP=-2
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n2
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n2
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n2
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-3:
+    container_name: ${SPP_CONTAINER_NAME}3
     platform: linux/amd64
-    image: fauria/vsftpd
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      PASV_MAX_PORT: ${FS_PASV_MAX_PORT}
-      PASV_MIN_PORT: ${FS_PASV_MIN_PORT}
-      PASV_ADDRESS: ${FS_PASV_ADDRESS}
-      FTP_PASS: ${FS_FTP_PASS}
-      FTP_USER: ${FS_FTP_USER}
+      - NODE_NAME=spp-node-3
+      - NODE_IP=-3
+      - NODE_TYPES=SOURCE
     volumes:
-      - type: bind
-        source: ./${FS_BASE_TEMP_DIR}
-        target: /home/vsftpd/${FS_FTP_USER}
-      - type: bind
-        source: ./scripts/${FS_BASE_TEMP_DIR}/vsftpd.conf
-        target: /home/vsftpd/vsftpd.conf
-        read_only: true
-    ports:
-      - ${FS_PORT_20}:20
-      - ${FS_PORT_21}:21
-      - "${FS_PORTS_PASV}:21100-21110"
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n3
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n3
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n3
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+#  db-postgres:
+#    container_name: ${DB_CONTAINER_NAME}
+#    platform: linux/amd64
+#    image: 'postgres:${DB_POSTGRES_VERSION}'
+#    restart: always
+#    ports:
+#      - "${DB_DOCKER_PORT}:5432"
+#    volumes:
+#      - type: bind
+#        source: ./scripts/${DB_BASE_TEMP_DIR}/${DB_INIT_EXTERNAL_FILENAME}
+#        target: ${DB_INIT_FILE}
+#        read_only: true
+#      - type: bind
+#        source: ./scripts/${DB_BASE_TEMP_DIR}/data.sql
+#        target: ${DB_DATA_FILE}
+#        read_only: true
+#      - type: bind
+#        source: ./${DB_BASE_TEMP_DIR}
+#        target: /var/lib/postgresql/data
+#    environment:
+#      POSTGRES_DB: ${DB_DATABASE}
+#      POSTGRES_USER: ${DB_USER}
+#      POSTGRES_PASSWORD: ${DB_PASSWORD}
+#  ftp-server:
+#    container_name: ${FS_DOCKER_SERVICE_NAME}
+#    platform: linux/amd64
+#    image: fauria/vsftpd
+#    restart: always
+#    environment:
+#      PASV_MAX_PORT: ${FS_PASV_MAX_PORT}
+#      PASV_MIN_PORT: ${FS_PASV_MIN_PORT}
+#      PASV_ADDRESS: ${FS_PASV_ADDRESS}
+#      FTP_PASS: ${FS_FTP_PASS}
+#      FTP_USER: ${FS_FTP_USER}
+#    volumes:
+#      - type: bind
+#        source: ./${FS_BASE_TEMP_DIR}
+#        target: /home/vsftpd/${FS_FTP_USER}
+#      - type: bind
+#        source: ./scripts/${FS_BASE_TEMP_DIR}/vsftpd.conf
+#        target: /home/vsftpd/vsftpd.conf
+#        read_only: true
+#    ports:
+#      - ${FS_PORT_20}:20
+#      - ${FS_PORT_21}:21
+#      - "${FS_PORTS_PASV}:21100-21110"

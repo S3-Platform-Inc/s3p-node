@@ -26,7 +26,7 @@ COPY src ./src
 COPY main.py ./
 COPY scripts ./scripts
 COPY configurations ./configurations
-COPY configurations/envs/.env.node.docker ./.env
+COPY .env.prod ./.env
 
 # запуск узла SPP
 CMD ["poetry", "run", "python", "main.py"]

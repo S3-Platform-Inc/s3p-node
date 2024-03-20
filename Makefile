@@ -16,13 +16,21 @@ ifeq ($(OS), Darwin)
 # .env $(LS_BASE_TEMP_DIR)
 $(LS_BASE_TEMP_DIR):
 	@mkdir $@
-	@mkdir -p "$(LS_BASE_TEMP_DIR)/$(LS_WORK_DIR)"
+	@mkdir -p "$(LS_BASE_TEMP_DIR)/n1/$(LS_WORK_DIR)"
+	@mkdir -p "$(LS_BASE_TEMP_DIR)/n2/$(LS_WORK_DIR)"
+	@mkdir -p "$(LS_BASE_TEMP_DIR)/n3/$(LS_WORK_DIR)"
+	@mkdir -p "$(LS_BASE_TEMP_DIR)/n4/$(LS_WORK_DIR)"
+	@mkdir -p "$(LS_BASE_TEMP_DIR)/n5/$(LS_WORK_DIR)"
 
 # Временный каталог для данных FTP сервера
 # .env $(FS_BASE_TEMP_DIR)
 $(FS_BASE_TEMP_DIR):
 	@mkdir $@
-	@mkdir -p "$(FS_BASE_TEMP_DIR)/$(FS_WORK_DIR)"
+	@mkdir -p "$(FS_BASE_TEMP_DIR)/n1/$(FS_WORK_DIR)"
+	@mkdir -p "$(FS_BASE_TEMP_DIR)/n2/$(FS_WORK_DIR)"
+	@mkdir -p "$(FS_BASE_TEMP_DIR)/n3/$(FS_WORK_DIR)"
+	@mkdir -p "$(FS_BASE_TEMP_DIR)/n4/$(FS_WORK_DIR)"
+	@mkdir -p "$(FS_BASE_TEMP_DIR)/n5/$(FS_WORK_DIR)"
 
 docker: | setup-env-files
 	@sleep 2
@@ -82,7 +90,7 @@ clean: | $(DB_BASE_TEMP_DIR) $(LS_BASE_TEMP_DIR) $(FS_BASE_TEMP_DIR) $(PL_BASE_T
 database-init: docker scripts/db
 #	Переходим в папку для
 #	Прошу прощение за говнокод. Позде придумаю как ожидать необходимое время
-	timeout 20
+	#timeout 20
 	docker-compose -f docker-compose.yml exec $(DB_DOCKER_SERVICE_NAME) psql -U $(DB_USER) -d $(DB_DATABASE) -f $(DB_INIT_FILE)
 	docker-compose -f docker-compose.yml exec $(DB_DOCKER_SERVICE_NAME) psql -U $(DB_USER) -d $(DB_DATABASE) -f $(DB_DATA_FILE)
 
@@ -104,11 +112,21 @@ $(DB_BASE_TEMP_DIR):
 # .env $(PL_BASE_TEMP_DIR)
 $(PL_BASE_TEMP_DIR):
 	@mkdir $@
+	@mkdir -p "$(PL_BASE_TEMP_DIR)/n1"
+	@mkdir -p "$(PL_BASE_TEMP_DIR)/n2"
+	@mkdir -p "$(PL_BASE_TEMP_DIR)/n3"
+	@mkdir -p "$(PL_BASE_TEMP_DIR)/n4"
+	@mkdir -p "$(PL_BASE_TEMP_DIR)/n5"
 
 # Временный каталог для хранения логов
 # .env $(SPP_LOG_TEMP_PATH)
 $(SPP_LOG_TEMP_PATH):
 	@mkdir $@
+	@mkdir -p "$(SPP_LOG_TEMP_PATH)/n1"
+	@mkdir -p "$(SPP_LOG_TEMP_PATH)/n2"
+	@mkdir -p "$(SPP_LOG_TEMP_PATH)/n3"
+	@mkdir -p "$(SPP_LOG_TEMP_PATH)/n4"
+	@mkdir -p "$(SPP_LOG_TEMP_PATH)/n5"
 
 poetry: pyproject.toml poetry.lock
 	poetry --version
