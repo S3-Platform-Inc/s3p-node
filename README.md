@@ -1,9 +1,6 @@
 # NSPK DI Sources Parser Platform
 ![S3P logo](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/11cdcf7e-49b6-4276-acc6-1c863beac414)
 
-
-![2](https://github.com/CuberHuber/NSPK-DI-Sources-Parser-Platform/assets/34835155/e4328b34-67f6-4427-8629-355c72af04e2)
-
 ## Virtual environment setup
 
 Перед началом работы нужно настроить виртуальное пространство. За него отвечает Poetry.
