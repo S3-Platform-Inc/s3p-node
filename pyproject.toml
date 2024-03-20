@@ -1,18 +1,36 @@
 [tool.poetry]
-name = "nspk-di-parser"
-version = "0.1.0"
-description = ""
-authors = ["CuberHuber <romal5754@gmail.com>"]
+name = "Source Parser Platform"
+version = "1.0.0"
+description = "Стабильная версия для запуска с 1 узлом SPP"
+license = "Proprietary"
+authors = ["Roman Lupashko <romal5754@gmail.com>"]
 readme = "README.md"
-packages = [{include = "nspk_di_parser"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-pandas = "^1.5.3"
-selenium = "^4.8.2"
-beautifulsoup4 = "^4.11.2"
+python = "3.11.5"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.16" }
+asyncpg = "0.28.0"
+alembic = "^1.11.1"
+openpyxl = "^3.1.2"
+python-dotenv = "^1.0.0"
+requests = "2.31.0"
+python-magic-bin = { version = "^0.4.14", platform = "Windows_NT"}
+python-docx = "^0.8.11"
+pygithub = "2.2.0"
+pypdf = "^3.16.1"
+python-magic = "^0.4.27"
+beautifulsoup4 = "^4.12.2"
+selenium = "4.15.2"
+pandas = "^2.2.0"
+webdriver-manager = "4.0.1"
+psycopg2-binary = "^2.9.9"
+boto3 = "1.34.49"
+dateparser = "1.2.0"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-mock = "^3.12.0"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "setuptools<=65.5.1"]
 build-backend = "poetry.core.masonry.api"
