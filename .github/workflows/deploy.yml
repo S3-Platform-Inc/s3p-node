@@ -1,10 +1,12 @@
 name: Deploy to VPS
 
 on:
-  push:
-    branches:
-      - main
-      - release/*
+#  push:
+#    branches:
+#      - main
+#      - release/*
+  release:
+    types: [created, published]
 
 
 jobs:
