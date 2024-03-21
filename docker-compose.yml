@@ -102,6 +102,106 @@ services:
       - type: bind # локальное хранилище
         source: ./${LS_BASE_TEMP_DIR}/n5
         target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-6:
+    container_name: ${SPP_CONTAINER_NAME}5
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-5
+      - NODE_IP=-5
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n5
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n5
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n5
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-7:
+    container_name: ${SPP_CONTAINER_NAME}5
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-5
+      - NODE_IP=-5
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n5
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n5
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n5
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-8:
+    container_name: ${SPP_CONTAINER_NAME}5
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-5
+      - NODE_IP=-5
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n5
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n5
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n5
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-9:
+    container_name: ${SPP_CONTAINER_NAME}5
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-5
+      - NODE_IP=-5
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n5
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n5
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n5
+        target: /sppnode/${LS_BASE_TEMP_DIR}
+  spp-node-10:
+    container_name: ${SPP_CONTAINER_NAME}5
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=spp-node-5
+      - NODE_IP=-5
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}/n5
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}/n5
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}/n5
+        target: /sppnode/${LS_BASE_TEMP_DIR}
 #  db-postgres:
 #    container_name: ${DB_CONTAINER_NAME}
 #    platform: linux/amd64
