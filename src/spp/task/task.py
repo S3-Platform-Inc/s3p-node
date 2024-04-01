@@ -25,7 +25,6 @@ class Task(AbcSppTask):
             self._log = logging.getLogger(self.__class__.__name__)
         else:
             self._log = logging.getLogger(classname)
-        self._log.info("Task started")
 
         self._task = task
         self._plugin = plugin
@@ -59,3 +58,17 @@ class Task(AbcSppTask):
         self._status = status
         dbTask.status_update(self._task, status)
         self._log.debug(f'Task {self._plugin.metadata.id} change status to {_statusToName[status]}')
+
+    def logging(self, kind: str):
+        """
+        Единое журналирование
+        :param kind:
+        """
+        if kind == 'start':
+            self._log.info(f"Task ID:{self._task.id} SesID:{self._task.session_id} "
+                           f"for plugin id:{self._task.plugin.id}, "
+                           f"repository:{self._plugin.metadata.repository} is running")
+        elif kind == 'done':
+            self._log.info(f"Task ID:{self._task.id} SesID:{self._task.session_id} "
+                           f"for plugin id:{self._task.plugin.id}, "
+                           f"repository:{self._plugin.metadata.repository} is done")

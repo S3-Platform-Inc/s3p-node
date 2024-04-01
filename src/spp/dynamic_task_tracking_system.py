@@ -44,7 +44,7 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
             try:
                 self._current_task = self._relevant()
             except ValueError as e:
-                self._log.info(e)
+                self._log.debug(e)
                 time.sleep(5)
                 continue
 

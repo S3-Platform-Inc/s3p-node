@@ -21,6 +21,9 @@ class LastDocumentBySrc(BaseModule):
             if self.config.get('dateonly'):
                 self.logger.debug('Document published was replace to data only')
                 doc.pub_date = doc.pub_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+            elif self.config.get('without-tz'):
+                self.logger.debug('Document published was replace time zone to None')
+                doc.pub_date = doc.pub_date.replace(tzinfo=None)
             return doc
         except ValueError:
             # Нет документа

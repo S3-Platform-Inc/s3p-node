@@ -25,8 +25,10 @@ class SppPayloadTask(SppPipelineTask):
         ...
 
     def run(self):
+        self.logging('start')
         self.upload_status(WORKING)
         self._main()
+        self.logging('done')
 
     def _main(self):
         # Запуск нагрузки и ожидаение его работы

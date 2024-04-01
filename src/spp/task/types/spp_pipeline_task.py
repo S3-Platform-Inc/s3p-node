@@ -40,16 +40,16 @@ class SppPipelineTask(Task):
         self._prepare()
 
     def run(self):
-        self._log.debug(f"Task ID:{self._task.id} SesID: {self._task.session_id} "
-                        f"for plugin:{self._plugin.metadata.repository} is running")
+        self.logging('start')
         self.upload_status(WORKING)
         self._cycle()
-        self._log.debug(f"Task ID:{self._task.id} SesID: {self._task.session_id} "
-                        f"for plugin:{self._plugin.metadata.repository} is finished")
+        self.logging('done')
 
-    def pause(self): ...
+    def pause(self):
+        ...
 
-    def stop(self): ...
+    def stop(self):
+        ...
 
     def _cycle(self):
         self._log.debug(f"Main cycle of middleware is running")
@@ -62,9 +62,9 @@ class SppPipelineTask(Task):
 
             # initial and start current module
             try:
-                self._log.debug(f"Module {self._current_module.__name__} start")
+                self._log.info(f"Module {self._current_module.__name__} start")
                 self._current_module(self._bus)
-                self._log.debug(f"Module {self._current_module.__name__} finished")
+                self._log.info(f"Module {self._current_module.__name__} done")
             except Exception as _e:
                 # Ошибка работы модуля. Если модуль является критическим, то вся обработка останавливается.
                 # Иначе продолжается

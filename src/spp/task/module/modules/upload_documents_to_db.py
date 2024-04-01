@@ -19,4 +19,4 @@ class UploadDocumentToDB(BaseModule):
 
     def _upload(self, doc: SPP_document):
         self.bus.database.doc.save(self.bus.source.data, doc)
-        self.logger.debug(f'Upload document title:{doc.title}, pubdate:{doc.pub_date} to database')
+        self.logger.info(f'Upload document title:{doc.title}, pubdate:{doc.pub_date} to database')

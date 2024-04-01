@@ -63,5 +63,5 @@ class FilterOnlyNewDocumentWithDB(BaseModule):
 
         for new_doc in self.bus.documents.data:
             self.bus.database.doc.save(self.bus.source.data, new_doc)
-            self.logger.debug(f'Saved new document {new_doc.title} to database')
+            self.logger.info(f'Saved new document {new_doc.title} to database')
         ...
