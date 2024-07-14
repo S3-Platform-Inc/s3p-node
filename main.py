@@ -14,6 +14,6 @@ load_dotenv('.env')
 config.fileConfig(os.environ.get('SPP_LOG_FILE_PATH'))
 
 if __name__ == "__main__":
-    from src.spp import SPPApp
-    spp = SPPApp()
+    from src.s3p_node import S3PApp
+    spp = S3PApp()
     spp.run()
