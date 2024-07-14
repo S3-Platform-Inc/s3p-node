@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "Source Parser Platform"
-version = "1.0.0"
+name = "S3 Platform Node"
+version = "3.0.0"
 description = "Стабильная версия для запуска с 1 узлом SPP"
 license = "Proprietary"
 authors = ["Roman Lupashko <romal5754@gmail.com>"]

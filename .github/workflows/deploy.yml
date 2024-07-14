@@ -1,13 +1,15 @@
 name: Deploy to VPS
 
 on:
-#  push:
-#    branches:
-#      - main
-#      - release/*
-  release:
-    types: [created, published]
+  pull_request:
+    branches:
+      - "main"
+      - "patch*"
+    types:
+      - closed
 
+env:
+  DOCKER_COMPOSE_FILE: 'docker-compose.yml'
 
 jobs:
   build_and_push:
@@ -23,4 +25,4 @@ jobs:
             cd /home/${{ secrets.VPS_USERNAME }}/NSPK-DI-Sources-Parser-Platform/
             sh init.sh
             git pull
-            docker compose up -d --build
+            docker compose -f ${{ DOCKER_COMPOSE_FILE }} up -d --build

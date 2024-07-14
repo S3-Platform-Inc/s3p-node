@@ -1,0 +1,24 @@
+# Use postgres/example user/password credentials
+version: '3.5'
+
+services:
+  s3-platform-node:
+    container_name: ${SPP_CONTAINER_NAME}
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_NAME=s3p-node
+      - NODE_IP=-1
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: ./${SPP_LOG_TEMP_PATH}
+        target: /sppnode/${SPP_LOG_TEMP_PATH}
+      - type: bind # архив плагинов
+        source: ./${PL_BASE_TEMP_DIR}
+        target: /sppnode/${PL_BASE_TEMP_DIR}
+      - type: bind # локальное хранилище
+        source: ./${LS_BASE_TEMP_DIR}
+        target: /sppnode/${LS_BASE_TEMP_DIR}
