@@ -3,6 +3,7 @@ from __future__ import annotations
 import multiprocessing
 import os
 from typing import Callable, TYPE_CHECKING
+from s3p_sdk.task.status import WORKING, BROKEN
 
 from src.s3p_node.task.bus import Bus
 from src.s3p_node.task.bus.flow.entity import \
@@ -13,7 +14,6 @@ from src.s3p_node.task.bus.flow.entity import \
     SppFeFileserver, \
     SppFeLocalStorage
 from src.s3p_node.task.module import get_module_by_name
-from src.s3p_node.task.status import WORKING, BROKEN
 from src.s3p_node.task.task import Task
 
 if TYPE_CHECKING:

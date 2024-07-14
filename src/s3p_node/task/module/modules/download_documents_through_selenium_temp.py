@@ -27,7 +27,7 @@ class DownloadDocumentsThroughSeleniumTemp(BaseModule):
         ...
 
     def _safe_download(self, doc: S3PDocument):
-        d_filename = self._driver_download(doc.web_link)
+        d_filename = self._driver_download(doc.link)
         self.bus.local_storage.soft_save_current_file(doc, d_filename)
         ...
 

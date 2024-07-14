@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from s3p_sdk.task.status import WORKING
 
 from src.s3p_node.task.module import get_module_by_name
-from src.s3p_node.task.status import WORKING
 from .spp_pipeline_task import SppPipelineTask
 
 if TYPE_CHECKING:

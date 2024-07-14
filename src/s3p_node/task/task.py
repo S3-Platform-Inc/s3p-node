@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
+from s3p_sdk.task.status import PREPARING, status2string
 
 from src.s3p_node.brokers.database import Task as dbTask
-from .status import PREPARING, _statusToName
 from .types.abcspptask import AbcSppTask
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class Task(AbcSppTask):
         """
         self._status = status
         dbTask.status_update(self._task, status)
-        self._log.debug(f'Task {self._plugin.metadata.id} change status to {_statusToName[status]}')
+        self._log.debug(f'Task {self._plugin.metadata.id} change status to {status2string[status]}')
 
     def logging(self, kind: str):
         """
