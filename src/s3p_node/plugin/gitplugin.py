@@ -171,10 +171,10 @@ class GitPlugin(Plugin):
             _release = repository.get_latest_release()
         return _release
 
-    def __eq__(self, other):
-        if isinstance(other, GitPlugin):
-            return self.metadata == other.metadata
-        return False
+    # def __eq__(self, other):
+    #     if isinstance(other, GitPlugin):
+    #         return self.metadata == other.metadata
+    #     return False
 
     def __del__(self):
         # Delete documents

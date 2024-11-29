@@ -27,6 +27,11 @@ class Plugin(AbcPlugin):
         """
         return self._config
 
+    def __eq__(self, other):
+        if isinstance(other, Plugin):
+            return self.metadata == other.metadata
+        return False
+
     def __del__(self):
         pass
 

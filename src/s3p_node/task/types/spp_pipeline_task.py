@@ -15,11 +15,12 @@ from src.s3p_node.task.bus.flow.entity import \
     SppFeLocalStorage
 from src.s3p_node.task.module import get_module_by_name
 from src.s3p_node.task.task import Task
+from src.s3p_node.plugin.config.schemes import Module
+
 
 if TYPE_CHECKING:
     from src.s3p_node.plugin.abc_plugin import AbcPlugin
     from s3p_sdk.types import S3PTask
-    from src.s3p_node.plugin.config.schemes import Module
 
 
 class SppPipelineTask(Task):
@@ -112,8 +113,8 @@ class SppPipelineTask(Task):
         # модули из middleware и entryObject
         entry_modules = []
         for param in self._plugin.config.payload.entry_params:
-            if isinstance((module := param.value), Module) and module.options:
-                entry_modules.append(module)
+            if isinstance(param.value, Module) and param.value.options:
+                entry_modules.append(param.value)
 
         for module in self._plugin.config.middleware.modules:
             if module.options:

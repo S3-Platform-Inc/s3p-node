@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from .plugin.abc_plugin import AbcPlugin
 from .plugin.gitplugin import GitPlugin
 from .brokers.database import Task as dbTask
+from .plugin.s3plugin import S3Plugin
 from .task.types.spp_payload_task import SppPayloadTask
 
 if TYPE_CHECKING:
@@ -77,7 +78,7 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
     @staticmethod
     def _prepared_plugin(task: S3PTask) -> AbcPlugin:
         # Разделен класс на ABCPlugin -> Plugin -> GitPlugin
-        _plugin = GitPlugin(task.plugin)
+        _plugin = S3Plugin(task.plugin)
         return _plugin
 
     def _broke_task(self, error: Exception):

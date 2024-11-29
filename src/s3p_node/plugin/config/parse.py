@@ -30,6 +30,9 @@ class ParseConfig:
         t = self._config.get('task')
         md = self._config.get('middleware')
         p = self._config.get('payload')
+
+        bus_entities = tuple(md.get("bus", {}).get("entities", []))
+
         print(f'plugin ------------------------\n\r'
               f'  |  reference      |   {pl.get("reference")}\n\r'
               f'  |  type           |   {pl.get("type")}\n\r'
@@ -44,7 +47,7 @@ class ParseConfig:
 
         print(f'middleware --------------------\n\r'
               f'  |  modules        |   {tuple(md.get("modules"))}\n\r'
-              f'  |  bus            |   {tuple(md.get("bus").get("entities"))}\n\r'
+              f'  |  bus            |   {bus_entities}\n\r'
               f'-------------------------------')
 
         print(f'payload --------------------\n\r'
@@ -74,7 +77,7 @@ class ParseConfig:
                         options=m.get("params"),
                         is_bus=bool(m.get("bus"))
                     ) for m in md.get("modules")]),
-                bus=tuple(md.get("bus").get("entities"))
+                bus=bus_entities
             ),
             payload=Payload(
                 file=p.get("file"),

@@ -5,11 +5,11 @@ from s3p_sdk.task.status import WORKING
 
 from src.s3p_node.task.module import get_module_by_name
 from .spp_pipeline_task import SppPipelineTask
+from src.s3p_node.plugin.config.schemes import Module, FileObject, ConstantObject
+from src.s3p_node.plugin.s3plugin import S3Plugin
 
 if TYPE_CHECKING:
     from s3p_sdk.types import S3PDocument, S3PTask
-    from src.s3p_node.plugin.gitplugin import GitPlugin
-    from src.s3p_node.plugin.config.schemes import Module, FileObject, ConstantObject
 
 
 class SppPayloadTask(SppPipelineTask):
@@ -17,10 +17,10 @@ class SppPayloadTask(SppPipelineTask):
     Задача (Task) с нагрузкой (Payload). Расширенная версия задачи с постобработкой.
     """
 
-    def __init__(self, task: S3PTask, plugin: GitPlugin):
+    def __init__(self, task: S3PTask, plugin: S3Plugin):
         super().__init__(task, plugin)
 
-        self._plugin: GitPlugin = plugin
+        self._plugin: S3Plugin = plugin
         ...
 
     def run(self):
@@ -40,6 +40,11 @@ class SppPayloadTask(SppPipelineTask):
     def _payload(self) -> list[S3PDocument]:
         init = {}
 
+        # Mandatory params
+        init['refer'] = self._task.refer
+        init['plugin'] = self._task.plugin
+
+        # Optional params
         for entry_obj in self._plugin.config.payload.entry_params:
             if isinstance((module := entry_obj.value), Module):
                 # Загружает класс модуля
