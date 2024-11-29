@@ -96,6 +96,22 @@ class Document:
                 document.id = output[0]
                 return document
 
+    @classmethod
+    def exists(cls, source: S3PRefer, document: S3PDocument) -> bool:
+        """
+        documents.exists(_sourceid integer, _title text, _weblink text, _published timestamp with time zone) returns boolean
+        """
+        with ps_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'{Document.schema}.exists', (
+                    int(source.id),
+                    document.title,
+                    document.link,
+                    document.published,
+                ))
+                output = cursor.fetchone()  # Получим id документа
+                return bool(output[0])
+
 
 if __name__ == "__main__":
     ...
