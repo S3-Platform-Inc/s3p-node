@@ -115,6 +115,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.prod
+.env.dev
 .venv
 env/
 venv/
@@ -156,5 +158,3 @@ cython_debug/
 /db/
 /plugin_archive/
 /logs/
-
-.env.prod
