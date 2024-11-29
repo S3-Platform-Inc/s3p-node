@@ -47,9 +47,10 @@ class Task:
                             loaded=output[5],
                             config=output[6],
                             type=output[7],
-                            version=output[8],
+                            # version=output[8],
+                            version=None,
                         ),
-                        refer=S3PRefer(output[9], output[10], output[7], None)
+                        refer=S3PRefer(output[8], output[9], output[7], None)
                     )
                 raise ValueError('No relevant tasks')
 
