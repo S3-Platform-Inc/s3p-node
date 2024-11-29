@@ -13,31 +13,13 @@ class FilterOnlyNewDocumentWithDB(BaseModule):
     def __init__(self, bus: Bus):
         super().__init__(bus, {'save': False})
 
-        new_doc = self.__filter(self.__previous_documents(), bus.documents.data)
+        new_doc = self.__filter(bus.documents.data)
         self.bus.documents.data = new_doc
         self.logger.info(f"New {len(new_doc)} documents filtered")
-        # Если есть новые документы, то их можно сохранить
-        if self.config.get('save') and len(new_doc) > 0:
-            self.__save_new_docs()
-            self.logger.get(f"Saved {len(new_doc)} documents to DB")
 
-    def __previous_documents(self) -> list[S3PDocument]:
-        """
-        Запрашивает у базы данных все документы по источнику
-        :return:
-        :rtype:
-        """
-        self.logger.info(f"Receive previous documents by source '{self.bus.source.data.name}'")
-        documents: list[S3PDocument] = self.bus.database.doc.littles(self.bus.source.data)
-        self.logger.info(f"Received previous documents - {len(documents)}")
-        return documents
-
-    def __filter(self, _previous_documents: list[S3PDocument], _new_documents: list[S3PDocument]) \
-            -> list[S3PDocument]:
+    def __filter(self, _new_documents: list[S3PDocument]) -> list[S3PDocument]:
         """
         Метод фильтрует документы по их новизне
-        :param _previous_documents: Все документы по источнику
-        :_type _previous_documents:
         :param _new_documents: Документы источника текущей итерации задачи
         :_type _new_documents:
         :return:
@@ -45,23 +27,17 @@ class FilterOnlyNewDocumentWithDB(BaseModule):
         """
         self.logger.debug("filter process start")
         filtered: list[S3PDocument] = []
-        for cd in _new_documents:
-            if self._is_new(cd, _previous_documents):
-                filtered.append(cd)
+        for doc in _new_documents:
+            if self._is_new(doc):
+                filtered.append(doc)
         self.logger.debug("filter process finished")
         return filtered
 
-    def _is_new(self, doc: S3PDocument, _previous_documents: list[S3PDocument]):
-        for pr_d in _previous_documents:
-            if doc.hash == pr_d.hash:
-                self.logger.debug(f"document named '{doc.title}' published '{doc.published}' already processed")
-                return False
-        self.logger.info(f"Found new document named '{doc.title}' published '{doc.published}'")
-        return True
+    def _is_new(self, doc: S3PDocument):
 
-    def __save_new_docs(self):
-
-        for new_doc in self.bus.documents.data:
-            self.bus.database.doc.save(self.bus.source.data, new_doc)
-            self.logger.info(f'Saved new document {new_doc.title} to database')
-        ...
+        is_exist = self.bus.database.doc.exists(self.bus.source.data, doc)
+        if is_exist:
+            self.logger.debug(f"document named '{doc.title}' published '{doc.published}' already processed")
+        else:
+            self.logger.info(f"Found new document named '{doc.title}' published '{doc.published}'")
+        return not is_exist
