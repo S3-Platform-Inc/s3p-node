@@ -10,7 +10,10 @@ services:
       dockerfile: dev.Dockerfile
     networks:
       - s3p-inner-net
+      - s3p-selenium-net
     hostname: s3p-node-main
+#    depends_on:
+#      - chrome-webdriver
     environment:
       - NODE_NAME=s3p-node
       - NODE_IP=-1
@@ -25,7 +28,20 @@ services:
       - type: bind # локальное хранилище
         source: ./${LS_BASE_TEMP_DIR}
         target: /sppnode/${LS_BASE_TEMP_DIR}
+#  chrome-webdriver:
+#    platform: linux/amd64
+#    image: selenium/standalone-chrome:latest
+#    hostname: selenium-remote-webdriver
+#    networks:
+#      - s3p-selenium-net
+#    ports:
+#      - 4444:4444
+#    privileged: true
+#    shm_size: 2g
+
 
 networks:
+  s3p-selenium-net:
+    driver: bridge
   s3p-inner-net:
     external: true
