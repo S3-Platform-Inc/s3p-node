@@ -1,5 +1,8 @@
+import datetime
+
 from . import Config
-from .schemes import Plugin, Task, Middleware, Payload, Module, EntryObject, FileObject, ConstantObject
+from .schemes import Plugin, Task, Middleware, Payload, Module, EntryObject, FileObject, ConstantObject, \
+    RestrictionsObject
 
 
 class ParseConfig:
@@ -32,12 +35,27 @@ class ParseConfig:
         p = self._config.get('payload')
 
         bus_entities = tuple(md.get("bus", {}).get("entities", []))
+        _restrictions = pl.get('restrictions', {})
+
+        def restrictions() -> RestrictionsObject:
+            out = RestrictionsObject(
+                maximum_materials=_restrictions.get("max_materials", None),
+                to_last_material=_restrictions.get("last_material", None),
+                from_date=None,
+                to_date=None,
+            )
+            if _restrictions.get("from_date"):
+                out.from_date = datetime.datetime.fromisoformat(_restrictions.get("from_date"))
+            if _restrictions.get("to_date"):
+                out.to_date = datetime.datetime.fromisoformat(_restrictions.get("to_date"))
+            return out
 
         print(f'plugin ------------------------\n\r'
               f'  |  reference      |   {pl.get("reference")}\n\r'
               f'  |  type           |   {pl.get("type")}\n\r'
               f'  |  filenames      |   {tuple(pl.get("filenames"))}\n\r'
               f'  |  localstorage   |   {pl.get("localstorage")}\n\r'
+              f'  |  restrictions   |   {_restrictions}\n\r'
               f'-------------------------------')
 
         print(f'task --------------------------\n\r'
@@ -62,7 +80,8 @@ class ParseConfig:
                 reference=pl.get("reference"),
                 type=pl.get("type"),
                 filenames=tuple(pl.get("filenames")),
-                localstorage=pl.get("localstorage")
+                localstorage=pl.get("localstorage"),
+                restrictions=restrictions(),
             ),
             task=Task(
                 log=t.get("log"),

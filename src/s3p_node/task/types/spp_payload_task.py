@@ -7,6 +7,7 @@ from src.s3p_node.task.module import get_module_by_name
 from .spp_pipeline_task import SppPipelineTask
 from src.s3p_node.plugin.config.schemes import Module, FileObject, ConstantObject
 from src.s3p_node.plugin.s3plugin import S3Plugin
+from s3p_sdk.types import S3PPluginRestrictions
 
 if TYPE_CHECKING:
     from s3p_sdk.types import S3PDocument, S3PTask
@@ -43,6 +44,13 @@ class SppPayloadTask(SppPipelineTask):
         # Mandatory params
         init['refer'] = self._task.refer
         init['plugin'] = self._task.plugin
+        init['restrictions'] = S3PPluginRestrictions(
+            maximum_materials=self._plugin.config.plugin.restrictions.maximum_materials,
+            # TODO: Функционал последнего материала не работает
+            to_last_material=None,
+            from_date=self._plugin.config.plugin.restrictions.from_date,
+            to_date=self._plugin.config.plugin.restrictions.to_date,
+        )
 
         # Optional params
         for entry_obj in self._plugin.config.payload.entry_params:

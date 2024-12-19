@@ -14,7 +14,8 @@ from .modules import \
     TimezoneSafeControl, \
     CutJunkCharactersFromDocumentText, \
     SaveDocumentToDB, \
-    LastDocumentBySrc
+    LastDocumentBySrc, \
+    SaveOnlyNewDocuments
 
 __all__ = [
     "BaseModule",
@@ -31,6 +32,7 @@ __all__ = [
     "CutJunkCharactersFromDocumentText",
     "SaveDocumentToDB",
     "LastDocumentBySrc",
+    "SaveOnlyNewDocuments",
 ]
 
 
