@@ -10,6 +10,7 @@ from .timezone_safe_control import TimezoneSafeControl
 from .cut_junk_characters_from_document_text import CutJunkCharactersFromDocumentText
 from .save_documents import SaveDocumentToDB
 from .last_document_by_src import LastDocumentBySrc
+from .save_only_new_documents import SaveOnlyNewDocument
 
 __all__ = [
     "FilterOnlyNewDocumentWithDB",
@@ -24,4 +25,5 @@ __all__ = [
     "CutJunkCharactersFromDocumentText",
     "SaveDocumentToDB",
     "LastDocumentBySrc",
+    "SaveOnlyNewDocument"
 ]

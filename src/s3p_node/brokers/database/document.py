@@ -51,17 +51,16 @@ class Document:
                     raise ValueError(f'No document found for {source.id}')
 
                 return S3PDocument(
-                        id=output[0],
-                        title=output[2],
-                        abstract=None,
-                        text=None,
-                        link=output[3],
-                        storage=None,
-                        other=None,
-                        published=output[4],
-                        loaded=None,
-                    )
-
+                    id=output[0],
+                    title=output[2],
+                    abstract=None,
+                    text=None,
+                    link=output[3],
+                    storage=None,
+                    other=None,
+                    published=output[4],
+                    loaded=None,
+                )
 
     @classmethod
     def save(cls, source: S3PRefer, document: S3PDocument) -> S3PDocument:
@@ -111,6 +110,32 @@ class Document:
                 ))
                 output = cursor.fetchone()  # Получим id документа
                 return bool(output[0])
+
+    @classmethod
+    def save_only_new(cls, source: S3PRefer, document: S3PDocument) -> S3PDocument:
+        """
+        function save_if_exist(_sourceid integer, newtitle text, newabstract text, newtext text, newweblink text, newlocallink text, newotherdata json, newpubdate timestamp with time zone, newloaddate timestamp with time zone) returns integer
+        """
+        with ps_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.callproc(f'{Document.schema}.save_if_exist', (
+                    int(source.id),
+                    document.title,
+                    document.abstract,
+                    document.text,
+                    document.link,
+                    document.storage,
+                    json.dumps(document.other) if document.other else None,
+                    document.published,
+                    document.loaded
+                ))
+                output = cursor.fetchone()  # Получим id документа
+                _id = output[0]
+                if _id == -1:
+                    # documents didn't exist
+                    raise ValueError(f'document already exists')
+                document.id = _id
+                return document
 
 
 if __name__ == "__main__":
