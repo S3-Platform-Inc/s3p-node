@@ -6,6 +6,7 @@ from .task import Task
 from .middleware import Middleware
 from .plugin import Plugin
 from .entry_object import EntryObject
+from .restrictionsobject import RestrictionsObject
 
 __all__ = [
     "Payload",
@@ -16,4 +17,5 @@ __all__ = [
     "EntryObject",
     "FileObject",
     "ConstantObject",
+    "RestrictionsObject"
 ]

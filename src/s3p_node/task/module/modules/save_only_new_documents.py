@@ -3,7 +3,7 @@ from src.s3p_node.task.module.base_module import BaseModule
 from s3p_sdk.types import S3PDocument
 
 
-class SaveOnlyNewDocument(BaseModule):
+class SaveOnlyNewDocuments(BaseModule):
     """
     Модуль для сохранения документов в базе данных.
 
