@@ -1,12 +1,12 @@
 name: Deploy to VPS
 
 on:
-  pull_request:
-    branches:
-      - "main"
-      - "patch*"
-    types:
-      - closed
+  # pull_request:
+  #   branches:
+  #     - "main"
+  #     - "patch*"
+  #   types:
+  #     - closed
 
 env:
   DOCKER_COMPOSE_FILE: 'docker-compose.yml'
