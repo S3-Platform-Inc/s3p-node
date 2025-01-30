@@ -27,7 +27,7 @@ psycopg2-binary = "^2.9.9"
 boto3 = "1.34.49"
 dateparser = "1.2.0"
 pdfminer = "^20191125"
-s3p-sdk = "0.2.10"
+s3p-sdk = "0.2.11"
 feedparser = "6.0.11"
 
 [tool.poetry.group.dev.dependencies]

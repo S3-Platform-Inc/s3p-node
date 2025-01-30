@@ -1569,13 +1569,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "s3p-sdk"
-version = "0.2.10"
+version = "0.2.11"
 description = "A small SDK for simple creating microservises or plugins for the S3 Platform"
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "s3p_sdk-0.2.10-py3-none-any.whl", hash = "sha256:b2018ad6e77c492c2f87fff27b6f9280c8d660875340af201d5115225aae98f8"},
-    {file = "s3p_sdk-0.2.10.tar.gz", hash = "sha256:ed4643667416d7bc34b7af55e94822520f63b624a4039778c95cda700cf25c96"},
+    {file = "s3p_sdk-0.2.11-py3-none-any.whl", hash = "sha256:c2ad03d1ae57f26d6bee42862ce695c266d0d2f12b7b37742b8e88e6153deb96"},
+    {file = "s3p_sdk-0.2.11.tar.gz", hash = "sha256:2b0828124ac79acc85bb2222b697e25759fb5598d516c52c9bde87f8f85ce8a2"},
 ]
 
 [package.dependencies]
@@ -2031,4 +2031,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.5"
-content-hash = "eab99716a999627d02fdfdd5d0f4ab9c4d88d416ea9f464a7f02ebbafb1dedfc"
+content-hash = "0aab2d1acd6265e2e84092f5133ea940e9f96066ab00d0c2c1ecde0ab42ec344"
