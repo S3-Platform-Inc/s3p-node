@@ -4,7 +4,11 @@ The Main Bus of S3P Node
 from __future__ import annotations
 
 import logging
+import pathlib
+import tempfile
 from typing import TYPE_CHECKING
+
+from s3p_sdk.abstracts.abstract_repository import AbstaractRepository
 
 from ..exceptions.bus.bus_entity_not_found_error import BusEntityNotFoundError
 
@@ -41,6 +45,8 @@ class Bus:
     _database: SppFeDatabase
     _fileserver: SppFeFileserver
     _local_storage: SppFeLocalStorage
+    _temp_directory: tempfile.TemporaryDirectory
+    _s3_repository: AbstaractRepository
     _other: dict
 
     def __init__(
@@ -51,6 +57,7 @@ class Bus:
             database: SppFeDatabase,
             fileserver: SppFeFileserver,
             local_storage: SppFeLocalStorage,
+            s3_repository: AbstaractRepository,
             **kwargs
     ):
         self._options = option
@@ -59,10 +66,14 @@ class Bus:
         self._database = database
         self._fileserver = fileserver
         self._local_storage = local_storage
+        self._s3_repository = s3_repository
         self._other = {}
 
         for key in kwargs:
             self._other[key] = kwargs.get(key)
+
+        # Temporary directory
+        self._temp_directory = tempfile.TemporaryDirectory()
 
         self.log = logging.getLogger(self.__class__.__name__)
 
@@ -124,6 +135,16 @@ class Bus:
         """
         return self._local_storage
 
+    @property
+    def s3(self) -> AbstaractRepository:
+        return self._s3_repository
+
+    @property
+    def temporary_directory(self) -> pathlib.Path:
+        return pathlib.Path(self._temp_directory.name)
+
+    @property
+
     def entity(self, key: str):
         """
         Метод возвращает дополнительную сущность по ключу
@@ -137,3 +158,9 @@ class Bus:
         else:
             # Искомого модуля нет
             raise BusEntityNotFoundError(key, self.log)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()
+
+    def cleanup(self):
+        self._temp_directory.cleanup()

@@ -1,6 +1,6 @@
 from .download_documents import DownloadDocumentsWithDB
 from .download_documents_with_parser_methods import DownloadDocumentsWithParserMethods
-from .download_documents_through_selenium_temp import DownloadDocumentsThroughSeleniumTemp
+from .download_documents_asset_with_selenium import DownloadDocumentsAssetWithSelenium
 from .filter_only_new_with_db import FilterOnlyNewDocumentWithDB
 from .web_driver import WebDriver
 from .web_install_driver import WebInstallerDriver
@@ -11,13 +11,14 @@ from .cut_junk_characters_from_document_text import CutJunkCharactersFromDocumen
 from .save_documents import SaveDocumentToDB
 from .last_document_by_src import LastDocumentBySrc
 from .save_only_new_documents import SaveOnlyNewDocuments
+from .upload_to_s3 import UploadToS3
 
 __all__ = [
     "FilterOnlyNewDocumentWithDB",
     "WebDriver",
     "DownloadDocumentsWithDB",
     "DownloadDocumentsWithParserMethods",
-    "DownloadDocumentsThroughSeleniumTemp",
+    "DownloadDocumentsAssetWithSelenium",
     "WebInstallerDriver",
     "ExtractTextFromFile",
     "UploadDocumentToDB",
@@ -25,5 +26,6 @@ __all__ = [
     "CutJunkCharactersFromDocumentText",
     "SaveDocumentToDB",
     "LastDocumentBySrc",
-    "SaveOnlyNewDocuments"
+    "SaveOnlyNewDocuments",
+    "UploadToS3",
 ]
