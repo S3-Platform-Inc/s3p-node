@@ -144,7 +144,6 @@ class Bus:
         return pathlib.Path(self._temp_directory.name)
 
     @property
-
     def entity(self, key: str):
         """
         Метод возвращает дополнительную сущность по ключу
@@ -158,6 +157,9 @@ class Bus:
         else:
             # Искомого модуля нет
             raise BusEntityNotFoundError(key, self.log)
+
+    def __del__(self):
+        self.cleanup()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.cleanup()

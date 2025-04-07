@@ -171,15 +171,15 @@ class S3Plugin(Plugin):
 
     def _session(self) -> boto3.Session:
         return boto3.Session(
-            aws_access_key_id=os.environ.get('S3_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.environ.get('S3_SECRET_ACCESS_KEY'),
+            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
         )
 
     def _client(self, session: boto3.Session):
         return session.client(
             service_name='s3',
-            region_name=os.environ.get('S3_REGION_NAME'),
-            endpoint_url=os.environ.get('S3_ENDPOINT_URL')
+            region_name=os.environ.get('AWS_REGION_NAME'),
+            endpoint_url=os.environ.get('AWS_ENDPOINT')
         )
 
     def must_load_files(self):
@@ -229,7 +229,7 @@ class S3Plugin(Plugin):
         _obj = self._client(
             self._session()
         ).get_object(
-            Bucket=os.environ.get('S3_BUCKET_NAME'),
+            Bucket=os.environ.get('AWS_BUCKET_NAME'),
             Key=path
         )
         assert _obj

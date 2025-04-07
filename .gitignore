@@ -117,6 +117,7 @@ celerybeat.pid
 .env.roma
 .env.prod
 .env.dev
+.env.test
 .venv
 .env/
 venv/

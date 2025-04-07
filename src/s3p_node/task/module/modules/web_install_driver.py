@@ -2,8 +2,6 @@ import logging
 import os
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.remote_connection import LOGGER
 
 LOGGER.setLevel(logging.WARNING)
@@ -22,12 +20,18 @@ class WebInstallerDriver:
 
     def __new__(cls, dir_path: str, *args, **kwargs) -> webdriver.Chrome:
         options = webdriver.ChromeOptions()
-        options.add_argument('window-size=1920x1080')
 
-        options.add_argument('--no-sandbox')
-        options.add_argument("--disable-gpu")
-        options.add_argument("--start-maximized")  # open Browser in maximized mode
         options.add_argument('--disable-dev-shm-usage')
+        # options.add_argument('--no-sandbox')  # Disable sandboxing, which is not suitable for Docker
+        options.add_argument('--headless')  # Run in headless mode
+        options.add_argument('--disable-dev-shm-usage')  # Disable shared memory usage, which can cause issues in Docker
+        options.add_argument('--disable-gpu')  # Disable GPU acceleration, which is not necessary in a Docker container
+        options.add_argument('--window-size=1920,1080')  # Set a default window size
+        # options.add_argument('--remote-debugging-port=9222')  # Allow remote debugging
+        options.add_argument('--disable-extensions')  # Disable extensions, which can cause issues
+        options.add_argument('--disable-default-apps')  # Disable default apps, which can cause issues
+        # options.add_argument('--proxy-server="direct://"')  # Disable proxy server
+        # options.add_argument('--proxy-bypass-list=*')  # Bypass proxy for all destinations
 
         os.environ['WDM_LOG'] = str(logging.NOTSET)
 
@@ -39,10 +43,6 @@ class WebInstallerDriver:
             "download.default_directory": dir_path,
         }
         options.add_experimental_option("prefs", chrome_prefs)
-        driver = webdriver.Chrome(
-            service=Service(
-                ChromeDriverManager().install(),
-            ),
-            options=options,
-        )
+
+        driver = webdriver.Chrome(options=options)
         return driver
