@@ -1,6 +1,8 @@
 import datetime
 
 from s3p_sdk.types import S3PPlugin, S3PNode, S3PTask, S3PRefer
+
+from src.s3p_node.exceptions.triggers.no_relevant_tasks import NoRelevantTasks
 from .main import ps_connection
 
 
@@ -52,7 +54,7 @@ class Task:
                         ),
                         refer=S3PRefer(output[8], output[9], output[7], None)
                     )
-                raise ValueError('No relevant tasks')
+                raise NoRelevantTasks(node)
 
     @staticmethod
     def status_update(task: S3PTask, status: int):

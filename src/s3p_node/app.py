@@ -2,54 +2,46 @@ from __future__ import annotations
 
 import logging
 import os
-from time import sleep
-from threading import Thread
-from s3p_sdk.types import S3PNode
+from pathlib import Path
 
-from .brokers.database import Node
+from .config.node import NodeConfig
 from .dynamic_task_tracking_system import DynamicTaskTrackingSystem
+from .dbheartbeat import DBHeartbeat
+from .triggers.push_trigger import PushTrigger
 
 
-class S3PApp:
+class App:
     """
-    SPPApp (Source Parser Platform)
+    S3P App (Source Parser Platform)
     """
 
-    _DTT_subsystem: DynamicTaskTrackingSystem
+    _subsystem: DynamicTaskTrackingSystem
 
     def __init__(self):
         # !!!WARNING Должна быть проверка платформы и всех внешних подключений.
 
         # Подготовка задач
         self._log = logging.getLogger()
-        self._node = S3PNode(None, str(os.getenv('NODE_NAME')), str(os.getenv('NODE_IP')), {
-            'plugins': {
-                'types': str(os.getenv('NODE_TYPES')).split(', ')
-            }
-        }, None)
+        self._node = NodeConfig(Path(__file__).parent.parent.parent / 'node.yaml')
 
-        self._connect()
-        self._DTT_subsystem = DynamicTaskTrackingSystem(self._node)
+        self._subsystem = DynamicTaskTrackingSystem(
+            self._node.content(),
+            PushTrigger(self._node.content(), 5),
+        )
+        self._heartbeat = DBHeartbeat(self._node.content(), int(os.getenv('ALIVE_INTERVAL')))
+
+    def run(self) -> None:
+        """
+        Запуск узла S3P
+        """
+        self._log.info('S3P start')
+        self._heartbeat.run()
+        self._subsystem.start()
+        self._subsystem.join()
+        self._log.info('S3P done')
+
+    def health(self) -> bool:
+        """
+        Node health checking
+        """
         ...
-
-    def run(self):
-        """
-        Запуск узла SPP
-        :return:
-        """
-        self._log.info('SPP start')
-        self._DTT_subsystem.start()
-        self._DTT_subsystem.join()
-        self._log.info('SPP done')
-
-    def _alive(self):
-        interval = int(os.getenv('ALIVE_INTERVAL'))
-        while True:
-            self._log.debug(f'Monitor: spp-node named: {self._node.name} is alive. session: {self._node.session}')
-            Node.alive(self._node)
-            sleep(interval)
-
-    def _connect(self):
-        Node.init(self._node)
-        daemon = Thread(target=self._alive, daemon=True, name='Monitor')
-        daemon.start()

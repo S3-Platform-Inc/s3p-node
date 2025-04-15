@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import multiprocessing
-import time
 from logging import getLogger
 from typing import TYPE_CHECKING
 
@@ -10,6 +9,7 @@ from .plugin.gitplugin import GitPlugin
 from .brokers.database import Task as dbTask
 from .plugin.s3plugin import S3Plugin
 from .task.types.spp_payload_task import SppPayloadTask
+from .triggers.abc_trigger import AbstractTrigger
 
 if TYPE_CHECKING:
     from s3p_sdk.types import S3PNode, S3PTask
@@ -21,12 +21,14 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
     """
 
     _current_task: S3PTask | None
+    _trigger: AbstractTrigger
 
-    def __init__(self, node: S3PNode):
+    def __init__(self, node: S3PNode, trigger: AbstractTrigger):
         super().__init__()
         self._log = getLogger()
         self._node = node
         self._current_task = None
+        self._trigger = trigger
 
     def run(self):
         self._log.debug("Main tracking system is start")
@@ -40,44 +42,19 @@ class DynamicTaskTrackingSystem(multiprocessing.Process):
         self._log.debug("Main tracking system is done")
 
     def _main_tracking_loop(self):
-        while True:
-            # Релевантные плагины, это те, которые должны быть запущены сейчас
+        for task in self._trigger:
+            self._current_task = task
             try:
-                self._current_task = self._relevant()
-            except ValueError as e:
-                self._log.debug(e)
-                time.sleep(5)
-                continue
-
-            self._log.info(f'Received new plugin for Processing. name: {self._current_task.plugin.repository}')
-
-            try:
-                # Теперь SppTask получен. Нужно придумать способ подготовки задачи для запуска.
-                # Можно сделать передачу SppTask в Task при инициализации. Или подготовить плагин и положить ее в
-                self._start_task(self._prepared_plugin(self._current_task))
-            # except UnknownObjectException | RateLimitExceededException as e:
-            #     # Ошибка возникающая при ошибке загрузке плагина
-            #     self._broke_current_task(e)
-            #     self._log.error(e)
-            #     print(e)
+                self._start_task(self._prepared_plugin(task))
             except Exception as e:
-                # Иная ошибка задачи
                 self._broke_task(e)
                 self._log.error(e)
                 print(e)
             else:
                 self._finish_task()
-            finally:
-                # Пауза перед следующей итерацией
-                time.sleep(1)
-                continue
-
-    def _relevant(self) -> S3PTask | Exception:
-        return dbTask.relevant(self._node)
 
     @staticmethod
     def _prepared_plugin(task: S3PTask) -> AbcPlugin:
-        # Разделен класс на ABCPlugin -> Plugin -> GitPlugin
         _plugin = S3Plugin(task.plugin)
         return _plugin
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "S3 Platform Node"
-version = "3.0.2-alpha"
+version = "3.0.4dev1"
 description = "S3 plutform worker node 3rd version"
 license = "Proprietary"
 authors = ["Roman Lupashko <romal5754@gmail.com>"]

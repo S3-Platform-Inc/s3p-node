@@ -1,0 +1,8 @@
+id: null
+name: test-s3p-node
+ip: localhost
+config:
+  plugins:
+    types:
+      - SOURCE
+session: null
