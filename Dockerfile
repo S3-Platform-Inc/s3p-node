@@ -26,7 +26,6 @@ COPY src ./src
 COPY main.py ./
 COPY scripts ./scripts
 COPY configurations ./configurations
-COPY .env.prod ./.env
 
 # запуск узла SPP
 CMD ["poetry", "run", "python", "main.py"]
