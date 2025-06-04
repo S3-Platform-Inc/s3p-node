@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 
+from multipledispatch import dispatch
+from s3p_sdk.types import S3PNode
+
 from .config.node import NodeConfig
-from .dynamic_task_tracking_system import DynamicTaskTrackingSystem
 from .dbheartbeat import DBHeartbeat
+from .systems.dynamic_task_tracking_system import DynamicTaskTrackingSystem
+from .systems.simple_task_system import SimpleTaskSystem
 from .triggers.push_trigger import PushTrigger
 
 
@@ -15,20 +20,37 @@ class App:
     S3P App (Source Parser Platform)
     """
 
-    _subsystem: DynamicTaskTrackingSystem
+    _subsystem: multiprocessing.Process
 
-    def __init__(self):
-        # !!!WARNING Должна быть проверка платформы и всех внешних подключений.
-
-        # Подготовка задач
+    @dispatch(S3PNode, multiprocessing.Process)
+    def __init__(self, node: S3PNode, system: multiprocessing.Process):
         self._log = logging.getLogger()
-        self._node = NodeConfig(Path(__file__).parent.parent.parent / 'node.yaml')
+        self._node = node
+        self._subsystem = system
 
-        self._subsystem = DynamicTaskTrackingSystem(
-            self._node.content(),
-            PushTrigger(self._node.content(), 5),
+        self._heartbeat = DBHeartbeat(self._node, int(os.getenv('ALIVE_INTERVAL')))
+
+    @dispatch()
+    def __init__(self):
+        node = NodeConfig(Path(__file__).parent.parent.parent / 'node.yaml').content()
+        self.__init__(
+            node,
+            DynamicTaskTrackingSystem(
+                node,
+                PushTrigger(node, 5),
+            )
         )
-        self._heartbeat = DBHeartbeat(self._node.content(), int(os.getenv('ALIVE_INTERVAL')))
+
+    @dispatch(int)
+    def __init__(self, plugin_id: int):
+        node = NodeConfig(Path(__file__).parent.parent.parent / 'node.yaml').content()
+        self.__init__(
+            node,
+            SimpleTaskSystem(
+                node,
+                plugin_id
+            )
+        )
 
     def run(self) -> None:
         """
@@ -42,6 +64,6 @@ class App:
 
     def health(self) -> bool:
         """
-        Node health checking
+        S3 Platform health checking
         """
         ...

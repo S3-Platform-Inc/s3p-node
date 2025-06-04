@@ -25,10 +25,13 @@ class ExtractTextFromFile(BaseModule):
     }
 
     # STORAGE = 'fileserver'
-    STORAGE = 'localstorage'
+    # STORAGE = 'localstorage'
+    STORAGE = 'temporary'
 
     def __init__(self, bus: Bus):
-        super().__init__(bus)
+        super().__init__(bus, {
+            'storage': 'temporary',
+        })
 
         self._MIMETYPES_methods: dict[str, Callable] = {
             '.pdf': self._extract_pdf,
@@ -55,20 +58,18 @@ class ExtractTextFromFile(BaseModule):
                         print(e)
                     ...
                 else:
-
-                    # Тоже ошибка. Файл не поддерживается. Нужно продолжить обработку, но запомнить это.
-                    print(f'[ExtractTextFromFile] | ERROR: MIMETYPES не поддерживается | [{doc.id}, {doc.title}]')
+                    self.logger.warning(f'MIMETYPES {_mimetype} не поддерживается. Document: {doc}')
         except Exception as e:
-            # В случае, если документ невозможно прочитать, просто продолжаем.
-            self.logger.warning(f'[ExtractTextFromFile] | ERROR: File not exist with e: {e} | [{doc.id}, {doc.title}]')
-            ...
-        ...
+            self.logger.warning(f'File not exist. Error: {e}. Document: {doc}')
 
     def _file(self, doc: S3PDocument) -> BinaryIO | BytesIO:
         if self.STORAGE == "fileserver":
             return self.bus.fileserver.file(doc)
         elif self.STORAGE == 'localstorage':
             return self.bus.local_storage.file(doc)
+        elif self.STORAGE == 'temporary':
+            with open(str(self.bus.temporary_directory / doc.hash.hex()), mode='rb') as file:
+                return file
         # Нет способа получить файл
         raise NotImplemented
 
