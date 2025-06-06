@@ -23,9 +23,10 @@ RUN mkdir -p ./logs && mkdir -p ./plugin_archive && mkdir -p ./localstorage
 
 # копирование исходного кода, main файла, скриптов, конфигураций, .env файл
 COPY src ./src
-COPY main.py ./
+COPY main.py ./main.py
 COPY scripts ./scripts
 COPY configurations ./configurations
+COPY node.yaml ./node.yaml
 
 # запуск узла SPP
 CMD ["poetry", "run", "python", "main.py"]
