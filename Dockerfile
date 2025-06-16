@@ -19,7 +19,7 @@ RUN poetry install --no-directory --no-root --no-interaction
 #   [] /logs - для хранения логов
 #   [] /plugin_archive - для хранения загруженных плагинов
 #   [] /localstorage - для файлов локального хранилища
-RUN mkdir -p ./logs && mkdir -p ./plugin_archive && mkdir -p ./localstorage
+RUN mkdir -p ./logs && mkdir -p ./plugin_archive && mkdir -p ./localstorage/s3p/sources
 
 # копирование исходного кода, main файла, скриптов, конфигураций, .env файл
 COPY src ./src
@@ -29,5 +29,5 @@ COPY configurations ./configurations
 COPY node.yaml ./node.yaml
 
 # запуск узла SPP
-CMD ["poetry", "run", "python", "main.py"]
+CMD ["poetry", "run", "python3", "main.py"]
 
