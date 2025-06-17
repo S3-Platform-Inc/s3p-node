@@ -3,14 +3,15 @@ version: '3.5'
 
 services:
   s3-platform-node:
-    container_name: ${SPP_CONTAINER_NAME}
     platform: linux/amd64
     build:
       context: .
       dockerfile: dev.Dockerfile
-    networks:
-      - s3p-inner-net
-      - s3p-selenium-net
+    env_file:
+      - .env
+#    networks:
+#      - s3p-inner-net
+#      - s3p-selenium-net
     hostname: s3p-node-main
 #    depends_on:
 #      - chrome-webdriver
