@@ -1,5 +1,5 @@
-from .app import S3PApp
+from .app import App
 
 __all__ = [
-    "S3PApp"
+    "App"
 ]

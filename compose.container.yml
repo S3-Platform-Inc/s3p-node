@@ -3,11 +3,11 @@ version: '3.5'
 
 services:
   spp-node-1:
+    image: ghcr.io/s3-platform-inc/s3p-node:3.0.1-beta
     container_name: ${SPP_CONTAINER_NAME}1
+    env_file:
+      - .env.dev
     platform: linux/amd64
-    build:
-      context: .
-      dockerfile: Dockerfile
     environment:
       - NODE_NAME=spp-node-1
       - NODE_IP=-1

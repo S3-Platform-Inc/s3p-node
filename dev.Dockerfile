@@ -34,6 +34,7 @@ COPY main.py ./
 COPY scripts ./scripts
 COPY configurations ./configurations
 COPY .env ./.env
+COPY ./node.yaml ./node.yaml
 
 # запуск узла SPP
 CMD ["poetry", "run", "python", "main.py"]

@@ -7,7 +7,7 @@ from .modules import \
     FilterOnlyNewDocumentWithDB, \
     WebDriver, \
     DownloadDocumentsWithParserMethods, \
-    DownloadDocumentsThroughSeleniumTemp, \
+    DownloadDocumentsAssetWithSelenium, \
     WebInstallerDriver, \
     ExtractTextFromFile, \
     UploadDocumentToDB, \
@@ -15,7 +15,8 @@ from .modules import \
     CutJunkCharactersFromDocumentText, \
     SaveDocumentToDB, \
     LastDocumentBySrc, \
-    SaveOnlyNewDocuments
+    SaveOnlyNewDocuments, \
+    UploadToS3
 
 __all__ = [
     "BaseModule",
@@ -24,7 +25,7 @@ __all__ = [
     "FilterOnlyNewDocumentWithDB",
     "WebDriver",
     "DownloadDocumentsWithParserMethods",
-    "DownloadDocumentsThroughSeleniumTemp",
+    "DownloadDocumentsAssetWithSelenium",
     "WebInstallerDriver",
     "ExtractTextFromFile",
     "UploadDocumentToDB",
@@ -33,6 +34,7 @@ __all__ = [
     "SaveDocumentToDB",
     "LastDocumentBySrc",
     "SaveOnlyNewDocuments",
+    "UploadToS3",
 ]
 
 

@@ -3,8 +3,12 @@ from __future__ import annotations
 import multiprocessing
 import os
 from typing import Callable, TYPE_CHECKING
-from s3p_sdk.task.status import WORKING, BROKEN
 
+import s3fs
+from s3p_sdk.task.status import WORKING, BROKEN
+from s3p_sdk.abstracts.abstract_repository import AbstaractRepository
+
+from src.s3p_node.brokers.repository.s3_repository import S3DocumentAssetStorage
 from src.s3p_node.task.bus import Bus
 from src.s3p_node.task.bus.flow.entity import \
     SppFeSource, \
@@ -102,7 +106,8 @@ class SppPipelineTask(Task):
             self.__prepare_fe_source(),
             self.__prepare_fe_database(),
             self.__prepare_fe_fileserver(),
-            self.__prepare_fe_local_storage()
+            self.__prepare_fe_local_storage(),
+            self.__prepare_fe_s3_repository(),
         )
         self._log.debug("Bus initialize completed")
 
@@ -154,3 +159,24 @@ class SppPipelineTask(Task):
         localstorage = SppFeLocalStorage(self._task.refer, os.environ.get('SPP_ABSOLUTE_PATH_TO_LOCAL_STORAGE'))
         self._log.debug("Bus flow 'local storage' initialized")
         return localstorage
+
+    def __prepare_fe_s3_repository(self) -> AbstaractRepository:
+        self._log.debug("Bus flow 's3 repository' initializing")
+        fs = s3fs.S3FileSystem(
+            anon=False,
+            endpoint_url=os.environ.get('AWS_ENDPOINT'),
+            key=os.environ.get('AWS_ACCESS_KEY_ID'),
+            secret=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+            client_kwargs={
+                'region_name': os.environ.get('AWS_REGION_NAME'),
+            },
+        )
+
+        tstore = S3DocumentAssetStorage(
+            self._task.refer,
+            fs,
+            os.environ.get('AWS_BUCKET_NAME'),
+            os.environ.get('AWS_ASSET_BASE_DIR')
+        )
+        self._log.debug("Bus flow 's3 repository' initialized")
+        return tstore
