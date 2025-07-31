@@ -10,7 +10,11 @@ from logging import config
 
 from dotenv import load_dotenv
 
-load_dotenv('.env')
+from src.s3p_node.utils.env_checker import EnvironmentChecker
+
+load_dotenv('.env.dev')
+EnvironmentChecker(make=False).ensure()
+
 config.fileConfig(os.environ.get('SPP_LOG_FILE_PATH'))
 
 if __name__ == "__main__":
